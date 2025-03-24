@@ -1671,3 +1671,28 @@ func (a *AppService) SetGit(ctx context.Context, req *pb.SetGitRequest) (*pb.Set
 func (a *AppService) SetLand(ctx context.Context, req *pb.SetLandRequest) (*pb.SetLandReply, error) {
 	return a.ac.SetLand(ctx, req)
 }
+
+func (a *AppService) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest) (*pb.AdminLoginReply, error) {
+	claims := auth.CustomClaims{
+		Address: "admin",
+		RegisteredClaims: jwt2.RegisteredClaims{
+			NotBefore: jwt2.NewNumericDate(time.Now()),                     // 签名的生效时间
+			ExpiresAt: jwt2.NewNumericDate(time.Now().Add(48 * time.Hour)), // 2天过期
+			Issuer:    "game",
+		},
+	}
+
+	var (
+		err   error
+		token string
+	)
+	token, err = auth.CreateToken(claims, a.ca.JwtKey)
+	if err != nil {
+		return &pb.AdminLoginReply{
+			Token:  "",
+			Status: "生成token失败",
+		}, nil
+	}
+
+	return a.ac.AdminLogin(ctx, req, token)
+}

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"crypto/md5"
 	"crypto/rand"
 	"fmt"
 	pb "game/api/app/v1"
@@ -336,6 +337,13 @@ type BuyLandRecord struct {
 	UserID    uint64
 }
 
+type Admin struct {
+	ID       int64
+	Password string
+	Account  string
+	Type     string
+}
+
 type UserRepo interface {
 	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetUserByUserIds(ctx context.Context, userIds []uint64) (map[uint64]*User, error)
@@ -442,6 +450,7 @@ type UserRepo interface {
 	GetAllBuyLandRecords(ctx context.Context, id uint64) ([]*BuyLandRecord, error)
 	GetBuyLandById(ctx context.Context) (*BuyLand, error)
 	CreateBuyLandRecord(ctx context.Context, limit uint64, bl *BuyLandRecord) error
+	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
 }
 
 // AppUsecase is an app usecase.
@@ -4998,4 +5007,21 @@ func (ac *AppUsecase) SetLand(ctx context.Context, req *pb.SetLandRequest) (*pb.
 	return &pb.SetLandReply{
 		Status: "ok",
 	}, nil
+}
+
+func (ac *AppUsecase) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest, token string) (*pb.AdminLoginReply, error) {
+	var (
+		admin *Admin
+		err   error
+	)
+
+	res := &pb.AdminLoginReply{}
+	password := fmt.Sprintf("%x", md5.Sum([]byte(req.SendBody.Password)))
+	admin, err = ac.userRepo.GetAdminByAccount(ctx, req.SendBody.Account, password)
+	if nil == admin || nil != err {
+		return res, err
+	}
+
+	res.Token = token
+	return res, nil
 }

@@ -6,6 +6,30 @@ info:
     title: App API
     version: 0.0.1
 paths:
+    /api/admin_dhb/login:
+        post:
+            tags:
+                - App
+            operationId: App_AdminLogin
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminLoginRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminLoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/app_server/buy:
         post:
             tags:
@@ -1047,6 +1071,20 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        AdminLoginReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                token:
+                    type: string
+        AdminLoginRequest_SendBody:
+            type: object
+            properties:
+                account:
+                    type: string
+                password:
+                    type: string
         BuyBoxReply:
             type: object
             properties:

@@ -328,6 +328,13 @@ type RandomSeed struct {
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 }
 
+type Admin struct {
+	ID       int64  `gorm:"primarykey;type:int"`
+	Account  string `gorm:"type:varchar(100);not null"`
+	Password string `gorm:"type:varchar(100);not null"`
+	Type     string `gorm:"type:varchar(40);not null"`
+}
+
 type UserRepo struct {
 	data *Data
 	log  *log.Helper
@@ -3229,4 +3236,23 @@ func (u *UserRepo) GetAllBuyLandRecords(ctx context.Context, id uint64) ([]*biz.
 	}
 
 	return res, nil
+}
+
+// GetAdminByAccount .
+func (u *UserRepo) GetAdminByAccount(ctx context.Context, account string, password string) (*biz.Admin, error) {
+	var admin Admin
+	if err := u.data.DB(ctx).Where("account=? and password=?", account, password).Table("admin").First(&admin).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NotFound("ADMIN_NOT_FOUND", "admin not found")
+		}
+
+		return nil, errors.New(500, "ADMIN ERROR", err.Error())
+	}
+
+	return &biz.Admin{
+		ID:       admin.ID,
+		Password: admin.Password,
+		Account:  admin.Account,
+		Type:     admin.Type,
+	}, nil
 }

@@ -61,6 +61,7 @@ const (
 	App_SetGiw_FullMethodName                 = "/api.app.v1.App/SetGiw"
 	App_SetGit_FullMethodName                 = "/api.app.v1.App/SetGit"
 	App_SetLand_FullMethodName                = "/api.app.v1.App/SetLand"
+	App_AdminLogin_FullMethodName             = "/api.app.v1.App/AdminLogin"
 )
 
 // AppClient is the client API for App service.
@@ -146,6 +147,7 @@ type AppClient interface {
 	SetGiw(ctx context.Context, in *SetGiwRequest, opts ...grpc.CallOption) (*SetGiwReply, error)
 	SetGit(ctx context.Context, in *SetGitRequest, opts ...grpc.CallOption) (*SetGitReply, error)
 	SetLand(ctx context.Context, in *SetLandRequest, opts ...grpc.CallOption) (*SetLandReply, error)
+	AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...grpc.CallOption) (*AdminLoginReply, error)
 }
 
 type appClient struct {
@@ -534,6 +536,15 @@ func (c *appClient) SetLand(ctx context.Context, in *SetLandRequest, opts ...grp
 	return out, nil
 }
 
+func (c *appClient) AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...grpc.CallOption) (*AdminLoginReply, error) {
+	out := new(AdminLoginReply)
+	err := c.cc.Invoke(ctx, App_AdminLogin_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility
@@ -617,6 +628,7 @@ type AppServer interface {
 	SetGiw(context.Context, *SetGiwRequest) (*SetGiwReply, error)
 	SetGit(context.Context, *SetGitRequest) (*SetGitReply, error)
 	SetLand(context.Context, *SetLandRequest) (*SetLandReply, error)
+	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -749,6 +761,9 @@ func (UnimplementedAppServer) SetGit(context.Context, *SetGitRequest) (*SetGitRe
 }
 func (UnimplementedAppServer) SetLand(context.Context, *SetLandRequest) (*SetLandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetLand not implemented")
+}
+func (UnimplementedAppServer) AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminLogin not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 
@@ -1519,6 +1534,24 @@ func _App_SetLand_Handler(srv interface{}, ctx context.Context, dec func(interfa
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminLogin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminLogin(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminLogin_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminLogin(ctx, req.(*AdminLoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1693,6 +1726,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SetLand",
 			Handler:    _App_SetLand_Handler,
+		},
+		{
+			MethodName: "AdminLogin",
+			Handler:    _App_AdminLogin_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

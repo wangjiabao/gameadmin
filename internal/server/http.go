@@ -21,7 +21,7 @@ func NewHTTPServer(c *conf.Server, app *service.AppService, logger log.Logger) *
 			recovery.Recovery(),
 			selector.Server( // jwt 验证
 				jwt.Server(func(token *jwt2.Token) (interface{}, error) {
-					return []byte("5485c6f09a1a9bf5edeb841d85e09250"), nil
+					return []byte("77037723115d7687c63b258b3cb1d19b"), nil
 				}, jwt.WithSigningMethod(jwt2.SigningMethodHS256)),
 			).Match(NewWhiteListMatcher()).Build(),
 		),
@@ -49,13 +49,14 @@ func NewHTTPServer(c *conf.Server, app *service.AppService, logger log.Logger) *
 // NewWhiteListMatcher 设置白名单，不需要 token 验证的接口
 func NewWhiteListMatcher() selector.MatchFunc {
 	whiteList := make(map[string]struct{})
-	whiteList["/api.app.v1.App/EthAuthorize"] = struct{}{}
+	whiteList["/api.app.v1.App/AdminLogin"] = struct{}{}
+	//whiteList["/api.app.v1.App/EthAuthorize"] = struct{}{}
 	//whiteList["/api.app.v1.App/LandPlay"] = struct{}{}
 	//whiteList["/api.app.v1.App/OpenBox"] = struct{}{}
 	//whiteList["/api.app.v1.App/TestSign"] = struct{}{}
-	whiteList["/api.app.v1.App/SetLand"] = struct{}{}
-	whiteList["/api.app.v1.App/SetGit"] = struct{}{}
-	whiteList["/api.app.v1.App/SetGiw"] = struct{}{}
+	//whiteList["/api.app.v1.App/SetLand"] = struct{}{}
+	//whiteList["/api.app.v1.App/SetGit"] = struct{}{}
+	//whiteList["/api.app.v1.App/SetGiw"] = struct{}{}
 	return func(ctx context.Context, operation string) bool {
 		if _, ok := whiteList[operation]; ok {
 			return false

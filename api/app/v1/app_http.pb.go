@@ -19,6 +19,7 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationAppAdminLogin = "/api.app.v1.App/AdminLogin"
 const OperationAppBuy = "/api.app.v1.App/Buy"
 const OperationAppBuyBox = "/api.app.v1.App/BuyBox"
 const OperationAppEthAuthorize = "/api.app.v1.App/EthAuthorize"
@@ -63,6 +64,7 @@ const OperationAppUserStakeRewardList = "/api.app.v1.App/UserStakeRewardList"
 const OperationAppWithdraw = "/api.app.v1.App/Withdraw"
 
 type AppHTTPServer interface {
+	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
 	// Buy  购买道具
 	Buy(context.Context, *BuyRequest) (*BuyReply, error)
 	// BuyBox  购买盲盒
@@ -188,6 +190,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/app_server/set_giw", _App_SetGiw0_HTTP_Handler(srv))
 	r.GET("/api/app_server/set_git", _App_SetGit0_HTTP_Handler(srv))
 	r.GET("/api/app_server/set_land", _App_SetLand0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/login", _App_AdminLogin0_HTTP_Handler(srv))
 }
 
 func _App_TestSign0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
@@ -1051,7 +1054,30 @@ func _App_SetLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error 
 	}
 }
 
+func _App_AdminLogin0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminLoginRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminLogin)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminLogin(ctx, req.(*AdminLoginRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminLoginReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AppHTTPClient interface {
+	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
 	Buy(ctx context.Context, req *BuyRequest, opts ...http.CallOption) (rsp *BuyReply, err error)
 	BuyBox(ctx context.Context, req *BuyBoxRequest, opts ...http.CallOption) (rsp *BuyBoxReply, err error)
 	EthAuthorize(ctx context.Context, req *EthAuthorizeRequest, opts ...http.CallOption) (rsp *EthAuthorizeReply, err error)
@@ -1102,6 +1128,19 @@ type AppHTTPClientImpl struct {
 
 func NewAppHTTPClient(client *http.Client) AppHTTPClient {
 	return &AppHTTPClientImpl{client}
+}
+
+func (c *AppHTTPClientImpl) AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...http.CallOption) (*AdminLoginReply, error) {
+	var out AdminLoginReply
+	pattern := "/api/admin_dhb/login"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminLogin))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
 }
 
 func (c *AppHTTPClientImpl) Buy(ctx context.Context, in *BuyRequest, opts ...http.CallOption) (*BuyReply, error) {

@@ -318,6 +318,56 @@ service App {
 			get: "/api/app_server/set_land"
 		};
 	};
+
+	// 登录
+	rpc AdminLogin (AdminLoginRequest) returns (AdminLoginReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/login"
+			body: "send_body"
+		};
+	};
+
+	// 用户
+	rpc AdminUserList (AdminUserListRequest) returns (AdminUserListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/user_list"
+		};
+	};
+
+	// 提现
+	rpc AdminWithdrawList (AdminWithdrawListRequest) returns (AdminWithdrawListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/withdraw_list"
+		};
+	};
+
+	// 充值
+	rpc AdminRecordList (RecordListRequest) returns (RecordListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/record_list"
+		};
+	};
+
+	// 土地配置
+	rpc AdminLandConfigList (AdminLandConfigRequest) returns (AdminLandConfigReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/land_config_list"
+		};
+	};
+
+	// 种子配置
+	rpc AdminSeedConfigList (AdminSeedConfigRequest) returns (AdminSeedConfigReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/seed_config_list"
+		};
+	};
+
+	// 土地配置
+	rpc AdminPropConfigList (AdminPropConfigRequest) returns (AdminPropConfigReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/prop_config_list"
+		};
+	};
 }
 
 message TestSignRequest {
@@ -1022,4 +1072,113 @@ message SetLandRequest {
 
 message SetLandReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminLoginRequest {
+	message SendBody{
+		string account = 1;
+		string password = 2;
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminLoginReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+	string token = 2;
+}
+
+message AdminUserListRequest {
+	int64 page = 1;
+	string address = 2;
+}
+
+message AdminUserListReply { // 用户信息
+	repeated List users = 1;
+	message List {
+		string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+		string address = 2; // 当前用户的 游戏id，钱包地址
+		uint64 level = 3; // 级别，系统里所有我的级别展示
+		double giw = 4; // git余额，系统里所有git的余额展示
+		double git = 5; // giw余额，系统里所有gi2w的余额展示
+		uint64 recommendTotal = 6; // 邻居数
+		double recommendTotalBiw = 7; // 业绩
+		double recommendTotalReward = 8; // 邀请收益
+		double recommendTotalBiwOne = 9; // L1业绩
+		double recommendTotalRewardOne = 10; // 邀请收益
+		double recommendTotalBiwTwo = 11; // L2业绩
+		double recommendTotalRewardTwo = 12; // 邀请收益
+		double recommendTotalBiwThree = 13; // L3业绩
+		double recommendTotalRewardThree = 14; // 邀请收益
+		double myStakeGit = 15; // 粮仓质押数量
+		double myStakeGetTotal = 26; // 果实放大器质押
+	}
+
+	int64 count = 2;
+}
+
+message AdminWithdrawListRequest {
+	int64 page = 1;
+	string address = 2;
+}
+
+message AdminWithdrawListReply {
+	repeated List withdraw = 1;
+	message List {
+		string address = 5; // 地址
+		int64  id = 7;
+		string createdAt = 1; // 时间
+		string amount = 2; // 金额
+		string status = 4; // success成功，rewarded正在处理
+	}
+	int64 count = 2;
+}
+
+message RecordListRequest {
+	int64 page = 1;
+	string address = 2;
+}
+
+message RecordListReply { // 充值列表
+	repeated List recordList = 1;
+	message List {
+		string createdAt = 1; // 时间
+		string amount = 2; // 金额
+	}
+
+	int64 count = 2;
+}
+
+message AdminLandConfigRequest {
+}
+
+message AdminLandConfigReply { // 充值列表
+	repeated List recordList = 1;
+	message List {
+		string createdAt = 1; // 时间
+		double outPutRateMax = 2; // 最大增产率
+		double outPutRateMin = 3; // 最小增产率
+	 	uint64 maxHealth = 4; // 默认最大肥沃度
+		uint64 perHealth = 5; // 每次消耗产率
+		uint64 limitDateMax = 6; // 最大使用时间
+		uint64 level = 7; // 级别
+	}
+
+	int64 count = 2;
+}
+
+message AdminSeedConfigRequest {
+}
+
+message AdminSeedConfigReply { // 充值列表
+	repeated List recordList = 1;
+	message List {
+		string createdAt = 1; // 时间
+		double outMaxAmount = 2; // 最大产出
+		double outMinAmount = 3; // 最小产出
+		double getRate = 4; // 盲盒产出概率
+		uint64 outOverTime = 5; // 默认最大肥沃度
+	}
+
+	int64 count = 2;
 }
