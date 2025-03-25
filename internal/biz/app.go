@@ -5025,3 +5025,61 @@ func (ac *AppUsecase) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest,
 	res.Token = token
 	return res, nil
 }
+
+func (ac *AppUsecase) AdminRecommendList(ctx context.Context, req *pb.AdminUserRecommendRequest) (*pb.AdminUserRecommendReply, error) {
+	var (
+		userRecommends []*UserRecommend
+		userRecommend  *UserRecommend
+		userIdsMap     map[uint64]uint64
+		userIds        []uint64
+		users          map[uint64]*User
+		err            error
+	)
+
+	res := &pb.AdminUserRecommendReply{
+		Users: make([]*pb.AdminUserRecommendReply_List, 0),
+	}
+
+	// 地址查询
+	if 0 < req.UserId {
+		return res, nil
+	}
+
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, req.UserId)
+	if nil == userRecommend {
+		return res, nil
+	}
+
+	userRecommends, err = ac.userRepo.GetUserRecommendByCode(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(userRecommend.UserId, 10))
+	if nil != err {
+		return res, nil
+	}
+
+	userIdsMap = make(map[uint64]uint64, 0)
+	for _, v := range userRecommends {
+		userIdsMap[v.UserId] = v.UserId
+	}
+	for _, v := range userIdsMap {
+		userIds = append(userIds, v)
+	}
+
+	users, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+	if nil != err {
+		return res, nil
+	}
+
+	for _, v := range userRecommends {
+		if _, ok := users[v.UserId]; !ok {
+			continue
+		}
+
+		res.Users = append(res.Users, &pb.AdminUserRecommendReply_List{
+			Address:           users[v.UserId].Address,
+			UserId:            v.UserId,
+			CreatedAt:         v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			RecommendTotalBiw: users[v.UserId].Total,
+		})
+	}
+
+	return res, nil
+}

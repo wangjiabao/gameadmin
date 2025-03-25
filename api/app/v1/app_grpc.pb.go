@@ -62,6 +62,24 @@ const (
 	App_SetGit_FullMethodName                 = "/api.app.v1.App/SetGit"
 	App_SetLand_FullMethodName                = "/api.app.v1.App/SetLand"
 	App_AdminLogin_FullMethodName             = "/api.app.v1.App/AdminLogin"
+	App_AdminUserList_FullMethodName          = "/api.app.v1.App/AdminUserList"
+	App_AdminUserRecommend_FullMethodName     = "/api.app.v1.App/AdminUserRecommend"
+	App_AdminDeposit_FullMethodName           = "/api.app.v1.App/AdminDeposit"
+	App_AdminWithdraw_FullMethodName          = "/api.app.v1.App/AdminWithdraw"
+	App_AdminDaily_FullMethodName             = "/api.app.v1.App/AdminDaily"
+	App_AdminWithdrawList_FullMethodName      = "/api.app.v1.App/AdminWithdrawList"
+	App_AdminRecordList_FullMethodName        = "/api.app.v1.App/AdminRecordList"
+	App_AdminLandConfigList_FullMethodName    = "/api.app.v1.App/AdminLandConfigList"
+	App_AdminLandConfigSet_FullMethodName     = "/api.app.v1.App/AdminLandConfigSet"
+	App_AdminSeedConfigList_FullMethodName    = "/api.app.v1.App/AdminSeedConfigList"
+	App_AdminSeedConfigSet_FullMethodName     = "/api.app.v1.App/AdminSeedConfigSet"
+	App_AdminPropConfigList_FullMethodName    = "/api.app.v1.App/AdminPropConfigList"
+	App_AdminPropConfigSetList_FullMethodName = "/api.app.v1.App/AdminPropConfigSetList"
+	App_AdminSetGiw_FullMethodName            = "/api.app.v1.App/AdminSetGiw"
+	App_AdminSetGit_FullMethodName            = "/api.app.v1.App/AdminSetGit"
+	App_AdminSetLand_FullMethodName           = "/api.app.v1.App/AdminSetLand"
+	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
+	App_AdminSetSeed_FullMethodName           = "/api.app.v1.App/AdminSetSeed"
 )
 
 // AppClient is the client API for App service.
@@ -147,7 +165,44 @@ type AppClient interface {
 	SetGiw(ctx context.Context, in *SetGiwRequest, opts ...grpc.CallOption) (*SetGiwReply, error)
 	SetGit(ctx context.Context, in *SetGitRequest, opts ...grpc.CallOption) (*SetGitReply, error)
 	SetLand(ctx context.Context, in *SetLandRequest, opts ...grpc.CallOption) (*SetLandReply, error)
+	// 登录
 	AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...grpc.CallOption) (*AdminLoginReply, error)
+	// 用户
+	AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error)
+	// 用户下级
+	AdminUserRecommend(ctx context.Context, in *AdminUserRecommendRequest, opts ...grpc.CallOption) (*AdminUserRecommendReply, error)
+	// 充值处理
+	AdminDeposit(ctx context.Context, in *AdminDepositRequest, opts ...grpc.CallOption) (*AdminDepositReply, error)
+	// 提现处理
+	AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error)
+	// 每日粮仓
+	AdminDaily(ctx context.Context, in *AdminDailyRequest, opts ...grpc.CallOption) (*AdminDailyReply, error)
+	// 提现
+	AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error)
+	// 充值
+	AdminRecordList(ctx context.Context, in *RecordListRequest, opts ...grpc.CallOption) (*RecordListReply, error)
+	// 土地配置
+	AdminLandConfigList(ctx context.Context, in *AdminLandConfigRequest, opts ...grpc.CallOption) (*AdminLandConfigReply, error)
+	// 设置土地配置
+	AdminLandConfigSet(ctx context.Context, in *AdminLandConfigSetRequest, opts ...grpc.CallOption) (*AdminLandConfigSetReply, error)
+	// 种子配置
+	AdminSeedConfigList(ctx context.Context, in *AdminSeedConfigRequest, opts ...grpc.CallOption) (*AdminSeedConfigReply, error)
+	// 设置种子配置
+	AdminSeedConfigSet(ctx context.Context, in *AdminSeedConfigSetRequest, opts ...grpc.CallOption) (*AdminSeedConfigSetReply, error)
+	// 道具配置
+	AdminPropConfigList(ctx context.Context, in *AdminPropConfigRequest, opts ...grpc.CallOption) (*AdminPropConfigReply, error)
+	// 设置道具配置
+	AdminPropConfigSetList(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error)
+	// 设置余额
+	AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...grpc.CallOption) (*AdminSetGiwReply, error)
+	// 设置余额
+	AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error)
+	// 发土地
+	AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...grpc.CallOption) (*AdminSetLandReply, error)
+	// 发道具
+	AdminSetProp(ctx context.Context, in *AdminSetPropRequest, opts ...grpc.CallOption) (*AdminSetPropReply, error)
+	// 发种子
+	AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, opts ...grpc.CallOption) (*AdminSetSeedReply, error)
 }
 
 type appClient struct {
@@ -545,6 +600,168 @@ func (c *appClient) AdminLogin(ctx context.Context, in *AdminLoginRequest, opts 
 	return out, nil
 }
 
+func (c *appClient) AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...grpc.CallOption) (*AdminUserListReply, error) {
+	out := new(AdminUserListReply)
+	err := c.cc.Invoke(ctx, App_AdminUserList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminUserRecommend(ctx context.Context, in *AdminUserRecommendRequest, opts ...grpc.CallOption) (*AdminUserRecommendReply, error) {
+	out := new(AdminUserRecommendReply)
+	err := c.cc.Invoke(ctx, App_AdminUserRecommend_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminDeposit(ctx context.Context, in *AdminDepositRequest, opts ...grpc.CallOption) (*AdminDepositReply, error) {
+	out := new(AdminDepositReply)
+	err := c.cc.Invoke(ctx, App_AdminDeposit_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error) {
+	out := new(AdminWithdrawReply)
+	err := c.cc.Invoke(ctx, App_AdminWithdraw_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminDaily(ctx context.Context, in *AdminDailyRequest, opts ...grpc.CallOption) (*AdminDailyReply, error) {
+	out := new(AdminDailyReply)
+	err := c.cc.Invoke(ctx, App_AdminDaily_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error) {
+	out := new(AdminWithdrawListReply)
+	err := c.cc.Invoke(ctx, App_AdminWithdrawList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminRecordList(ctx context.Context, in *RecordListRequest, opts ...grpc.CallOption) (*RecordListReply, error) {
+	out := new(RecordListReply)
+	err := c.cc.Invoke(ctx, App_AdminRecordList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminLandConfigList(ctx context.Context, in *AdminLandConfigRequest, opts ...grpc.CallOption) (*AdminLandConfigReply, error) {
+	out := new(AdminLandConfigReply)
+	err := c.cc.Invoke(ctx, App_AdminLandConfigList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminLandConfigSet(ctx context.Context, in *AdminLandConfigSetRequest, opts ...grpc.CallOption) (*AdminLandConfigSetReply, error) {
+	out := new(AdminLandConfigSetReply)
+	err := c.cc.Invoke(ctx, App_AdminLandConfigSet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSeedConfigList(ctx context.Context, in *AdminSeedConfigRequest, opts ...grpc.CallOption) (*AdminSeedConfigReply, error) {
+	out := new(AdminSeedConfigReply)
+	err := c.cc.Invoke(ctx, App_AdminSeedConfigList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSeedConfigSet(ctx context.Context, in *AdminSeedConfigSetRequest, opts ...grpc.CallOption) (*AdminSeedConfigSetReply, error) {
+	out := new(AdminSeedConfigSetReply)
+	err := c.cc.Invoke(ctx, App_AdminSeedConfigSet_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminPropConfigList(ctx context.Context, in *AdminPropConfigRequest, opts ...grpc.CallOption) (*AdminPropConfigReply, error) {
+	out := new(AdminPropConfigReply)
+	err := c.cc.Invoke(ctx, App_AdminPropConfigList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminPropConfigSetList(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error) {
+	out := new(AdminPropConfigSetReply)
+	err := c.cc.Invoke(ctx, App_AdminPropConfigSetList_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...grpc.CallOption) (*AdminSetGiwReply, error) {
+	out := new(AdminSetGiwReply)
+	err := c.cc.Invoke(ctx, App_AdminSetGiw_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error) {
+	out := new(AdminSetGitReply)
+	err := c.cc.Invoke(ctx, App_AdminSetGit_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...grpc.CallOption) (*AdminSetLandReply, error) {
+	out := new(AdminSetLandReply)
+	err := c.cc.Invoke(ctx, App_AdminSetLand_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetProp(ctx context.Context, in *AdminSetPropRequest, opts ...grpc.CallOption) (*AdminSetPropReply, error) {
+	out := new(AdminSetPropReply)
+	err := c.cc.Invoke(ctx, App_AdminSetProp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, opts ...grpc.CallOption) (*AdminSetSeedReply, error) {
+	out := new(AdminSetSeedReply)
+	err := c.cc.Invoke(ctx, App_AdminSetSeed_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility
@@ -628,7 +845,44 @@ type AppServer interface {
 	SetGiw(context.Context, *SetGiwRequest) (*SetGiwReply, error)
 	SetGit(context.Context, *SetGitRequest) (*SetGitReply, error)
 	SetLand(context.Context, *SetLandRequest) (*SetLandReply, error)
+	// 登录
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
+	// 用户
+	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
+	// 用户下级
+	AdminUserRecommend(context.Context, *AdminUserRecommendRequest) (*AdminUserRecommendReply, error)
+	// 充值处理
+	AdminDeposit(context.Context, *AdminDepositRequest) (*AdminDepositReply, error)
+	// 提现处理
+	AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error)
+	// 每日粮仓
+	AdminDaily(context.Context, *AdminDailyRequest) (*AdminDailyReply, error)
+	// 提现
+	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
+	// 充值
+	AdminRecordList(context.Context, *RecordListRequest) (*RecordListReply, error)
+	// 土地配置
+	AdminLandConfigList(context.Context, *AdminLandConfigRequest) (*AdminLandConfigReply, error)
+	// 设置土地配置
+	AdminLandConfigSet(context.Context, *AdminLandConfigSetRequest) (*AdminLandConfigSetReply, error)
+	// 种子配置
+	AdminSeedConfigList(context.Context, *AdminSeedConfigRequest) (*AdminSeedConfigReply, error)
+	// 设置种子配置
+	AdminSeedConfigSet(context.Context, *AdminSeedConfigSetRequest) (*AdminSeedConfigSetReply, error)
+	// 道具配置
+	AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error)
+	// 设置道具配置
+	AdminPropConfigSetList(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error)
+	// 设置余额
+	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
+	// 设置余额
+	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
+	// 发土地
+	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
+	// 发道具
+	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
+	// 发种子
+	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -764,6 +1018,60 @@ func (UnimplementedAppServer) SetLand(context.Context, *SetLandRequest) (*SetLan
 }
 func (UnimplementedAppServer) AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminLogin not implemented")
+}
+func (UnimplementedAppServer) AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUserList not implemented")
+}
+func (UnimplementedAppServer) AdminUserRecommend(context.Context, *AdminUserRecommendRequest) (*AdminUserRecommendReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminUserRecommend not implemented")
+}
+func (UnimplementedAppServer) AdminDeposit(context.Context, *AdminDepositRequest) (*AdminDepositReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDeposit not implemented")
+}
+func (UnimplementedAppServer) AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdraw not implemented")
+}
+func (UnimplementedAppServer) AdminDaily(context.Context, *AdminDailyRequest) (*AdminDailyReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDaily not implemented")
+}
+func (UnimplementedAppServer) AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdrawList not implemented")
+}
+func (UnimplementedAppServer) AdminRecordList(context.Context, *RecordListRequest) (*RecordListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminRecordList not implemented")
+}
+func (UnimplementedAppServer) AdminLandConfigList(context.Context, *AdminLandConfigRequest) (*AdminLandConfigReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminLandConfigList not implemented")
+}
+func (UnimplementedAppServer) AdminLandConfigSet(context.Context, *AdminLandConfigSetRequest) (*AdminLandConfigSetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminLandConfigSet not implemented")
+}
+func (UnimplementedAppServer) AdminSeedConfigList(context.Context, *AdminSeedConfigRequest) (*AdminSeedConfigReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSeedConfigList not implemented")
+}
+func (UnimplementedAppServer) AdminSeedConfigSet(context.Context, *AdminSeedConfigSetRequest) (*AdminSeedConfigSetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSeedConfigSet not implemented")
+}
+func (UnimplementedAppServer) AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminPropConfigList not implemented")
+}
+func (UnimplementedAppServer) AdminPropConfigSetList(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminPropConfigSetList not implemented")
+}
+func (UnimplementedAppServer) AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGiw not implemented")
+}
+func (UnimplementedAppServer) AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGit not implemented")
+}
+func (UnimplementedAppServer) AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLand not implemented")
+}
+func (UnimplementedAppServer) AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetProp not implemented")
+}
+func (UnimplementedAppServer) AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetSeed not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 
@@ -1552,6 +1860,330 @@ func _App_AdminLogin_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminUserList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUserListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminUserList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminUserList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminUserList(ctx, req.(*AdminUserListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminUserRecommend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminUserRecommendRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminUserRecommend(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminUserRecommend_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminUserRecommend(ctx, req.(*AdminUserRecommendRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminDeposit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminDepositRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminDeposit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminDeposit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminDeposit(ctx, req.(*AdminDepositRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminWithdrawRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminWithdraw(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminWithdraw_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminWithdraw(ctx, req.(*AdminWithdrawRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminDaily_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminDailyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminDaily(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminDaily_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminDaily(ctx, req.(*AdminDailyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminWithdrawList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminWithdrawListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminWithdrawList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminWithdrawList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminWithdrawList(ctx, req.(*AdminWithdrawListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminRecordList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecordListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminRecordList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminRecordList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminRecordList(ctx, req.(*RecordListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminLandConfigList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminLandConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminLandConfigList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminLandConfigList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminLandConfigList(ctx, req.(*AdminLandConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminLandConfigSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminLandConfigSetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminLandConfigSet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminLandConfigSet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminLandConfigSet(ctx, req.(*AdminLandConfigSetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSeedConfigList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSeedConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSeedConfigList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSeedConfigList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSeedConfigList(ctx, req.(*AdminSeedConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSeedConfigSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSeedConfigSetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSeedConfigSet(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSeedConfigSet_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSeedConfigSet(ctx, req.(*AdminSeedConfigSetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminPropConfigList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminPropConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminPropConfigList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminPropConfigList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminPropConfigList(ctx, req.(*AdminPropConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminPropConfigSetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminPropConfigSetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminPropConfigSetList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminPropConfigSetList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminPropConfigSetList(ctx, req.(*AdminPropConfigSetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetGiw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetGiwRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetGiw(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetGiw_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetGiw(ctx, req.(*AdminSetGiwRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetGit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetGitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetGit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetGit_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetGit(ctx, req.(*AdminSetGitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetLand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetLandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetLand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetLand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetLand(ctx, req.(*AdminSetLandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetProp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetPropRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetProp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetProp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetProp(ctx, req.(*AdminSetPropRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetSeed_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetSeedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetSeed(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetSeed_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetSeed(ctx, req.(*AdminSetSeedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1730,6 +2362,78 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminLogin",
 			Handler:    _App_AdminLogin_Handler,
+		},
+		{
+			MethodName: "AdminUserList",
+			Handler:    _App_AdminUserList_Handler,
+		},
+		{
+			MethodName: "AdminUserRecommend",
+			Handler:    _App_AdminUserRecommend_Handler,
+		},
+		{
+			MethodName: "AdminDeposit",
+			Handler:    _App_AdminDeposit_Handler,
+		},
+		{
+			MethodName: "AdminWithdraw",
+			Handler:    _App_AdminWithdraw_Handler,
+		},
+		{
+			MethodName: "AdminDaily",
+			Handler:    _App_AdminDaily_Handler,
+		},
+		{
+			MethodName: "AdminWithdrawList",
+			Handler:    _App_AdminWithdrawList_Handler,
+		},
+		{
+			MethodName: "AdminRecordList",
+			Handler:    _App_AdminRecordList_Handler,
+		},
+		{
+			MethodName: "AdminLandConfigList",
+			Handler:    _App_AdminLandConfigList_Handler,
+		},
+		{
+			MethodName: "AdminLandConfigSet",
+			Handler:    _App_AdminLandConfigSet_Handler,
+		},
+		{
+			MethodName: "AdminSeedConfigList",
+			Handler:    _App_AdminSeedConfigList_Handler,
+		},
+		{
+			MethodName: "AdminSeedConfigSet",
+			Handler:    _App_AdminSeedConfigSet_Handler,
+		},
+		{
+			MethodName: "AdminPropConfigList",
+			Handler:    _App_AdminPropConfigList_Handler,
+		},
+		{
+			MethodName: "AdminPropConfigSetList",
+			Handler:    _App_AdminPropConfigSetList_Handler,
+		},
+		{
+			MethodName: "AdminSetGiw",
+			Handler:    _App_AdminSetGiw_Handler,
+		},
+		{
+			MethodName: "AdminSetGit",
+			Handler:    _App_AdminSetGit_Handler,
+		},
+		{
+			MethodName: "AdminSetLand",
+			Handler:    _App_AdminSetLand_Handler,
+		},
+		{
+			MethodName: "AdminSetProp",
+			Handler:    _App_AdminSetProp_Handler,
+		},
+		{
+			MethodName: "AdminSetSeed",
+			Handler:    _App_AdminSetSeed_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

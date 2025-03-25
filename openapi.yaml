@@ -6,10 +6,68 @@ info:
     title: App API
     version: 0.0.1
 paths:
+    /api/admin_dhb/daily:
+        get:
+            tags:
+                - App
+            description: 每日粮仓
+            operationId: App_AdminDaily
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminDailyReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/deposit:
+        get:
+            tags:
+                - App
+            description: 充值处理
+            operationId: App_AdminDeposit
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminDepositReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/land_config_list:
+        get:
+            tags:
+                - App
+            description: 土地配置
+            operationId: App_AdminLandConfigList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminLandConfigReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/login:
         post:
             tags:
                 - App
+            description: 登录
             operationId: App_AdminLogin
             requestBody:
                 content:
@@ -24,6 +82,371 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminLoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/prop_config_list:
+        get:
+            tags:
+                - App
+            description: 道具配置
+            operationId: App_AdminPropConfigList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminPropConfigReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/record_list:
+        get:
+            tags:
+                - App
+            description: 充值
+            operationId: App_AdminRecordList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/RecordListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/seed_config_list:
+        get:
+            tags:
+                - App
+            description: 种子配置
+            operationId: App_AdminSeedConfigList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSeedConfigReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_git:
+        post:
+            tags:
+                - App
+            description: 设置余额
+            operationId: App_AdminSetGit
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetGitRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetGitReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_giw:
+        post:
+            tags:
+                - App
+            description: 设置余额
+            operationId: App_AdminSetGiw
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetGiwRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetGiwReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_land:
+        post:
+            tags:
+                - App
+            description: 发土地
+            operationId: App_AdminSetLand
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetLandRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetLandReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_land_config:
+        post:
+            tags:
+                - App
+            description: 设置土地配置
+            operationId: App_AdminLandConfigSet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminLandConfigSetRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminLandConfigSetReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_prop:
+        post:
+            tags:
+                - App
+            description: 发道具
+            operationId: App_AdminSetProp
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetPropRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetPropReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_prop_config:
+        post:
+            tags:
+                - App
+            description: 设置道具配置
+            operationId: App_AdminPropConfigSetList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminPropConfigSetRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminPropConfigSetReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_seed:
+        post:
+            tags:
+                - App
+            description: 发种子
+            operationId: App_AdminSetSeed
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetSeedRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetSeedReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_seed_config:
+        post:
+            tags:
+                - App
+            description: 设置种子配置
+            operationId: App_AdminSeedConfigSet
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSeedConfigSetRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSeedConfigSetReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/user_list:
+        get:
+            tags:
+                - App
+            description: 用户
+            operationId: App_AdminUserList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUserListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/user_recommend:
+        get:
+            tags:
+                - App
+            description: 用户下级
+            operationId: App_AdminUserRecommend
+            parameters:
+                - name: userId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUserRecommendReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/withdraw:
+        get:
+            tags:
+                - App
+            description: 提现处理
+            operationId: App_AdminWithdraw
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminWithdrawReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/withdraw_list:
+        get:
+            tags:
+                - App
+            description: 提现
+            operationId: App_AdminWithdrawList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminWithdrawListReply'
                 default:
                     description: Default error response
                     content:
@@ -1071,6 +1494,58 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        AdminDailyReply:
+            type: object
+            properties: {}
+        AdminDepositReply:
+            type: object
+            properties: {}
+        AdminLandConfigReply:
+            type: object
+            properties:
+                recordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminLandConfigReply_List'
+                count:
+                    type: string
+        AdminLandConfigReply_List:
+            type: object
+            properties:
+                createdAt:
+                    type: string
+                outPutRateMax:
+                    type: number
+                    format: double
+                outPutRateMin:
+                    type: number
+                    format: double
+                maxHealth:
+                    type: string
+                perHealth:
+                    type: string
+                level:
+                    type: string
+        AdminLandConfigSetReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminLandConfigSetRequest_SendBody:
+            type: object
+            properties:
+                level:
+                    type: string
+                outPutRateMax:
+                    type: number
+                    format: double
+                outPutRateMin:
+                    type: number
+                    format: double
+                maxHealth:
+                    type: string
+                perHealth:
+                    type: string
         AdminLoginReply:
             type: object
             properties:
@@ -1085,6 +1560,246 @@ components:
                     type: string
                 password:
                     type: string
+        AdminPropConfigReply:
+            type: object
+            properties:
+                recordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminPropConfigReply_List'
+                count:
+                    type: string
+        AdminPropConfigReply_List:
+            type: object
+            properties:
+                propType:
+                    type: string
+                createdAt:
+                    type: string
+                max:
+                    type: string
+        AdminPropConfigSetReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminPropConfigSetRequest_SendBody:
+            type: object
+            properties:
+                propType:
+                    type: string
+                max:
+                    type: string
+        AdminSeedConfigReply:
+            type: object
+            properties:
+                recordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminSeedConfigReply_List'
+                count:
+                    type: string
+        AdminSeedConfigReply_List:
+            type: object
+            properties:
+                createdAt:
+                    type: string
+                outMaxAmount:
+                    type: number
+                    format: double
+                outMinAmount:
+                    type: number
+                    format: double
+                outOverTime:
+                    type: string
+        AdminSeedConfigSetReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSeedConfigSetRequest_SendBody:
+            type: object
+            properties:
+                seedId:
+                    type: string
+                outMaxAmount:
+                    type: number
+                    format: double
+                outMinAmount:
+                    type: number
+                    format: double
+                outOverTime:
+                    type: string
+        AdminSetGitReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetGitRequest_SendBody:
+            type: object
+            properties:
+                address:
+                    type: string
+                git:
+                    type: string
+        AdminSetGiwReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetGiwRequest_SendBody:
+            type: object
+            properties:
+                address:
+                    type: string
+                giw:
+                    type: string
+        AdminSetLandReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetLandRequest_SendBody:
+            type: object
+            properties:
+                address:
+                    type: string
+                level:
+                    type: string
+                one:
+                    type: string
+                two:
+                    type: string
+                three:
+                    type: string
+                limit:
+                    type: string
+        AdminSetPropReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetPropRequest_SendBody:
+            type: object
+            properties:
+                address:
+                    type: string
+                propType:
+                    type: string
+        AdminSetSeedReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetSeedRequest_SendBody:
+            type: object
+            properties:
+                address:
+                    type: string
+                seedId:
+                    type: string
+        AdminUserListReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminUserListReply_List'
+                count:
+                    type: string
+        AdminUserListReply_List:
+            type: object
+            properties:
+                userId:
+                    type: string
+                status:
+                    type: string
+                address:
+                    type: string
+                level:
+                    type: string
+                giw:
+                    type: number
+                    format: double
+                git:
+                    type: number
+                    format: double
+                recommendTotal:
+                    type: string
+                recommendTotalBiw:
+                    type: number
+                    format: double
+                recommendTotalReward:
+                    type: number
+                    format: double
+                recommendTotalBiwOne:
+                    type: number
+                    format: double
+                recommendTotalRewardOne:
+                    type: number
+                    format: double
+                recommendTotalBiwTwo:
+                    type: number
+                    format: double
+                recommendTotalRewardTwo:
+                    type: number
+                    format: double
+                recommendTotalBiwThree:
+                    type: number
+                    format: double
+                recommendTotalRewardThree:
+                    type: number
+                    format: double
+                myStakeGit:
+                    type: number
+                    format: double
+                myStakeGetTotal:
+                    type: number
+                    format: double
+        AdminUserRecommendReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminUserRecommendReply_List'
+        AdminUserRecommendReply_List:
+            type: object
+            properties:
+                userId:
+                    type: string
+                address:
+                    type: string
+                createdAt:
+                    type: string
+                recommendTotalBiw:
+                    type: number
+                    format: double
+        AdminWithdrawListReply:
+            type: object
+            properties:
+                withdraw:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminWithdrawListReply_List'
+                count:
+                    type: string
+        AdminWithdrawListReply_List:
+            type: object
+            properties:
+                address:
+                    type: string
+                id:
+                    type: string
+                createdAt:
+                    type: string
+                amount:
+                    type: string
+                status:
+                    type: string
+        AdminWithdrawReply:
+            type: object
+            properties: {}
         BuyBoxReply:
             type: object
             properties:
@@ -1320,6 +2035,22 @@ components:
                 id:
                     type: string
                 sign:
+                    type: string
+        RecordListReply:
+            type: object
+            properties:
+                recordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/RecordListReply_List'
+                count:
+                    type: string
+        RecordListReply_List:
+            type: object
+            properties:
+                createdAt:
+                    type: string
+                amount:
                     type: string
         RentLandReply:
             type: object

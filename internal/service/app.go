@@ -1696,3 +1696,7 @@ func (a *AppService) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest) 
 
 	return a.ac.AdminLogin(ctx, req, token)
 }
+
+func (a *AppService) AdminUserRecommend(ctx context.Context, req *pb.AdminUserRecommendRequest) (*pb.AdminUserRecommendReply, error) {
+	return a.ac.AdminRecommendList(ctx, req)
+}

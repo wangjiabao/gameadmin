@@ -19,7 +19,25 @@ var _ = binding.EncodeURL
 
 const _ = http.SupportPackageIsVersion1
 
+const OperationAppAdminDaily = "/api.app.v1.App/AdminDaily"
+const OperationAppAdminDeposit = "/api.app.v1.App/AdminDeposit"
+const OperationAppAdminLandConfigList = "/api.app.v1.App/AdminLandConfigList"
+const OperationAppAdminLandConfigSet = "/api.app.v1.App/AdminLandConfigSet"
 const OperationAppAdminLogin = "/api.app.v1.App/AdminLogin"
+const OperationAppAdminPropConfigList = "/api.app.v1.App/AdminPropConfigList"
+const OperationAppAdminPropConfigSetList = "/api.app.v1.App/AdminPropConfigSetList"
+const OperationAppAdminRecordList = "/api.app.v1.App/AdminRecordList"
+const OperationAppAdminSeedConfigList = "/api.app.v1.App/AdminSeedConfigList"
+const OperationAppAdminSeedConfigSet = "/api.app.v1.App/AdminSeedConfigSet"
+const OperationAppAdminSetGit = "/api.app.v1.App/AdminSetGit"
+const OperationAppAdminSetGiw = "/api.app.v1.App/AdminSetGiw"
+const OperationAppAdminSetLand = "/api.app.v1.App/AdminSetLand"
+const OperationAppAdminSetProp = "/api.app.v1.App/AdminSetProp"
+const OperationAppAdminSetSeed = "/api.app.v1.App/AdminSetSeed"
+const OperationAppAdminUserList = "/api.app.v1.App/AdminUserList"
+const OperationAppAdminUserRecommend = "/api.app.v1.App/AdminUserRecommend"
+const OperationAppAdminWithdraw = "/api.app.v1.App/AdminWithdraw"
+const OperationAppAdminWithdrawList = "/api.app.v1.App/AdminWithdrawList"
 const OperationAppBuy = "/api.app.v1.App/Buy"
 const OperationAppBuyBox = "/api.app.v1.App/BuyBox"
 const OperationAppEthAuthorize = "/api.app.v1.App/EthAuthorize"
@@ -64,7 +82,44 @@ const OperationAppUserStakeRewardList = "/api.app.v1.App/UserStakeRewardList"
 const OperationAppWithdraw = "/api.app.v1.App/Withdraw"
 
 type AppHTTPServer interface {
+	// AdminDaily 每日粮仓
+	AdminDaily(context.Context, *AdminDailyRequest) (*AdminDailyReply, error)
+	// AdminDeposit 充值处理
+	AdminDeposit(context.Context, *AdminDepositRequest) (*AdminDepositReply, error)
+	// AdminLandConfigList 土地配置
+	AdminLandConfigList(context.Context, *AdminLandConfigRequest) (*AdminLandConfigReply, error)
+	// AdminLandConfigSet 设置土地配置
+	AdminLandConfigSet(context.Context, *AdminLandConfigSetRequest) (*AdminLandConfigSetReply, error)
+	// AdminLogin 登录
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
+	// AdminPropConfigList 道具配置
+	AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error)
+	// AdminPropConfigSetList 设置道具配置
+	AdminPropConfigSetList(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error)
+	// AdminRecordList 充值
+	AdminRecordList(context.Context, *RecordListRequest) (*RecordListReply, error)
+	// AdminSeedConfigList 种子配置
+	AdminSeedConfigList(context.Context, *AdminSeedConfigRequest) (*AdminSeedConfigReply, error)
+	// AdminSeedConfigSet 设置种子配置
+	AdminSeedConfigSet(context.Context, *AdminSeedConfigSetRequest) (*AdminSeedConfigSetReply, error)
+	// AdminSetGit 设置余额
+	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
+	// AdminSetGiw 设置余额
+	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
+	// AdminSetLand 发土地
+	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
+	// AdminSetProp 发道具
+	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
+	// AdminSetSeed 发种子
+	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
+	// AdminUserList 用户
+	AdminUserList(context.Context, *AdminUserListRequest) (*AdminUserListReply, error)
+	// AdminUserRecommend 用户下级
+	AdminUserRecommend(context.Context, *AdminUserRecommendRequest) (*AdminUserRecommendReply, error)
+	// AdminWithdraw 提现处理
+	AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error)
+	// AdminWithdrawList 提现
+	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
 	// Buy  购买道具
 	Buy(context.Context, *BuyRequest) (*BuyReply, error)
 	// BuyBox  购买盲盒
@@ -191,6 +246,24 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/app_server/set_git", _App_SetGit0_HTTP_Handler(srv))
 	r.GET("/api/app_server/set_land", _App_SetLand0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/login", _App_AdminLogin0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/user_list", _App_AdminUserList0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/user_recommend", _App_AdminUserRecommend0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/deposit", _App_AdminDeposit0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/withdraw", _App_AdminWithdraw0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/daily", _App_AdminDaily0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/record_list", _App_AdminRecordList0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/land_config_list", _App_AdminLandConfigList0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_land_config", _App_AdminLandConfigSet0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/seed_config_list", _App_AdminSeedConfigList0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_seed_config", _App_AdminSeedConfigSet0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/prop_config_list", _App_AdminPropConfigList0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_prop_config", _App_AdminPropConfigSetList0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_giw", _App_AdminSetGiw0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_git", _App_AdminSetGit0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_land", _App_AdminSetLand0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_prop", _App_AdminSetProp0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_seed", _App_AdminSetSeed0_HTTP_Handler(srv))
 }
 
 func _App_TestSign0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
@@ -1076,8 +1149,392 @@ func _App_AdminLogin0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) err
 	}
 }
 
+func _App_AdminUserList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminUserListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminUserList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminUserList(ctx, req.(*AdminUserListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminUserListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminUserRecommend0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminUserRecommendRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminUserRecommend)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminUserRecommend(ctx, req.(*AdminUserRecommendRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminUserRecommendReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminDeposit0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminDepositRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminDeposit)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminDeposit(ctx, req.(*AdminDepositRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminDepositReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminWithdraw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminWithdrawRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminWithdraw)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminWithdraw(ctx, req.(*AdminWithdrawRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminWithdrawReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminDaily0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminDailyRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminDaily)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminDaily(ctx, req.(*AdminDailyRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminDailyReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminWithdrawList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminWithdrawListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminWithdrawList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminWithdrawList(ctx, req.(*AdminWithdrawListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminWithdrawListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminRecordList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in RecordListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminRecordList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminRecordList(ctx, req.(*RecordListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*RecordListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminLandConfigList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminLandConfigRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminLandConfigList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminLandConfigList(ctx, req.(*AdminLandConfigRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminLandConfigReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminLandConfigSet0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminLandConfigSetRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminLandConfigSet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminLandConfigSet(ctx, req.(*AdminLandConfigSetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminLandConfigSetReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSeedConfigList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSeedConfigRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSeedConfigList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSeedConfigList(ctx, req.(*AdminSeedConfigRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSeedConfigReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSeedConfigSet0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSeedConfigSetRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSeedConfigSet)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSeedConfigSet(ctx, req.(*AdminSeedConfigSetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSeedConfigSetReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminPropConfigList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminPropConfigRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminPropConfigList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminPropConfigList(ctx, req.(*AdminPropConfigRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminPropConfigReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminPropConfigSetList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminPropConfigSetRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminPropConfigSetList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminPropConfigSetList(ctx, req.(*AdminPropConfigSetRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminPropConfigSetReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetGiw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetGiwRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetGiw)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetGiw(ctx, req.(*AdminSetGiwRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetGiwReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetGit0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetGitRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetGit)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetGit(ctx, req.(*AdminSetGitRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetGitReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetLandRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetLand)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetLand(ctx, req.(*AdminSetLandRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetLandReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetProp0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetPropRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetProp)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetProp(ctx, req.(*AdminSetPropRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetPropReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetSeed0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetSeedRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetSeed)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetSeed(ctx, req.(*AdminSetSeedRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetSeedReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AppHTTPClient interface {
+	AdminDaily(ctx context.Context, req *AdminDailyRequest, opts ...http.CallOption) (rsp *AdminDailyReply, err error)
+	AdminDeposit(ctx context.Context, req *AdminDepositRequest, opts ...http.CallOption) (rsp *AdminDepositReply, err error)
+	AdminLandConfigList(ctx context.Context, req *AdminLandConfigRequest, opts ...http.CallOption) (rsp *AdminLandConfigReply, err error)
+	AdminLandConfigSet(ctx context.Context, req *AdminLandConfigSetRequest, opts ...http.CallOption) (rsp *AdminLandConfigSetReply, err error)
 	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
+	AdminPropConfigList(ctx context.Context, req *AdminPropConfigRequest, opts ...http.CallOption) (rsp *AdminPropConfigReply, err error)
+	AdminPropConfigSetList(ctx context.Context, req *AdminPropConfigSetRequest, opts ...http.CallOption) (rsp *AdminPropConfigSetReply, err error)
+	AdminRecordList(ctx context.Context, req *RecordListRequest, opts ...http.CallOption) (rsp *RecordListReply, err error)
+	AdminSeedConfigList(ctx context.Context, req *AdminSeedConfigRequest, opts ...http.CallOption) (rsp *AdminSeedConfigReply, err error)
+	AdminSeedConfigSet(ctx context.Context, req *AdminSeedConfigSetRequest, opts ...http.CallOption) (rsp *AdminSeedConfigSetReply, err error)
+	AdminSetGit(ctx context.Context, req *AdminSetGitRequest, opts ...http.CallOption) (rsp *AdminSetGitReply, err error)
+	AdminSetGiw(ctx context.Context, req *AdminSetGiwRequest, opts ...http.CallOption) (rsp *AdminSetGiwReply, err error)
+	AdminSetLand(ctx context.Context, req *AdminSetLandRequest, opts ...http.CallOption) (rsp *AdminSetLandReply, err error)
+	AdminSetProp(ctx context.Context, req *AdminSetPropRequest, opts ...http.CallOption) (rsp *AdminSetPropReply, err error)
+	AdminSetSeed(ctx context.Context, req *AdminSetSeedRequest, opts ...http.CallOption) (rsp *AdminSetSeedReply, err error)
+	AdminUserList(ctx context.Context, req *AdminUserListRequest, opts ...http.CallOption) (rsp *AdminUserListReply, err error)
+	AdminUserRecommend(ctx context.Context, req *AdminUserRecommendRequest, opts ...http.CallOption) (rsp *AdminUserRecommendReply, err error)
+	AdminWithdraw(ctx context.Context, req *AdminWithdrawRequest, opts ...http.CallOption) (rsp *AdminWithdrawReply, err error)
+	AdminWithdrawList(ctx context.Context, req *AdminWithdrawListRequest, opts ...http.CallOption) (rsp *AdminWithdrawListReply, err error)
 	Buy(ctx context.Context, req *BuyRequest, opts ...http.CallOption) (rsp *BuyReply, err error)
 	BuyBox(ctx context.Context, req *BuyBoxRequest, opts ...http.CallOption) (rsp *BuyBoxReply, err error)
 	EthAuthorize(ctx context.Context, req *EthAuthorizeRequest, opts ...http.CallOption) (rsp *EthAuthorizeReply, err error)
@@ -1130,6 +1587,58 @@ func NewAppHTTPClient(client *http.Client) AppHTTPClient {
 	return &AppHTTPClientImpl{client}
 }
 
+func (c *AppHTTPClientImpl) AdminDaily(ctx context.Context, in *AdminDailyRequest, opts ...http.CallOption) (*AdminDailyReply, error) {
+	var out AdminDailyReply
+	pattern := "/api/admin_dhb/daily"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminDaily))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminDeposit(ctx context.Context, in *AdminDepositRequest, opts ...http.CallOption) (*AdminDepositReply, error) {
+	var out AdminDepositReply
+	pattern := "/api/admin_dhb/deposit"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminDeposit))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminLandConfigList(ctx context.Context, in *AdminLandConfigRequest, opts ...http.CallOption) (*AdminLandConfigReply, error) {
+	var out AdminLandConfigReply
+	pattern := "/api/admin_dhb/land_config_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminLandConfigList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminLandConfigSet(ctx context.Context, in *AdminLandConfigSetRequest, opts ...http.CallOption) (*AdminLandConfigSetReply, error) {
+	var out AdminLandConfigSetReply
+	pattern := "/api/admin_dhb/set_land_config"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminLandConfigSet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AppHTTPClientImpl) AdminLogin(ctx context.Context, in *AdminLoginRequest, opts ...http.CallOption) (*AdminLoginReply, error) {
 	var out AdminLoginReply
 	pattern := "/api/admin_dhb/login"
@@ -1137,6 +1646,188 @@ func (c *AppHTTPClientImpl) AdminLogin(ctx context.Context, in *AdminLoginReques
 	opts = append(opts, http.Operation(OperationAppAdminLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminPropConfigList(ctx context.Context, in *AdminPropConfigRequest, opts ...http.CallOption) (*AdminPropConfigReply, error) {
+	var out AdminPropConfigReply
+	pattern := "/api/admin_dhb/prop_config_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminPropConfigList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminPropConfigSetList(ctx context.Context, in *AdminPropConfigSetRequest, opts ...http.CallOption) (*AdminPropConfigSetReply, error) {
+	var out AdminPropConfigSetReply
+	pattern := "/api/admin_dhb/set_prop_config"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminPropConfigSetList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminRecordList(ctx context.Context, in *RecordListRequest, opts ...http.CallOption) (*RecordListReply, error) {
+	var out RecordListReply
+	pattern := "/api/admin_dhb/record_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminRecordList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSeedConfigList(ctx context.Context, in *AdminSeedConfigRequest, opts ...http.CallOption) (*AdminSeedConfigReply, error) {
+	var out AdminSeedConfigReply
+	pattern := "/api/admin_dhb/seed_config_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSeedConfigList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSeedConfigSet(ctx context.Context, in *AdminSeedConfigSetRequest, opts ...http.CallOption) (*AdminSeedConfigSetReply, error) {
+	var out AdminSeedConfigSetReply
+	pattern := "/api/admin_dhb/set_seed_config"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSeedConfigSet))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...http.CallOption) (*AdminSetGitReply, error) {
+	var out AdminSetGitReply
+	pattern := "/api/admin_dhb/set_git"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetGit))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...http.CallOption) (*AdminSetGiwReply, error) {
+	var out AdminSetGiwReply
+	pattern := "/api/admin_dhb/set_giw"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetGiw))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...http.CallOption) (*AdminSetLandReply, error) {
+	var out AdminSetLandReply
+	pattern := "/api/admin_dhb/set_land"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetLand))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetProp(ctx context.Context, in *AdminSetPropRequest, opts ...http.CallOption) (*AdminSetPropReply, error) {
+	var out AdminSetPropReply
+	pattern := "/api/admin_dhb/set_prop"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetProp))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, opts ...http.CallOption) (*AdminSetSeedReply, error) {
+	var out AdminSetSeedReply
+	pattern := "/api/admin_dhb/set_seed"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetSeed))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminUserList(ctx context.Context, in *AdminUserListRequest, opts ...http.CallOption) (*AdminUserListReply, error) {
+	var out AdminUserListReply
+	pattern := "/api/admin_dhb/user_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminUserList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminUserRecommend(ctx context.Context, in *AdminUserRecommendRequest, opts ...http.CallOption) (*AdminUserRecommendReply, error) {
+	var out AdminUserRecommendReply
+	pattern := "/api/admin_dhb/user_recommend"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminUserRecommend))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...http.CallOption) (*AdminWithdrawReply, error) {
+	var out AdminWithdrawReply
+	pattern := "/api/admin_dhb/withdraw"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminWithdraw))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...http.CallOption) (*AdminWithdrawListReply, error) {
+	var out AdminWithdrawListReply
+	pattern := "/api/admin_dhb/withdraw_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminWithdrawList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
