@@ -1701,6 +1701,8 @@ components:
         AdminUserListReply:
             type: object
             properties:
+                status:
+                    type: string
                 users:
                     type: array
                     items:
@@ -1711,8 +1713,6 @@ components:
             type: object
             properties:
                 userId:
-                    type: string
-                status:
                     type: string
                 address:
                     type: string
@@ -1782,6 +1782,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/AdminWithdrawListReply_List'
+                status:
+                    type: string
                 count:
                     type: string
         AdminWithdrawListReply_List:
@@ -2043,6 +2045,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/RecordListReply_List'
+                status:
+                    type: string
                 count:
                     type: string
         RecordListReply_List:
@@ -2051,6 +2055,8 @@ components:
                 createdAt:
                     type: string
                 amount:
+                    type: string
+                address:
                     type: string
         RentLandReply:
             type: object

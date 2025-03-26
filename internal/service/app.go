@@ -8,6 +8,7 @@ import (
 	"game/internal/conf"
 	"game/internal/pkg/middleware/auth"
 	"github.com/ethereum/go-ethereum/accounts"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -15,6 +16,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwt2 "github.com/golang-jwt/jwt/v5"
+	"math/big"
 	"regexp"
 	"time"
 )
@@ -1697,6 +1699,250 @@ func (a *AppService) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest) 
 	return a.ac.AdminLogin(ctx, req, token)
 }
 
+func (a *AppService) AdminUserList(ctx context.Context, req *pb.AdminUserListRequest) (*pb.AdminUserListReply, error) {
+	return a.ac.AdminUserList(ctx, req)
+}
+
 func (a *AppService) AdminUserRecommend(ctx context.Context, req *pb.AdminUserRecommendRequest) (*pb.AdminUserRecommendReply, error) {
 	return a.ac.AdminRecommendList(ctx, req)
+}
+
+func (a *AppService) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdrawListRequest) (*pb.AdminWithdrawListReply, error) {
+	return a.ac.AdminWithdrawList(ctx, req)
+}
+
+func getUserLength(address string) (int64, error) {
+	url1 := "https://bsc-dataseed4.binance.org/"
+
+	var balInt int64
+	for i := 0; i < 5; i++ {
+		if 1 == i {
+			url1 = "https://binance.llamarpc.com/"
+		} else if 2 == i {
+			url1 = "https://bscrpc.com/"
+		} else if 3 == i {
+			url1 = "https://bsc-pokt.nodies.app/"
+		} else if 4 == i {
+			url1 = "https://data-seed-prebsc-1-s3.binance.org:8545/"
+		}
+
+		client, err := ethclient.Dial(url1)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		tokenAddress := common.HexToAddress(address)
+		instance, err := NewBuySomething(tokenAddress, client)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		bals, err := instance.GetUserLength(&bind.CallOpts{})
+		if err != nil {
+			fmt.Println(err)
+			//url1 = "https://bsc-dataseed4.binance.org"
+			continue
+		}
+
+		balInt = bals.Int64()
+		break
+	}
+
+	return balInt, nil
+}
+
+type userDeposit struct {
+	Address string
+	Amount  int64
+}
+
+func getUserInfo(start int64, end int64, address string) ([]*userDeposit, error) {
+	url1 := "https://bsc-dataseed4.binance.org/"
+
+	var (
+		bals  []common.Address
+		bals2 []*big.Int
+	)
+	users := make([]*userDeposit, 0)
+
+	for i := 0; i < 5; i++ {
+		if 1 == i {
+			url1 = "https://binance.llamarpc.com/"
+		} else if 2 == i {
+			url1 = "https://bscrpc.com/"
+		} else if 3 == i {
+			url1 = "https://bsc-pokt.nodies.app/"
+		} else if 4 == i {
+			url1 = "https://data-seed-prebsc-1-s3.binance.org:8545/"
+		}
+
+		client, err := ethclient.Dial(url1)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		tokenAddress := common.HexToAddress(address)
+		instance, err := NewBuySomething(tokenAddress, client)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		bals, err = instance.GetUsersByIndex(&bind.CallOpts{}, new(big.Int).SetInt64(start), new(big.Int).SetInt64(end))
+		if err != nil {
+			fmt.Println(err)
+			//url1 = "https://bsc-dataseed4.binance.org"
+			continue
+		}
+
+		break
+	}
+
+	for i := 0; i < 5; i++ {
+		if 1 == i {
+			url1 = "https://binance.llamarpc.com/"
+		} else if 2 == i {
+			url1 = "https://bscrpc.com/"
+		} else if 3 == i {
+			url1 = "https://bsc-pokt.nodies.app/"
+		} else if 4 == i {
+			url1 = "https://data-seed-prebsc-1-s3.binance.org:8545/"
+		}
+
+		client, err := ethclient.Dial(url1)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		tokenAddress := common.HexToAddress(address)
+		instance, err := NewBuySomething(tokenAddress, client)
+		if err != nil {
+			fmt.Println(nil, err)
+			continue
+		}
+
+		bals2, err = instance.GetUsersAmountByIndex(&bind.CallOpts{}, new(big.Int).SetInt64(start), new(big.Int).SetInt64(end))
+		if err != nil {
+			fmt.Println(err)
+			//url1 = "https://bsc-dataseed4.binance.org"
+			continue
+		}
+
+		break
+	}
+
+	if len(bals) != len(bals2) {
+		fmt.Println("数量不一致，错误")
+		return users, nil
+	}
+
+	for k, v := range bals {
+		users = append(users, &userDeposit{
+			Address: v.String(),
+			Amount:  bals2[k].Int64(),
+		})
+	}
+
+	return users, nil
+}
+
+func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositRequest) (*pb.AdminDepositReply, error) {
+	end := time.Now().UTC().Add(50 * time.Second)
+
+	for i := 1; i <= 10; i++ {
+		var (
+			depositUsdtResult []*userDeposit
+			depositUsers      map[string]*biz.User
+			userLength        int64
+			last              int64
+			err               error
+		)
+
+		last, err = a.ac.GetEthUserRecordLast(ctx)
+		if nil != err {
+			fmt.Println(err)
+			continue
+		}
+
+		if -1 == last {
+			fmt.Println(err)
+			continue
+		}
+
+		userLength, err = getUserLength("0xb3f58887f4Ce734DBd1A7dAa6A10e7901e641c7f")
+		if nil != err {
+			fmt.Println(err)
+		}
+
+		if -1 == userLength {
+			continue
+		}
+
+		if 0 == userLength {
+			break
+		}
+
+		if last >= userLength {
+			break
+		}
+
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xb3f58887f4Ce734DBd1A7dAa6A10e7901e641c7f")
+		if nil != err {
+			break
+		}
+
+		now := time.Now().UTC()
+		//fmt.Println(now, end)
+		if end.Before(now) {
+			break
+		}
+
+		if 0 >= len(depositUsdtResult) {
+			break
+		}
+
+		fromAccount := make([]string, 0)
+		for _, vUser := range depositUsdtResult {
+			fromAccount = append(fromAccount, vUser.Address)
+		}
+
+		depositUsers, err = a.ac.GetUserByAddress(ctx, fromAccount)
+		if nil != depositUsers {
+			// 统计开始
+			for _, vUser := range depositUsdtResult { // 主查usdt
+				if _, ok := depositUsers[vUser.Address]; !ok { // 用户不存在
+					continue
+				}
+
+				var (
+					tmpValue uint64
+				)
+
+				if 100 <= vUser.Amount {
+					tmpValue = uint64(vUser.Amount)
+				} else {
+					continue
+				}
+
+				// 充值
+				err = a.ac.DepositNew(ctx, &biz.EthRecord{ // 两种币的记录
+					UserId:  depositUsers[vUser.Address].ID,
+					Address: vUser.Address,
+					Amount:  tmpValue,
+					Last:    uint64(userLength),
+				})
+				if nil != err {
+					fmt.Println(err)
+				}
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return nil, nil
 }

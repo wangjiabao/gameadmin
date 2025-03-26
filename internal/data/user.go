@@ -18,6 +18,7 @@ type User struct {
 	GiwAdd           float64   `gorm:"type:decimal(65,20);not null"`
 	Git              float64   `gorm:"type:decimal(65,20);not null"`
 	Total            float64   `gorm:"type:decimal(65,20);not null"`
+	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	TotalOne         float64   `gorm:"type:decimal(65,20);not null"`
 	TotalTwo         float64   `gorm:"type:decimal(65,20);not null"`
 	TotalThree       float64   `gorm:"type:decimal(65,20);not null"`
@@ -269,6 +270,16 @@ type Withdraw struct {
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
 
+type EthRecord struct {
+	ID        uint64    `gorm:"primarykey;type:int;comment:主键"`
+	UserId    uint64    `gorm:"type:int;not null;comment:用户id"`
+	Amount    uint64    `gorm:"type:bigint(20);not null;"`
+	Last      uint64    `gorm:"type:bigint(20);not null;"`
+	Address   string    `gorm:"type:varchar(100);not null;default:'default';"`
+	CreatedAt time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt time.Time `gorm:"type:datetime;not null"`
+}
+
 type SeedInfo struct {
 	ID           uint64    `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name         string    `gorm:"type:varchar(45);not null;default:'1'" json:"name"`
@@ -389,6 +400,179 @@ func (u *UserRepo) GetAllUsers(ctx context.Context) ([]*biz.User, error) {
 	return res, nil
 }
 
+func (u *UserRepo) GetUserPageCount(ctx context.Context, address string) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("user")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return count, errors.New(500, "user ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
+func (u *UserRepo) GetWithdrawPageCount(ctx context.Context, userId uint64) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("withdraw")
+
+	if 0 < userId {
+		instance = instance.Where("user_id=?", userId)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return count, errors.New(500, "withdraw ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
+func (u *UserRepo) GetRecordPageCount(ctx context.Context, address string) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("eth_record")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return count, errors.New(500, "record ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
+// GetUserPage .
+func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagination) ([]*biz.User, error) {
+	var users []*User
+
+	res := make([]*biz.User, 0)
+
+	instance := u.data.DB(ctx).Table("user")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Order("id desc").Scopes(Paginate(b.PageNum, b.PageSize)).Find(&users).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "box_record ERROR", err.Error())
+	}
+
+	for _, user := range users {
+		res = append(res, &biz.User{
+			ID:               user.ID,
+			Address:          user.Address,
+			Level:            user.Level,
+			Giw:              user.Giw,
+			GiwAdd:           user.GiwAdd,
+			Git:              user.Git,
+			Total:            user.Total,
+			TotalOne:         user.TotalOne,
+			TotalTwo:         user.TotalTwo,
+			TotalThree:       user.TotalThree,
+			CreatedAt:        user.CreatedAt,
+			UpdatedAt:        user.UpdatedAt,
+			RewardOne:        user.RewardOne,
+			RewardTwo:        user.RewardTwo,
+			RewardThree:      user.RewardThree,
+			RewardTwoOne:     user.RewardTwoOne,
+			RewardTwoTwo:     user.RewardTwoTwo,
+			RewardTwoThree:   user.RewardTwoThree,
+			RewardThreeOne:   user.RewardThreeOne,
+			RewardThreeTwo:   user.RewardThreeTwo,
+			RewardThreeThree: user.RewardThreeThree,
+		})
+	}
+	return res, nil
+}
+
+// GetWithdrawPage .
+func (u *UserRepo) GetWithdrawPage(ctx context.Context, userId uint64, b *biz.Pagination) ([]*biz.Withdraw, error) {
+	var withdraws []*Withdraw
+
+	res := make([]*biz.Withdraw, 0)
+
+	instance := u.data.DB(ctx).Table("withdraw")
+
+	if 0 < userId {
+		instance = instance.Where("user_id=?", userId)
+	}
+
+	if err := instance.Order("id desc").Scopes(Paginate(b.PageNum, b.PageSize)).Find(&withdraws).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "withdraw ERROR", err.Error())
+	}
+
+	for _, v := range withdraws {
+		res = append(res, &biz.Withdraw{
+			ID:        v.ID,
+			UserId:    v.UserId,
+			Amount:    v.Amount,
+			RelAmount: v.RelAmount,
+			Status:    v.Status,
+			CreatedAt: v.CreatedAt,
+		})
+	}
+	return res, nil
+}
+
+func (u *UserRepo) GetEthUserRecordLast(ctx context.Context) (int64, error) {
+	var ethUserRecord *EthRecord
+	if err := u.data.DB(ctx).Table("eth_record").Order("last desc").First(&ethUserRecord).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
+
+		return -1, errors.New(500, "user record ERROR", err.Error())
+	}
+
+	return int64(ethUserRecord.Last), nil
+}
+
+// GetRecordPage .
+func (u *UserRepo) GetRecordPage(ctx context.Context, address string, b *biz.Pagination) ([]*biz.EthRecord, error) {
+	var eth []*EthRecord
+
+	res := make([]*biz.EthRecord, 0)
+
+	instance := u.data.DB(ctx).Table("eth_record")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Order("id desc").Scopes(Paginate(b.PageNum, b.PageSize)).Find(&eth).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "ethRecord ERROR", err.Error())
+	}
+
+	for _, v := range eth {
+		res = append(res, &biz.EthRecord{
+			ID:        v.ID,
+			UserId:    v.UserId,
+			Amount:    v.Amount,
+			Last:      v.Last,
+			Address:   v.Address,
+			CreatedAt: v.CreatedAt,
+		})
+	}
+
+	return res, nil
+}
+
 // GetUserByUserIds .
 func (u *UserRepo) GetUserByUserIds(ctx context.Context, userIds []uint64) (map[uint64]*biz.User, error) {
 	var users []*User
@@ -428,6 +612,85 @@ func (u *UserRepo) GetUserByUserIds(ctx context.Context, userIds []uint64) (map[
 		}
 	}
 	return res, nil
+}
+
+// GetUserByAddresses .
+func (u *UserRepo) GetUserByAddresses(ctx context.Context, Addresses []string) (map[string]*biz.User, error) {
+	var users []*User
+
+	res := make(map[string]*biz.User, 0)
+	if err := u.data.DB(ctx).Table("user").Where("address IN (?)", Addresses).Find(&users).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "USER ERROR", err.Error())
+	}
+
+	for _, user := range users {
+		res[user.Address] = &biz.User{
+			ID:               user.ID,
+			Address:          user.Address,
+			Level:            user.Level,
+			Giw:              user.Giw,
+			GiwAdd:           user.GiwAdd,
+			Git:              user.Git,
+			Total:            user.Total,
+			TotalOne:         user.TotalOne,
+			TotalTwo:         user.TotalTwo,
+			TotalThree:       user.TotalThree,
+			CreatedAt:        user.CreatedAt,
+			UpdatedAt:        user.UpdatedAt,
+			RewardOne:        user.RewardOne,
+			RewardTwo:        user.RewardTwo,
+			RewardThree:      user.RewardThree,
+			RewardTwoOne:     user.RewardTwoOne,
+			RewardTwoTwo:     user.RewardTwoTwo,
+			RewardTwoThree:   user.RewardTwoThree,
+			RewardThreeOne:   user.RewardThreeOne,
+			RewardThreeTwo:   user.RewardThreeTwo,
+			RewardThreeThree: user.RewardThreeThree,
+		}
+	}
+
+	return res, nil
+}
+
+// GetUserById .
+func (u *UserRepo) GetUserById(ctx context.Context, id uint64) (*biz.User, error) {
+	var user *User
+	if err := u.data.DB(ctx).Where("id=?", id).Table("user").First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+
+		return nil, errors.New(500, "USER ERROR", err.Error())
+	}
+
+	return &biz.User{
+		ID:               user.ID,
+		Address:          user.Address,
+		Level:            user.Level,
+		Giw:              user.Giw,
+		GiwAdd:           user.GiwAdd,
+		Git:              user.Git,
+		Total:            user.Total,
+		LastRewardTotal:  user.LastRewardTotal,
+		TotalOne:         user.TotalOne,
+		TotalTwo:         user.TotalTwo,
+		TotalThree:       user.TotalThree,
+		RewardOne:        user.RewardOne,
+		RewardTwo:        user.RewardTwo,
+		RewardThree:      user.RewardThree,
+		RewardTwoOne:     user.RewardTwoOne,
+		RewardTwoTwo:     user.RewardTwoTwo,
+		RewardTwoThree:   user.RewardTwoThree,
+		RewardThreeOne:   user.RewardThreeOne,
+		RewardThreeTwo:   user.RewardThreeTwo,
+		RewardThreeThree: user.RewardThreeThree,
+		CreatedAt:        user.CreatedAt,
+		UpdatedAt:        user.UpdatedAt,
+	}, nil
 }
 
 // GetUserByAddress .
@@ -1811,7 +2074,7 @@ func (u *UserRepo) GetWithdrawRecordsByUserID(ctx context.Context, userID int64,
 	for _, record := range records {
 		res = append(res, &biz.Withdraw{
 			ID:        record.ID,
-			UserID:    record.UserId,
+			UserId:    record.UserId,
 			Amount:    record.Amount,
 			RelAmount: record.RelAmount,
 			Status:    record.Status,
@@ -3210,6 +3473,21 @@ func (u *UserRepo) CreateBuyLandRecord(ctx context.Context, limit uint64, bl *bi
 	return nil
 }
 
+func (u *UserRepo) CreateEth(ctx context.Context, e *biz.EthRecord) error {
+	var eth EthRecord
+	eth.Address = e.Address
+	eth.Last = e.Last
+	eth.Amount = e.Amount
+	eth.UserId = e.UserId
+
+	res := u.data.DB(ctx).Table("eth_record").Create(&eth)
+	if res.Error != nil {
+		return errors.New(500, "CREATE ETH RECORD ERROR", "创建充值记录失败")
+	}
+
+	return nil
+}
+
 // GetAllBuyLandRecords 获取所有买地记录
 func (u *UserRepo) GetAllBuyLandRecords(ctx context.Context, id uint64) ([]*biz.BuyLandRecord, error) {
 	var records []*BuyLandRecord
@@ -3255,4 +3533,71 @@ func (u *UserRepo) GetAdminByAccount(ctx context.Context, account string, passwo
 		Account:  admin.Account,
 		Type:     admin.Type,
 	}, nil
+}
+
+// AddUserTotal .
+func (u *UserRepo) AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error {
+
+	updateMap := map[string]interface{}{
+		"total":      gorm.Expr("total + ?", float64(giw)),
+		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	if 1 == num {
+
+	} else if 2 == num {
+		updateMap["total_one"] = gorm.Expr("total_one + ?", float64(giw))
+	} else if 3 == num {
+		updateMap["total_one"] = gorm.Expr("total_one + ?", float64(giw))
+		updateMap["total_two"] = gorm.Expr("total_two + ?", float64(giw))
+	} else {
+		updateMap["total_one"] = gorm.Expr("total_one + ?", float64(giw))
+		updateMap["total_two"] = gorm.Expr("total_two + ?", float64(giw))
+		updateMap["total_three"] = gorm.Expr("total_three + ?", float64(giw))
+	}
+
+	res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+		Updates(updateMap)
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// AddGiw .
+func (u *UserRepo) AddGiw(ctx context.Context, address string, giw uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{
+			"giw":        gorm.Expr("giw + ?", float64(giw)),
+			"giw_add":    gorm.Expr("giw_add + ?", float64(giw)),
+			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+		})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// RewardProp .
+func (u *UserRepo) RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error {
+	res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+		Updates(map[string]interface{}{
+			"last_reward_total": lastRewardTotal,
+			"updated_at":        time.Now().Format("2006-01-02 15:04:05"),
+		})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	var prop Prop
+	prop.PropType = typeProp
+	prop.UserId = userId
+	res = u.data.DB(ctx).Table("prop").Create(&prop)
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "创建失败")
+	}
+
+	return nil
 }

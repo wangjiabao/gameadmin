@@ -29,6 +29,7 @@ type User struct {
 	GiwAdd           float64
 	Git              float64
 	Total            float64
+	LastRewardTotal  float64
 	TotalOne         float64
 	TotalTwo         float64
 	TotalThree       float64
@@ -301,10 +302,20 @@ type StakeGitRecord struct {
 
 type Withdraw struct {
 	ID        uint64
-	UserID    uint64
+	UserId    uint64
 	Amount    uint64
 	RelAmount uint64
 	Status    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type EthRecord struct {
+	ID        uint64
+	UserId    uint64
+	Amount    uint64
+	Last      uint64
+	Address   string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -347,7 +358,16 @@ type Admin struct {
 type UserRepo interface {
 	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetUserByUserIds(ctx context.Context, userIds []uint64) (map[uint64]*User, error)
+	GetUserByAddresses(ctx context.Context, Addresses []string) (map[string]*User, error)
+	GetUserById(ctx context.Context, id uint64) (*User, error)
+	GetUserPageCount(ctx context.Context, address string) (int64, error)
+	GetWithdrawPageCount(ctx context.Context, userId uint64) (int64, error)
+	GetRecordPageCount(ctx context.Context, address string) (int64, error)
+	GetUserPage(ctx context.Context, userId string, b *Pagination) ([]*User, error)
+	GetWithdrawPage(ctx context.Context, userId uint64, b *Pagination) ([]*Withdraw, error)
+	GetEthUserRecordLast(ctx context.Context) (int64, error)
 	GetUserByAddress(ctx context.Context, address string) (*User, error)
+	GetRecordPage(ctx context.Context, address string, b *Pagination) ([]*EthRecord, error)
 	GetUserRecommendByUserId(ctx context.Context, userId uint64) (*UserRecommend, error)
 	GetUserRecommendByCode(ctx context.Context, code string) ([]*UserRecommend, error)
 	GetUserRecommends(ctx context.Context) ([]*UserRecommend, error)
@@ -451,6 +471,10 @@ type UserRepo interface {
 	GetBuyLandById(ctx context.Context) (*BuyLand, error)
 	CreateBuyLandRecord(ctx context.Context, limit uint64, bl *BuyLandRecord) error
 	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
+	CreateEth(ctx context.Context, e *EthRecord) error
+	AddGiw(ctx context.Context, address string, giw uint64) error
+	AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error
+	RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error
 }
 
 // AppUsecase is an app usecase.
@@ -4770,7 +4794,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else { // 输：下注金额加入池子
+	} else {                                                         // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -5026,6 +5050,117 @@ func (ac *AppUsecase) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest,
 	return res, nil
 }
 
+func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRequest) (*pb.AdminUserListReply, error) {
+	var (
+		users []*User
+		count int64
+		err   error
+	)
+
+	useRes := make([]*pb.AdminUserListReply_List, 0)
+
+	count, err = ac.userRepo.GetUserPageCount(ctx, req.Address)
+	if nil != err {
+		return &pb.AdminUserListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	users, err = ac.userRepo.GetUserPage(ctx, req.Address, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 10,
+	})
+	if nil != err {
+		return &pb.AdminUserListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	var (
+		stakeGetTotal *StakeGetTotal
+	)
+	stakeGetTotal, err = ac.userRepo.GetStakeGetTotal(ctx)
+	if nil != err || nil == stakeGetTotal {
+		return &pb.AdminUserListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	for _, v := range users {
+		// 推荐
+		var (
+			userRecommend   *UserRecommend
+			myUserRecommend []*UserRecommend
+		)
+		userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, v.ID)
+		if nil == userRecommend || nil != err {
+			continue
+		}
+
+		myUserRecommend, err = ac.userRepo.GetUserRecommendByCode(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(v.ID, 10))
+		if nil == myUserRecommend || nil != err {
+			continue
+		}
+
+		var (
+			stakeGitRecord []*StakeGitRecord
+		)
+		stakeGitRecord, err = ac.userRepo.GetStakeGitRecordsByUserID(ctx, v.ID, nil)
+		if nil != err {
+			continue
+		}
+		stakeGitAmount := float64(0)
+		for _, vS := range stakeGitRecord {
+			stakeGitAmount += vS.Amount
+		}
+
+		var (
+			stakeGetTotalMy     = float64(0)
+			stakeGet            *StakeGet
+			stakeGetTotalAmount float64
+		)
+
+		stakeGetTotalAmount = stakeGetTotal.Balance
+		stakeGet, err = ac.userRepo.GetUserStakeGet(ctx, v.ID)
+		if nil != err {
+			continue
+		}
+		if nil != stakeGet {
+			if 0 < stakeGetTotal.Amount {
+				// 每份价值
+				valuePerShare := stakeGetTotalAmount / stakeGetTotal.Amount
+				// 用户最大可提取金额
+				stakeGetTotalMy = stakeGet.StakeRate * valuePerShare
+			}
+		}
+
+		useRes = append(useRes, &pb.AdminUserListReply_List{
+			UserId:                    v.ID,
+			Address:                   v.Address,
+			Level:                     v.Level,
+			Giw:                       v.Giw,
+			Git:                       v.Git,
+			RecommendTotal:            uint64(len(myUserRecommend)),
+			RecommendTotalBiw:         v.Total,
+			RecommendTotalReward:      v.RewardOne + v.RewardTwo + v.RewardThree,
+			RecommendTotalBiwOne:      v.TotalOne,
+			RecommendTotalRewardOne:   v.RewardOne,
+			RecommendTotalBiwTwo:      v.TotalTwo,
+			RecommendTotalRewardTwo:   v.RewardTwo,
+			RecommendTotalBiwThree:    v.TotalThree,
+			RecommendTotalRewardThree: v.RewardThree,
+			MyStakeGit:                stakeGitAmount,
+			MyStakeGetTotal:           stakeGetTotalMy,
+		})
+	}
+
+	return &pb.AdminUserListReply{
+		Status: "ok",
+		Users:  useRes,
+		Count:  count,
+	}, nil
+}
+
 func (ac *AppUsecase) AdminRecommendList(ctx context.Context, req *pb.AdminUserRecommendRequest) (*pb.AdminUserRecommendReply, error) {
 	var (
 		userRecommends []*UserRecommend
@@ -5082,4 +5217,228 @@ func (ac *AppUsecase) AdminRecommendList(ctx context.Context, req *pb.AdminUserR
 	}
 
 	return res, nil
+}
+
+func (ac *AppUsecase) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdrawListRequest) (*pb.AdminWithdrawListReply, error) {
+	var (
+		user         *User
+		count        int64
+		err          error
+		userId       uint64
+		withdrawList []*Withdraw
+	)
+
+	if 0 < len(req.Address) {
+		user, err = ac.userRepo.GetUserByAddress(ctx, req.Address) // 查询用户
+		if nil != err || nil == user {
+			return &pb.AdminWithdrawListReply{
+				Status: "不存在用户",
+			}, nil
+		}
+		userId = user.ID
+	}
+
+	withdrawRes := make([]*pb.AdminWithdrawListReply_List, 0)
+
+	count, err = ac.userRepo.GetWithdrawPageCount(ctx, userId)
+	if nil != err {
+		return &pb.AdminWithdrawListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	withdrawList, err = ac.userRepo.GetWithdrawPage(ctx, userId, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 10,
+	})
+	if nil != err {
+		return &pb.AdminWithdrawListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	userIds := make([]uint64, 0)
+	for _, v := range withdrawList {
+		userIds = append(userIds, v.UserId)
+	}
+
+	usersMap := make(map[uint64]*User)
+	usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+	if nil != err {
+		return &pb.AdminWithdrawListReply{
+			Status: "错误查询",
+		}, nil
+	}
+
+	for _, v := range withdrawList {
+		addressTmp := ""
+		if _, ok := usersMap[v.UserId]; !ok {
+			continue
+		}
+
+		withdrawRes = append(withdrawRes, &pb.AdminWithdrawListReply_List{
+			Address:   addressTmp,
+			Id:        v.ID,
+			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			Amount:    v.Amount,
+			Status:    v.Status,
+		})
+	}
+
+	return &pb.AdminWithdrawListReply{
+		Status:   "ok",
+		Withdraw: withdrawRes,
+		Count:    count,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListRequest) (*pb.RecordListReply, error) {
+	var (
+		count int64
+		err   error
+		list  []*EthRecord
+	)
+
+	res := make([]*pb.RecordListReply_List, 0)
+	count, err = ac.userRepo.GetRecordPageCount(ctx, req.Address)
+	if nil != err {
+		return &pb.RecordListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	list, err = ac.userRepo.GetRecordPage(ctx, req.Address, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 10,
+	})
+	if nil != err {
+		return &pb.RecordListReply{
+			Status: "错误",
+		}, nil
+	}
+
+	for _, v := range list {
+		res = append(res, &pb.RecordListReply_List{
+			Address:   v.Address,
+			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			Amount:    v.Amount,
+		})
+	}
+
+	return &pb.RecordListReply{
+		Status:     "ok",
+		RecordList: res,
+		Count:      count,
+	}, nil
+}
+
+func (ac *AppUsecase) GetEthUserRecordLast(ctx context.Context) (int64, error) {
+	return ac.userRepo.GetEthUserRecordLast(ctx)
+}
+
+func (ac *AppUsecase) GetUserByAddress(ctx context.Context, Addresses []string) (map[string]*User, error) {
+	return ac.userRepo.GetUserByAddresses(ctx, Addresses)
+}
+
+func (ac *AppUsecase) DepositNew(ctx context.Context, eth *EthRecord) error {
+	// 推荐人
+	var (
+		err error
+	)
+
+	// 推荐
+	var (
+		userRecommend *UserRecommend
+	)
+	tmpRecommendUserIds := make([]string, 0)
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, eth.UserId)
+	if nil == userRecommend || nil != err {
+		fmt.Println(err, "deposit err user recommend", eth)
+		return nil
+	}
+	if "" != userRecommend.RecommendCode {
+		tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+	}
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		err = ac.userRepo.AddGiw(ctx, eth.Address, eth.Amount)
+		if nil != err {
+			return err
+		}
+
+		// 加业绩
+		dai := uint64(1)
+		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+			tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+			if 0 >= tmpUserId {
+				continue
+			}
+
+			dai++
+			err = ac.userRepo.AddUserTotal(ctx, uint64(tmpUserId), dai, eth.Amount)
+			if nil != err {
+				return err
+			}
+		}
+
+		err = ac.userRepo.CreateEth(ctx, eth)
+		if nil != err {
+			return err
+		}
+
+		return nil
+	}); nil != err {
+		fmt.Println(err, "deposit err", eth)
+		return err
+	}
+
+	// 奖励
+	for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+		tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+		if 0 >= tmpUserId {
+			continue
+		}
+
+		var (
+			count int64
+			user  *User
+		)
+		count, err = ac.userRepo.GetUserRecommendCount(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(uint64(tmpUserId), 10))
+		if nil != err {
+			fmt.Println(err, "deposit err reward", eth, count, tmpUserId)
+			continue
+		}
+
+		if 50 > count {
+			continue
+		}
+
+		user, err = ac.userRepo.GetUserById(ctx, uint64(tmpUserId))
+		if nil != err || nil == user {
+			fmt.Println(err, "deposit err user reward", eth, count, tmpUserId)
+			continue
+		}
+
+		if user.Total <= user.LastRewardTotal {
+			continue
+		}
+
+		if 100000000 > (user.Total - user.LastRewardTotal) {
+			continue
+		}
+
+		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			err = ac.userRepo.RewardProp(ctx, 17, uint64(tmpUserId), user.LastRewardTotal+100000000)
+			if nil != err {
+				return err
+			}
+
+			return nil
+		}); nil != err {
+			fmt.Println(err, "deposit err reward", eth, tmpUserId)
+			return err
+		}
+	}
+
+	return nil
 }
