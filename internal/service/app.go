@@ -1707,8 +1707,52 @@ func (a *AppService) AdminUserRecommend(ctx context.Context, req *pb.AdminUserRe
 	return a.ac.AdminRecommendList(ctx, req)
 }
 
+func (a *AppService) AdminRecordList(ctx context.Context, req *pb.RecordListRequest) (*pb.RecordListReply, error) {
+	return a.ac.AdminRecordList(ctx, req)
+}
+
 func (a *AppService) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdrawListRequest) (*pb.AdminWithdrawListReply, error) {
 	return a.ac.AdminWithdrawList(ctx, req)
+}
+
+func (a *AppService) AdminLandConfigList(ctx context.Context, req *pb.AdminLandConfigRequest) (*pb.AdminLandConfigReply, error) {
+	return a.ac.AdminLandConfig(ctx, req)
+}
+
+func (a *AppService) AdminLandConfigSet(ctx context.Context, req *pb.AdminLandConfigSetRequest) (*pb.AdminLandConfigSetReply, error) {
+	return a.ac.AdminLandConfigSet(ctx, req)
+}
+
+func (a *AppService) AdminSeedConfigList(ctx context.Context, req *pb.AdminSeedConfigRequest) (*pb.AdminSeedConfigReply, error) {
+	return a.ac.AdminSeedConfig(ctx, req)
+}
+
+func (a *AppService) AdminSeedConfigSet(ctx context.Context, req *pb.AdminSeedConfigSetRequest) (*pb.AdminSeedConfigSetReply, error) {
+	return a.ac.AdminSeedConfigSet(ctx, req)
+}
+
+func (a *AppService) AdminPropConfigList(ctx context.Context, req *pb.AdminPropConfigRequest) (*pb.AdminPropConfigReply, error) {
+	return a.ac.AdminPropConfig(ctx, req)
+}
+
+func (a *AppService) AdminPropConfigSet(ctx context.Context, req *pb.AdminPropConfigSetRequest) (*pb.AdminPropConfigSetReply, error) {
+	return a.ac.AdminPropConfigSet(ctx, req)
+}
+
+func (a *AppService) AdminGetBox(ctx context.Context, req *pb.AdminGetBoxRequest) (*pb.AdminGetBoxReply, error) {
+	return a.ac.AdminGetBox(ctx, req)
+}
+
+func (a *AppService) AdminSetBox(ctx context.Context, req *pb.AdminSetBoxRequest) (*pb.AdminSetBoxReply, error) {
+	return a.ac.AdminSetBox(ctx, req)
+}
+
+func (a *AppService) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfigRequest) (*pb.AdminGetConfigReply, error) {
+	return a.ac.AdminGetConfig(ctx, req)
+}
+
+func (a *AppService) AdminSetConfig(ctx context.Context, req *pb.AdminSetConfigRequest) (*pb.AdminSetConfigReply, error) {
+	return a.ac.AdminSetConfig(ctx, req)
 }
 
 func getUserLength(address string) (int64, error) {

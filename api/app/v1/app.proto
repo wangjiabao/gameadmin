@@ -414,7 +414,7 @@ service App {
 	};
 
 	// 设置道具配置
-	rpc AdminPropConfigSetList (AdminPropConfigSetRequest) returns (AdminPropConfigSetReply) {
+	rpc AdminPropConfigSet (AdminPropConfigSetRequest) returns (AdminPropConfigSetReply) {
 		option (google.api.http) = {
 			post: "/api/admin_dhb/set_prop_config"
 			body: "send_body"
@@ -433,6 +433,36 @@ service App {
 	rpc AdminSetGit (AdminSetGitRequest) returns (AdminSetGitReply) {
 		option (google.api.http) = {
 			post: "/api/admin_dhb/set_git"
+			body: "send_body"
+		};
+	};
+
+	// 当前盲盒信息
+	rpc AdminGetBox (AdminGetBoxRequest) returns (AdminGetBoxReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/get_box"
+		};
+	};
+
+	// 设置盲盒
+	rpc AdminSetBox (AdminSetBoxRequest) returns (AdminSetBoxReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/set_box"
+			body: "send_body"
+		};
+	};
+
+	// 获取配置
+	rpc AdminGetConfig (AdminGetConfigRequest) returns (AdminGetConfigReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/get_config"
+		};
+	};
+
+	// 修改配置
+	rpc AdminSetConfig (AdminSetConfigRequest) returns (AdminSetConfigReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/set_config"
 			body: "send_body"
 		};
 	};
@@ -457,6 +487,14 @@ service App {
 	rpc AdminSetSeed (AdminSetSeedRequest) returns (AdminSetSeedReply) {
 		option (google.api.http) = {
 			post: "/api/admin_dhb/set_seed"
+			body: "send_body"
+		};
+	};
+
+	// 上级拍卖行
+	rpc AdminSetBuyLand (AdminSetBuyLandRequest) returns (AdminSetBuyLandReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/set_buy_land"
 			body: "send_body"
 		};
 	};
@@ -1266,6 +1304,7 @@ message AdminLandConfigRequest {
 }
 
 message AdminLandConfigReply {
+	string status = 3;
 	repeated List recordList = 1;
 	message List {
 		string createdAt = 1; // 时间
@@ -1281,7 +1320,7 @@ message AdminLandConfigReply {
 
 message AdminLandConfigSetRequest {
 	message SendBody{
-		uint64 level = 1; // index列表里的landUseId，种植记录
+		uint64 level = 1;
 		double outPutRateMax = 2; // 最大增产率
 		double outPutRateMin = 3; // 最小增产率
 		uint64 maxHealth = 4; // 默认最大肥沃度
@@ -1300,6 +1339,7 @@ message AdminSeedConfigRequest {
 }
 
 message AdminSeedConfigReply {
+	string status = 3;
 	repeated List recordList = 1;
 	message List {
 		string createdAt = 1; // 时间
@@ -1313,7 +1353,7 @@ message AdminSeedConfigReply {
 
 message AdminSeedConfigSetRequest {
 	message SendBody{
-		uint64 seedId = 1; // index列表里的landUseId，种植记录
+		uint64 seedId = 1;
 		double outMaxAmount = 2; // 最大产出
 		double outMinAmount = 3; // 最小产出
 		uint64 outOverTime = 5; // 成熟时间
@@ -1330,6 +1370,7 @@ message AdminPropConfigRequest {
 }
 
 message AdminPropConfigReply {
+	string status = 3;
 	repeated List recordList = 1;
 	message List {
 		uint64 propType = 2; // 11化肥，12水，13手套，14除虫剂，15铲子，17地契
@@ -1342,7 +1383,7 @@ message AdminPropConfigReply {
 
 message AdminPropConfigSetRequest {
 	message SendBody{
-		uint64 propType = 2; // 11化肥，12水，13手套，14除虫剂，15铲子，17地契
+		uint64 propType = 2; // 12水，13手套，14除虫剂，15铲子
 		uint64 max = 6; // 最大使用次数
 	}
 
@@ -1358,6 +1399,7 @@ message AdminUserRecommendRequest {
 }
 
 message AdminUserRecommendReply {
+	string status = 2;
 	repeated List users = 1;
 	message List {
 		uint64 userId = 4;
@@ -1393,6 +1435,61 @@ message AdminSetGitReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 
+message AdminGetBoxRequest {
+}
+
+message AdminGetBoxReply {
+	string status = 7;
+	string start = 1; // 开始时间年月日时分秒
+	string end = 2; // 结束时间年月日时分秒
+	uint64 total = 4; // 总数
+	double amount = 3; // 价格
+	uint64 sellNum = 6; // 已经卖出总数
+	uint64 term = 5; // 期数
+}
+
+message AdminSetBoxRequest {
+	message SendBody{
+		string start = 1; // 开始时间年月日时分秒
+		string end = 2; // 结束时间年月日时分秒
+		uint64 total = 4; // 总数
+		double amount = 3; // 价格
+		uint64 newTerm = 6; // 1表示新一期
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminSetBoxReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminGetConfigRequest {
+}
+
+message AdminGetConfigReply {
+	string status = 2;
+	repeated List list = 1;
+	message List {
+		string value = 1; // 值
+		string name = 2; // 名称
+		uint64 id = 5;
+	}
+}
+
+message AdminSetConfigRequest {
+	message SendBody{
+		string value = 1; // 开始时间年月日时分秒
+		uint64 id = 4; // 总数
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminSetConfigReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
 
 message AdminSetLandRequest {
 	message SendBody{
@@ -1421,6 +1518,21 @@ message AdminSetSeedRequest {
 }
 
 message AdminSetSeedReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetBuyLandRequest {
+	message SendBody{
+		uint64 level = 2; // 土地级别1-10
+		double amount = 1; // 金额
+		double amountTwo = 3; // 一口价
+		uint64 limit = 4; // 上架时间小时数
+	}
+
+	SendBody send_body = 1;
+}
+
+message AdminSetBuyLandReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 

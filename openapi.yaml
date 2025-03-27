@@ -44,6 +44,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/get_box:
+        get:
+            tags:
+                - App
+            description: 当前盲盒信息
+            operationId: App_AdminGetBox
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminGetBoxReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/get_config:
+        get:
+            tags:
+                - App
+            description: 获取配置
+            operationId: App_AdminGetConfig
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminGetConfigReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/land_config_list:
         get:
             tags:
@@ -148,6 +186,56 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminSeedConfigReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_box:
+        post:
+            tags:
+                - App
+            description: 设置盲盒
+            operationId: App_AdminSetBox
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetBoxRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetBoxReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_config:
+        post:
+            tags:
+                - App
+            description: 修改配置
+            operationId: App_AdminSetConfig
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AdminSetConfigRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetConfigReply'
                 default:
                     description: Default error response
                     content:
@@ -284,7 +372,7 @@ paths:
             tags:
                 - App
             description: 设置道具配置
-            operationId: App_AdminPropConfigSetList
+            operationId: App_AdminPropConfigSet
             requestBody:
                 content:
                     application/json:
@@ -1500,9 +1588,47 @@ components:
         AdminDepositReply:
             type: object
             properties: {}
+        AdminGetBoxReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                start:
+                    type: string
+                end:
+                    type: string
+                total:
+                    type: string
+                amount:
+                    type: number
+                    format: double
+                sellNum:
+                    type: string
+                term:
+                    type: string
+        AdminGetConfigReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminGetConfigReply_List'
+        AdminGetConfigReply_List:
+            type: object
+            properties:
+                value:
+                    type: string
+                name:
+                    type: string
+                id:
+                    type: string
         AdminLandConfigReply:
             type: object
             properties:
+                status:
+                    type: string
                 recordList:
                     type: array
                     items:
@@ -1563,6 +1689,8 @@ components:
         AdminPropConfigReply:
             type: object
             properties:
+                status:
+                    type: string
                 recordList:
                     type: array
                     items:
@@ -1593,6 +1721,8 @@ components:
         AdminSeedConfigReply:
             type: object
             properties:
+                status:
+                    type: string
                 recordList:
                     type: array
                     items:
@@ -1629,6 +1759,37 @@ components:
                     type: number
                     format: double
                 outOverTime:
+                    type: string
+        AdminSetBoxReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetBoxRequest_SendBody:
+            type: object
+            properties:
+                start:
+                    type: string
+                end:
+                    type: string
+                total:
+                    type: string
+                amount:
+                    type: number
+                    format: double
+                newTerm:
+                    type: string
+        AdminSetConfigReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetConfigRequest_SendBody:
+            type: object
+            properties:
+                value:
+                    type: string
+                id:
                     type: string
         AdminSetGitReply:
             type: object
@@ -1759,6 +1920,8 @@ components:
         AdminUserRecommendReply:
             type: object
             properties:
+                status:
+                    type: string
                 users:
                     type: array
                     items:

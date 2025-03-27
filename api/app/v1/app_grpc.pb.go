@@ -74,9 +74,13 @@ const (
 	App_AdminSeedConfigList_FullMethodName    = "/api.app.v1.App/AdminSeedConfigList"
 	App_AdminSeedConfigSet_FullMethodName     = "/api.app.v1.App/AdminSeedConfigSet"
 	App_AdminPropConfigList_FullMethodName    = "/api.app.v1.App/AdminPropConfigList"
-	App_AdminPropConfigSetList_FullMethodName = "/api.app.v1.App/AdminPropConfigSetList"
+	App_AdminPropConfigSet_FullMethodName     = "/api.app.v1.App/AdminPropConfigSet"
 	App_AdminSetGiw_FullMethodName            = "/api.app.v1.App/AdminSetGiw"
 	App_AdminSetGit_FullMethodName            = "/api.app.v1.App/AdminSetGit"
+	App_AdminGetBox_FullMethodName            = "/api.app.v1.App/AdminGetBox"
+	App_AdminSetBox_FullMethodName            = "/api.app.v1.App/AdminSetBox"
+	App_AdminGetConfig_FullMethodName         = "/api.app.v1.App/AdminGetConfig"
+	App_AdminSetConfig_FullMethodName         = "/api.app.v1.App/AdminSetConfig"
 	App_AdminSetLand_FullMethodName           = "/api.app.v1.App/AdminSetLand"
 	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
 	App_AdminSetSeed_FullMethodName           = "/api.app.v1.App/AdminSetSeed"
@@ -192,11 +196,19 @@ type AppClient interface {
 	// 道具配置
 	AdminPropConfigList(ctx context.Context, in *AdminPropConfigRequest, opts ...grpc.CallOption) (*AdminPropConfigReply, error)
 	// 设置道具配置
-	AdminPropConfigSetList(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error)
+	AdminPropConfigSet(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error)
 	// 设置余额
 	AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...grpc.CallOption) (*AdminSetGiwReply, error)
 	// 设置余额
 	AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error)
+	// 当前盲盒信息
+	AdminGetBox(ctx context.Context, in *AdminGetBoxRequest, opts ...grpc.CallOption) (*AdminGetBoxReply, error)
+	// 设置盲盒
+	AdminSetBox(ctx context.Context, in *AdminSetBoxRequest, opts ...grpc.CallOption) (*AdminSetBoxReply, error)
+	// 获取配置
+	AdminGetConfig(ctx context.Context, in *AdminGetConfigRequest, opts ...grpc.CallOption) (*AdminGetConfigReply, error)
+	// 修改配置
+	AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...grpc.CallOption) (*AdminSetConfigReply, error)
 	// 发土地
 	AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...grpc.CallOption) (*AdminSetLandReply, error)
 	// 发道具
@@ -708,9 +720,9 @@ func (c *appClient) AdminPropConfigList(ctx context.Context, in *AdminPropConfig
 	return out, nil
 }
 
-func (c *appClient) AdminPropConfigSetList(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error) {
+func (c *appClient) AdminPropConfigSet(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error) {
 	out := new(AdminPropConfigSetReply)
-	err := c.cc.Invoke(ctx, App_AdminPropConfigSetList_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, App_AdminPropConfigSet_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -729,6 +741,42 @@ func (c *appClient) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opt
 func (c *appClient) AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error) {
 	out := new(AdminSetGitReply)
 	err := c.cc.Invoke(ctx, App_AdminSetGit_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminGetBox(ctx context.Context, in *AdminGetBoxRequest, opts ...grpc.CallOption) (*AdminGetBoxReply, error) {
+	out := new(AdminGetBoxReply)
+	err := c.cc.Invoke(ctx, App_AdminGetBox_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetBox(ctx context.Context, in *AdminSetBoxRequest, opts ...grpc.CallOption) (*AdminSetBoxReply, error) {
+	out := new(AdminSetBoxReply)
+	err := c.cc.Invoke(ctx, App_AdminSetBox_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminGetConfig(ctx context.Context, in *AdminGetConfigRequest, opts ...grpc.CallOption) (*AdminGetConfigReply, error) {
+	out := new(AdminGetConfigReply)
+	err := c.cc.Invoke(ctx, App_AdminGetConfig_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...grpc.CallOption) (*AdminSetConfigReply, error) {
+	out := new(AdminSetConfigReply)
+	err := c.cc.Invoke(ctx, App_AdminSetConfig_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -872,11 +920,19 @@ type AppServer interface {
 	// 道具配置
 	AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error)
 	// 设置道具配置
-	AdminPropConfigSetList(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error)
+	AdminPropConfigSet(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error)
 	// 设置余额
 	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
 	// 设置余额
 	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
+	// 当前盲盒信息
+	AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error)
+	// 设置盲盒
+	AdminSetBox(context.Context, *AdminSetBoxRequest) (*AdminSetBoxReply, error)
+	// 获取配置
+	AdminGetConfig(context.Context, *AdminGetConfigRequest) (*AdminGetConfigReply, error)
+	// 修改配置
+	AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error)
 	// 发土地
 	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
 	// 发道具
@@ -1055,14 +1111,26 @@ func (UnimplementedAppServer) AdminSeedConfigSet(context.Context, *AdminSeedConf
 func (UnimplementedAppServer) AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminPropConfigList not implemented")
 }
-func (UnimplementedAppServer) AdminPropConfigSetList(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AdminPropConfigSetList not implemented")
+func (UnimplementedAppServer) AdminPropConfigSet(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminPropConfigSet not implemented")
 }
 func (UnimplementedAppServer) AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGiw not implemented")
 }
 func (UnimplementedAppServer) AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGit not implemented")
+}
+func (UnimplementedAppServer) AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminGetBox not implemented")
+}
+func (UnimplementedAppServer) AdminSetBox(context.Context, *AdminSetBoxRequest) (*AdminSetBoxReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetBox not implemented")
+}
+func (UnimplementedAppServer) AdminGetConfig(context.Context, *AdminGetConfigRequest) (*AdminGetConfigReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminGetConfig not implemented")
+}
+func (UnimplementedAppServer) AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetConfig not implemented")
 }
 func (UnimplementedAppServer) AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLand not implemented")
@@ -2076,20 +2144,20 @@ func _App_AdminPropConfigList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
-func _App_AdminPropConfigSetList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _App_AdminPropConfigSet_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminPropConfigSetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AppServer).AdminPropConfigSetList(ctx, in)
+		return srv.(AppServer).AdminPropConfigSet(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: App_AdminPropConfigSetList_FullMethodName,
+		FullMethod: App_AdminPropConfigSet_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AppServer).AdminPropConfigSetList(ctx, req.(*AdminPropConfigSetRequest))
+		return srv.(AppServer).AdminPropConfigSet(ctx, req.(*AdminPropConfigSetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2126,6 +2194,78 @@ func _App_AdminSetGit_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AppServer).AdminSetGit(ctx, req.(*AdminSetGitRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminGetBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminGetBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminGetBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminGetBox_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminGetBox(ctx, req.(*AdminGetBoxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetBoxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetBox(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetBox_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetBox(ctx, req.(*AdminSetBoxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminGetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminGetConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminGetConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminGetConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminGetConfig(ctx, req.(*AdminGetConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetConfig_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetConfig(ctx, req.(*AdminSetConfigRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2412,8 +2552,8 @@ var App_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _App_AdminPropConfigList_Handler,
 		},
 		{
-			MethodName: "AdminPropConfigSetList",
-			Handler:    _App_AdminPropConfigSetList_Handler,
+			MethodName: "AdminPropConfigSet",
+			Handler:    _App_AdminPropConfigSet_Handler,
 		},
 		{
 			MethodName: "AdminSetGiw",
@@ -2422,6 +2562,22 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetGit",
 			Handler:    _App_AdminSetGit_Handler,
+		},
+		{
+			MethodName: "AdminGetBox",
+			Handler:    _App_AdminGetBox_Handler,
+		},
+		{
+			MethodName: "AdminSetBox",
+			Handler:    _App_AdminSetBox_Handler,
+		},
+		{
+			MethodName: "AdminGetConfig",
+			Handler:    _App_AdminGetConfig_Handler,
+		},
+		{
+			MethodName: "AdminSetConfig",
+			Handler:    _App_AdminSetConfig_Handler,
 		},
 		{
 			MethodName: "AdminSetLand",

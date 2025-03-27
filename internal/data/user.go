@@ -3188,6 +3188,35 @@ func (u *UserRepo) GetLandInfoByLevels(ctx context.Context) (map[uint64]*biz.Lan
 	return res, nil
 }
 
+func (u *UserRepo) GetLandInfo(ctx context.Context) ([]*biz.LandInfo, error) {
+	var landInfos []*LandInfo
+
+	res := make([]*biz.LandInfo, 0)
+	if err := u.data.DB(ctx).Table("land_info").Order("level asc").Find(&landInfos).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+		return nil, errors.New(500, "LAND_INFO_ERROR", err.Error())
+	}
+
+	for _, landInfo := range landInfos {
+		res = append(res, &biz.LandInfo{
+			ID:                landInfo.ID,
+			Level:             landInfo.Level,
+			OutPutRateMax:     landInfo.OutPutRateMax,
+			OutPutRateMin:     landInfo.OutPutRateMin,
+			RentOutPutRateMax: landInfo.RentOutPutRateMax,
+			MaxHealth:         landInfo.MaxHealth,
+			PerHealth:         landInfo.PerHealth,
+			LimitDateMax:      landInfo.LimitDateMax,
+			CreatedAt:         landInfo.CreatedAt,
+			UpdatedAt:         landInfo.UpdatedAt,
+		})
+	}
+
+	return res, nil
+}
+
 // SetGiw .
 func (u *UserRepo) SetGiw(ctx context.Context, address string, giw uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
@@ -3580,6 +3609,98 @@ func (u *UserRepo) AddGiw(ctx context.Context, address string, giw uint64) error
 	return nil
 }
 
+// SetAdminLandConfig .
+func (u *UserRepo) SetAdminLandConfig(ctx context.Context, info *biz.LandInfo) error {
+
+	updateMap := map[string]interface{}{
+		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	if 0 < info.OutPutRateMax {
+		updateMap["out_put_rate_max"] = info.OutPutRateMax
+	}
+
+	if 0 < info.OutPutRateMin {
+		updateMap["out_put_rate_min"] = info.OutPutRateMin
+	}
+
+	if 0 < info.MaxHealth {
+		updateMap["max_health"] = info.MaxHealth
+	}
+
+	if 0 < info.PerHealth {
+		updateMap["per_health"] = info.PerHealth
+	}
+
+	res := u.data.DB(ctx).Table("land_info").Where("level=?", info.Level).
+		Updates(updateMap)
+	if res.Error != nil {
+		return errors.New(500, "SetAdminLandConfig", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetAdminSeedConfig .
+func (u *UserRepo) SetAdminSeedConfig(ctx context.Context, info *biz.SeedInfo) error {
+
+	updateMap := map[string]interface{}{
+		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	if 0 < info.OutMinAmount {
+		updateMap["out_min_amount"] = info.OutMinAmount
+	}
+
+	if 0 < info.OutMaxAmount {
+		updateMap["out_max_amount"] = info.OutMaxAmount
+	}
+
+	if 0 < info.OutOverTime {
+		updateMap["out_over_time"] = info.OutOverTime
+	}
+
+	res := u.data.DB(ctx).Table("seed_info").Where("id=?", info.ID).
+		Updates(updateMap)
+	if res.Error != nil {
+		return errors.New(500, "SetAdminSeedConfig", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetAdminPropConfig .
+func (u *UserRepo) SetAdminPropConfig(ctx context.Context, info *biz.PropInfo) error {
+
+	updateMap := map[string]interface{}{
+		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+	}
+
+	if 12 < info.PropType && 0 < info.ThreeOne {
+		updateMap["three_one"] = info.ThreeOne
+	}
+
+	if 13 < info.PropType && 0 < info.FiveOne {
+		updateMap["five_one"] = info.FiveOne
+	}
+
+	if 14 < info.PropType && 0 < info.FourOne {
+		updateMap["four_one"] = info.FourOne
+	}
+
+	if 15 < info.PropType && 0 < info.TwoOne {
+		updateMap["two_one"] = info.TwoOne
+	}
+
+	res := u.data.DB(ctx).Table("prop_info").Where("prop_type=?", info.PropType).
+		Updates(updateMap)
+	if res.Error != nil {
+		return errors.New(500, "SetAdminPropConfig", "用户信息修改失败")
+	}
+
+	return nil
+}
+
 // RewardProp .
 func (u *UserRepo) RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error {
 	res := u.data.DB(ctx).Table("user").Where("id=?", userId).
@@ -3597,6 +3718,17 @@ func (u *UserRepo) RewardProp(ctx context.Context, typeProp int, userId uint64, 
 	res = u.data.DB(ctx).Table("prop").Create(&prop)
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "创建失败")
+	}
+
+	return nil
+}
+
+// UpdateConfig .
+func (u *UserRepo) UpdateConfig(ctx context.Context, id uint64, value string) error {
+	res := u.data.DB(ctx).Table("config").Where("id=?", id).
+		Updates(map[string]interface{}{"value": value, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "UpdateConfig", "config")
 	}
 
 	return nil

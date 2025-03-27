@@ -455,6 +455,7 @@ type UserRepo interface {
 	CreateLand(ctx context.Context, lc *Land) (*Land, error)
 	GetLand(ctx context.Context, id, id2, userId uint64) error
 	GetLandInfoByLevels(ctx context.Context) (map[uint64]*LandInfo, error)
+	GetLandInfo(ctx context.Context) ([]*LandInfo, error)
 	SetGiw(ctx context.Context, address string, giw uint64) error
 	SetGit(ctx context.Context, address string, git uint64) error
 	SetStakeGetTotal(ctx context.Context, amount, balance float64) error
@@ -475,6 +476,10 @@ type UserRepo interface {
 	AddGiw(ctx context.Context, address string, giw uint64) error
 	AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error
 	RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error
+	SetAdminPropConfig(ctx context.Context, info *PropInfo) error
+	SetAdminSeedConfig(ctx context.Context, info *SeedInfo) error
+	SetAdminLandConfig(ctx context.Context, info *LandInfo) error
+	UpdateConfig(ctx context.Context, id uint64, value string) error
 }
 
 // AppUsecase is an app usecase.
@@ -4794,7 +4799,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -5039,7 +5044,9 @@ func (ac *AppUsecase) AdminLogin(ctx context.Context, req *pb.AdminLoginRequest,
 		err   error
 	)
 
-	res := &pb.AdminLoginReply{}
+	res := &pb.AdminLoginReply{
+		Status: "ok",
+	}
 	password := fmt.Sprintf("%x", md5.Sum([]byte(req.SendBody.Password)))
 	admin, err = ac.userRepo.GetAdminByAccount(ctx, req.SendBody.Account, password)
 	if nil == admin || nil != err {
@@ -5172,7 +5179,8 @@ func (ac *AppUsecase) AdminRecommendList(ctx context.Context, req *pb.AdminUserR
 	)
 
 	res := &pb.AdminUserRecommendReply{
-		Users: make([]*pb.AdminUserRecommendReply_List, 0),
+		Status: "ok",
+		Users:  make([]*pb.AdminUserRecommendReply_List, 0),
 	}
 
 	// 地址查询
@@ -5329,6 +5337,409 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 		Status:     "ok",
 		RecordList: res,
 		Count:      count,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminLandConfigSet(ctx context.Context, req *pb.AdminLandConfigSetRequest) (*pb.AdminLandConfigSetReply, error) {
+	if 0 >= req.SendBody.Level {
+		return &pb.AdminLandConfigSetReply{
+			Status: "参数错误",
+		}, nil
+	}
+
+	err := ac.userRepo.SetAdminLandConfig(ctx, &LandInfo{
+		Level:         req.SendBody.Level,
+		OutPutRateMax: req.SendBody.OutPutRateMax,
+		OutPutRateMin: req.SendBody.OutPutRateMin,
+		MaxHealth:     req.SendBody.MaxHealth,
+		PerHealth:     req.SendBody.PerHealth,
+	})
+	if nil != err {
+		return &pb.AdminLandConfigSetReply{
+			Status: "修改失败",
+		}, nil
+	}
+
+	return &pb.AdminLandConfigSetReply{
+		Status: "ok",
+	}, nil
+}
+
+func (ac *AppUsecase) AdminLandConfig(ctx context.Context, req *pb.AdminLandConfigRequest) (*pb.AdminLandConfigReply, error) {
+	var (
+		err       error
+		landInfos []*LandInfo
+	)
+
+	landInfos, err = ac.userRepo.GetLandInfo(ctx)
+	if nil != err {
+		return &pb.AdminLandConfigReply{Status: "ok"}, err
+	}
+
+	if 0 >= len(landInfos) {
+		return &pb.AdminLandConfigReply{Status: "ok"}, nil
+	}
+
+	res := make([]*pb.AdminLandConfigReply_List, 0)
+
+	for _, v := range landInfos {
+		res = append(res, &pb.AdminLandConfigReply_List{
+			CreatedAt:     v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			OutPutRateMax: v.OutPutRateMax,
+			OutPutRateMin: v.OutPutRateMin,
+			MaxHealth:     v.MaxHealth,
+			PerHealth:     v.PerHealth,
+			Level:         v.Level,
+		})
+	}
+
+	return &pb.AdminLandConfigReply{
+		Status:     "ok",
+		RecordList: res,
+		Count:      10,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminSeedConfigSet(ctx context.Context, req *pb.AdminSeedConfigSetRequest) (*pb.AdminSeedConfigSetReply, error) {
+	if 0 >= req.SendBody.SeedId {
+		return &pb.AdminSeedConfigSetReply{
+			Status: "参数错误",
+		}, nil
+	}
+
+	err := ac.userRepo.SetAdminSeedConfig(ctx, &SeedInfo{
+		ID:           req.SendBody.SeedId,
+		OutMinAmount: req.SendBody.OutMinAmount,
+		OutMaxAmount: req.SendBody.OutMaxAmount,
+		OutOverTime:  req.SendBody.OutOverTime,
+	})
+
+	if nil != err {
+		return &pb.AdminSeedConfigSetReply{
+			Status: "修改失败",
+		}, nil
+	}
+
+	return &pb.AdminSeedConfigSetReply{
+		Status: "ok",
+	}, nil
+}
+
+func (ac *AppUsecase) AdminSeedConfig(ctx context.Context, req *pb.AdminSeedConfigRequest) (*pb.AdminSeedConfigReply, error) {
+	var (
+		err       error
+		seedInfos []*SeedInfo
+	)
+
+	seedInfos, err = ac.userRepo.GetAllSeedInfo(ctx)
+	if nil != err {
+		return &pb.AdminSeedConfigReply{Status: "ok"}, err
+	}
+
+	if 0 >= len(seedInfos) {
+		return &pb.AdminSeedConfigReply{Status: "ok"}, nil
+	}
+
+	res := make([]*pb.AdminSeedConfigReply_List, 0)
+
+	for _, v := range seedInfos {
+		res = append(res, &pb.AdminSeedConfigReply_List{
+			CreatedAt:    v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			OutMaxAmount: v.OutMaxAmount,
+			OutMinAmount: v.OutMinAmount,
+			OutOverTime:  v.OutOverTime,
+		})
+	}
+
+	return &pb.AdminSeedConfigReply{
+		Status:     "ok",
+		RecordList: res,
+		Count:      10,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminPropConfigSet(ctx context.Context, req *pb.AdminPropConfigSetRequest) (*pb.AdminPropConfigSetReply, error) {
+
+	tmp := &PropInfo{
+		PropType: req.SendBody.PropType,
+		OneOne:   0,
+		OneTwo:   0,
+		TwoOne:   0,
+		TwoTwo:   0,
+		ThreeOne: 0,
+		FourOne:  0,
+		FiveOne:  0,
+		GetRate:  0,
+	}
+
+	if 12 == req.SendBody.PropType {
+		tmp.ThreeOne = req.SendBody.Max
+	} else if 13 == req.SendBody.PropType {
+		tmp.FiveOne = req.SendBody.Max
+	} else if 14 == req.SendBody.PropType {
+		tmp.FourOne = req.SendBody.Max
+	} else if 15 == req.SendBody.PropType {
+		tmp.TwoOne = req.SendBody.Max
+	} else {
+		return &pb.AdminPropConfigSetReply{
+			Status: "参数错误",
+		}, nil
+	}
+
+	err := ac.userRepo.SetAdminPropConfig(ctx, tmp)
+	if nil != err {
+		return &pb.AdminPropConfigSetReply{
+			Status: "修改失败",
+		}, nil
+	}
+
+	return &pb.AdminPropConfigSetReply{
+		Status: "ok",
+	}, nil
+}
+
+func (ac *AppUsecase) AdminPropConfig(ctx context.Context, req *pb.AdminPropConfigRequest) (*pb.AdminPropConfigReply, error) {
+	var (
+		err       error
+		propInfos []*PropInfo
+	)
+
+	propInfos, err = ac.userRepo.GetAllPropInfo(ctx)
+	if nil != err {
+		return &pb.AdminPropConfigReply{Status: "ok"}, err
+	}
+
+	if 0 >= len(propInfos) {
+		return &pb.AdminPropConfigReply{Status: "ok"}, nil
+	}
+
+	res := make([]*pb.AdminPropConfigReply_List, 0)
+
+	for _, v := range propInfos {
+		useNum := uint64(1)
+
+		if 12 == v.PropType {
+			useNum = v.ThreeOne // 水
+		} else if 13 == v.PropType {
+			useNum = v.FiveOne // 手套
+		} else if 14 == v.PropType {
+			useNum = v.FourOne // 除虫剂
+		} else if 15 == v.PropType {
+			useNum = v.TwoOne // 铲子
+		}
+
+		res = append(res, &pb.AdminPropConfigReply_List{
+			PropType:  v.PropType,
+			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			Max:       useNum,
+		})
+	}
+
+	res = append(res, &pb.AdminPropConfigReply_List{
+		PropType:  17,
+		CreatedAt: "",
+		Max:       1,
+	})
+
+	return &pb.AdminPropConfigReply{
+		Status:     "ok",
+		RecordList: res,
+		Count:      10,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminGetBox(ctx context.Context, req *pb.AdminGetBoxRequest) (*pb.AdminGetBoxReply, error) {
+	var (
+		boxNum     uint64
+		boxSellNum uint64
+		configs    []*Config
+		boxMax     uint64
+		boxAmount  float64
+		boxStart   string
+		boxEnd     string
+		err        error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"box_num",
+		"box_max",
+		"box_sell_num",
+		"box_start",
+		"box_end",
+		"box_amount",
+	)
+	if nil != err || nil == configs {
+		return &pb.AdminGetBoxReply{
+			Status: "配置错误",
+		}, nil
+	}
+
+	for _, vConfig := range configs {
+		if "box_num" == vConfig.KeyName {
+			boxNum, _ = strconv.ParseUint(vConfig.Value, 10, 64)
+		}
+		if "box_sell_num" == vConfig.KeyName {
+			boxSellNum, _ = strconv.ParseUint(vConfig.Value, 10, 64)
+		}
+		if "box_start" == vConfig.KeyName {
+			boxStart = vConfig.Value
+		}
+		if "box_end" == vConfig.KeyName {
+			boxEnd = vConfig.Value
+		}
+		if "box_amount" == vConfig.KeyName {
+			boxAmount, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+		if "box_max" == vConfig.KeyName {
+			boxMax, _ = strconv.ParseUint(vConfig.Value, 10, 64)
+		}
+	}
+
+	return &pb.AdminGetBoxReply{
+		Start:   boxStart,
+		End:     boxEnd,
+		Total:   boxMax,
+		Amount:  boxAmount,
+		SellNum: boxSellNum,
+		Term:    boxNum,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminSetBox(ctx context.Context, req *pb.AdminSetBoxRequest) (*pb.AdminSetBoxReply, error) {
+	var (
+		boxNum  uint64
+		configs []*Config
+		err     error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"box_num",
+	)
+	if nil != err || nil == configs {
+		return &pb.AdminSetBoxReply{
+			Status: "配置错误",
+		}, nil
+	}
+
+	for _, vConfig := range configs {
+		if "box_num" == vConfig.KeyName {
+			boxNum, _ = strconv.ParseUint(vConfig.Value, 10, 64)
+		}
+	}
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		if 1 == req.SendBody.NewTerm {
+			err = ac.userRepo.UpdateConfig(ctx, 19, strconv.FormatUint(boxNum+1, 10))
+			if nil != err {
+				return err
+			}
+
+			err = ac.userRepo.UpdateConfig(ctx, 21, "0")
+			if nil != err {
+				return err
+			}
+		}
+
+		if 10 < len(req.SendBody.Start) {
+			err = ac.userRepo.UpdateConfig(ctx, 16, req.SendBody.Start)
+			if nil != err {
+				return err
+			}
+		}
+
+		if 10 < len(req.SendBody.End) {
+			err = ac.userRepo.UpdateConfig(ctx, 17, req.SendBody.End)
+			if nil != err {
+				return err
+			}
+		}
+
+		if 0 < req.SendBody.Total {
+			err = ac.userRepo.UpdateConfig(ctx, 20, strconv.FormatUint(req.SendBody.Total, 10))
+			if nil != err {
+				return err
+			}
+		}
+
+		if 0 < req.SendBody.Amount {
+			err = ac.userRepo.UpdateConfig(ctx, 18, strconv.FormatFloat(req.SendBody.Amount, 'f', -1, 64))
+			if nil != err {
+				return err
+			}
+		}
+
+		return nil
+	}); nil != err {
+		return &pb.AdminSetBoxReply{
+			Status: "配置修改错误",
+		}, nil
+	}
+
+	return &pb.AdminSetBoxReply{
+		Status: "ok",
+	}, nil
+}
+
+func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfigRequest) (*pb.AdminGetConfigReply, error) {
+	var (
+		configs []*Config
+		err     error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"withdraw_amount_min",
+		"withdraw_amount_max",
+		"exchange_fee_rate",
+		"reward_stake_rate",
+		"stake_over_rate",
+		"sell_fee_rate",
+		"one_rate",
+		"two_rate",
+		"three_rate",
+	)
+	if nil != err || nil == configs {
+		return &pb.AdminGetConfigReply{
+			Status: "配置错误",
+		}, nil
+	}
+
+	res := make([]*pb.AdminGetConfigReply_List, 0)
+	for _, vConfig := range configs {
+		res = append(res, &pb.AdminGetConfigReply_List{
+			Value: vConfig.Value,
+			Name:  vConfig.Name,
+			Id:    uint64(vConfig.ID),
+		})
+	}
+
+	return &pb.AdminGetConfigReply{Status: "ok", List: res}, nil
+}
+
+func (ac *AppUsecase) AdminSetConfig(ctx context.Context, req *pb.AdminSetConfigRequest) (*pb.AdminSetConfigReply, error) {
+	var (
+		err error
+	)
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		if 1 <= req.SendBody.Id {
+			err = ac.userRepo.UpdateConfig(ctx, req.SendBody.Id, req.SendBody.Value)
+			if nil != err {
+				return err
+			}
+		}
+
+		return nil
+	}); nil != err {
+		return &pb.AdminSetConfigReply{
+			Status: "配置修改错误",
+		}, nil
+	}
+
+	return &pb.AdminSetConfigReply{
+		Status: "ok",
 	}, nil
 }
 
