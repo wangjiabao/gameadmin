@@ -5966,6 +5966,10 @@ func (ac *AppUsecase) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequ
 			continue
 		}
 
+		if 100 <= len(v) {
+			continue
+		}
+
 		var (
 			user *User
 		)
@@ -6063,6 +6067,10 @@ func (ac *AppUsecase) AdminSetProp(ctx context.Context, req *pb.AdminSetPropRequ
 			continue
 		}
 
+		if 100 <= len(v) {
+			continue
+		}
+
 		var (
 			user *User
 		)
@@ -6146,6 +6154,10 @@ func (ac *AppUsecase) AdminSetSeed(ctx context.Context, req *pb.AdminSetSeedRequ
 
 	for _, v := range partsAddress {
 		if 20 >= len(v) {
+			continue
+		}
+
+		if 100 <= len(v) {
 			continue
 		}
 
