@@ -328,6 +328,7 @@ type BuyLand struct {
 	UpdatedAt time.Time
 	AmountTwo float64
 	Limit     uint64
+	Level     uint64
 }
 
 type RandomSeed struct {
@@ -4806,7 +4807,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -6259,7 +6260,8 @@ func (ac *AppUsecase) AdminSetBuyLand(ctx context.Context, req *pb.AdminSetBuyLa
 		err = ac.userRepo.SetBuyLand(ctx, &BuyLand{
 			Amount:    amount,
 			AmountTwo: amountTwo,
-			Limit:     req.SendBody.Limit,
+			Limit:     uint64(time.Now().Unix()) + req.SendBody.Limit*3600,
+			Level:     req.SendBody.Level,
 		})
 		if nil != err {
 			return err

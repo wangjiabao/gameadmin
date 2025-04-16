@@ -144,6 +144,7 @@ type BuyLand struct {
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 	AmountTwo float64   `gorm:"type:decimal(65,20);not null;default:0.0"`
 	Limit     uint64    `gorm:"not null;default:0"`
+	Level     uint64    `gorm:"not null;default:1"`
 }
 
 type BuyLandRecord struct {
@@ -3881,6 +3882,7 @@ func (u *UserRepo) SetBuyLand(ctx context.Context, buyLand *biz.BuyLand) error {
 	record.Limit = buyLand.Limit
 	record.Amount = buyLand.Amount
 	record.AmountTwo = buyLand.AmountTwo
+	record.Level = buyLand.Level
 
 	res := u.data.DB(ctx).Table("buy_land").Create(&record)
 	if res.Error != nil {
