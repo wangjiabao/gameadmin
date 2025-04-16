@@ -3778,7 +3778,7 @@ func (u *UserRepo) DailyReward(ctx context.Context, id, userId uint64, amount fl
 
 		var reward Reward
 
-		reward.Reason = 1
+		reward.Reason = 3
 		reward.UserId = userId
 		reward.Amount = amount
 		reward.Two = id

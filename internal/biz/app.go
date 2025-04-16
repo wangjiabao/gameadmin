@@ -5865,9 +5865,9 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 
 			// l1-l3，奖励发放
 			if tmpAmount > 0 {
-				tmpI := 1
+				tmpI := 0
 				for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
-					if 4 <= tmpI {
+					if 3 <= tmpI {
 						break
 					}
 					tmpI++
