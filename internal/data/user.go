@@ -140,8 +140,8 @@ type BuyLand struct {
 	ID        uint64    `gorm:"primarykey;type:int"`
 	Amount    float64   `gorm:"type:decimal(65,20);not null;default:0.0"`
 	Status    uint64    `gorm:"type:int;not null;default:1;"`
-	CreatedAt time.Time `gorm:"type:datetime;default:null"`
-	UpdatedAt time.Time `gorm:"type:datetime;default:null"`
+	CreatedAt time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 	AmountTwo float64   `gorm:"type:decimal(65,20);not null;default:0.0"`
 	Limit     uint64    `gorm:"not null;default:0"`
 }
