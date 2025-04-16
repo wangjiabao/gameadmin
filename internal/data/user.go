@@ -101,9 +101,9 @@ type Land struct {
 	LimitDate      uint64    `gorm:"type:int;not null;default:0;comment:使用期限"`
 	Status         uint64    `gorm:"type:int;not null;default:0;comment:状态"`
 	LocationNum    uint64    `gorm:"type:int;not null;default:0;comment:首页位置"`
-	One            uint64    `gorm:"type:int;not null;default:1;comment:可出租"`
-	Two            uint64    `gorm:"type:int;not null;default:1;comment:可合成"`
-	Three          uint64    `gorm:"type:int;not null;default:1;comment:可出售"`
+	One            uint64    `gorm:"type:int;not null;default:0;comment:可出租"`
+	Two            uint64    `gorm:"type:int;not null;default:0;comment:可合成"`
+	Three          uint64    `gorm:"type:int;not null;default:0;comment:可出售"`
 	SellAmount     float64   `gorm:"type:decimal(65,20);not null;default:0.00000000000000000000;"`
 	CreatedAt      time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt      time.Time `gorm:"type:datetime;not null"`
