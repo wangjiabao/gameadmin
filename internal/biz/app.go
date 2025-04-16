@@ -5825,7 +5825,7 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 	lastDayStart := time.Date(lastDay.Year(), lastDay.Month(), lastDay.Day(), 16, 0, 0, 0, time.UTC)
 
 	for _, v := range stakeGitRecord {
-		if v.CreatedAt.Before(lastDayStart) {
+		if v.CreatedAt.After(lastDayStart) {
 			continue
 		}
 
