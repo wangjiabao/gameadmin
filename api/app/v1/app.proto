@@ -424,16 +424,14 @@ service App {
 	// 设置余额
 	rpc AdminSetGiw (AdminSetGiwRequest) returns (AdminSetGiwReply) {
 		option (google.api.http) = {
-			post: "/api/admin_dhb/set_giw"
-			body: "send_body"
+			get: "/api/admin_dhb/set_giw"
 		};
 	};
 
 	// 设置余额
 	rpc AdminSetGit (AdminSetGitRequest) returns (AdminSetGitReply) {
 		option (google.api.http) = {
-			post: "/api/admin_dhb/set_git"
-			body: "send_body"
+			get: "/api/admin_dhb/set_git"
 		};
 	};
 
@@ -1410,12 +1408,8 @@ message AdminUserRecommendReply {
 }
 
 message AdminSetGiwRequest {
-	message SendBody{
-		string address = 1; // index列表里的landUseId，种植记录
-		uint64 giw = 2;
-	}
-
-	SendBody send_body = 1;
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 giw = 2;
 }
 
 message AdminSetGiwReply {
@@ -1423,12 +1417,8 @@ message AdminSetGiwReply {
 }
 
 message AdminSetGitRequest {
-	message SendBody{
-		string address = 1; // index列表里的landUseId，种植记录
-		uint64 git = 2;
-	}
-
-	SendBody send_body = 1;
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 git = 2;
 }
 
 message AdminSetGitReply {
@@ -1495,9 +1485,9 @@ message AdminSetLandRequest {
 	message SendBody{
 		string address = 1; // 地址
 		uint64 level = 2; // 土地级别
-		uint64 one = 3; // 允许出售
-		uint64 two = 4; // 允许出租
-		uint64 three = 5; // 允许合成
+		string one = 3; // 允许出售
+		string two = 4; // 允许出租
+		string three = 5; // 允许合成
 		uint64 limit = 6; // 使用时间  秒级时间
 	}
 
@@ -1524,8 +1514,8 @@ message AdminSetSeedReply {
 message AdminSetBuyLandRequest {
 	message SendBody{
 		uint64 level = 2; // 土地级别1-10
-		double amount = 1; // 金额
-		double amountTwo = 3; // 一口价
+		string amount = 1; // 金额
+		string amountTwo = 3; // 一口价
 		uint64 limit = 4; // 上架时间小时数
 	}
 

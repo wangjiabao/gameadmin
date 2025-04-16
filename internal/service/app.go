@@ -1755,6 +1755,34 @@ func (a *AppService) AdminSetConfig(ctx context.Context, req *pb.AdminSetConfigR
 	return a.ac.AdminSetConfig(ctx, req)
 }
 
+func (a *AppService) AdminSetGiw(ctx context.Context, req *pb.AdminSetGiwRequest) (*pb.AdminSetGiwReply, error) {
+	return a.ac.AdminSetGiw(ctx, req)
+}
+
+func (a *AppService) AdminSetGit(ctx context.Context, req *pb.AdminSetGitRequest) (*pb.AdminSetGitReply, error) {
+	return a.ac.AdminSetGit(ctx, req)
+}
+
+func (a *AppService) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest) (*pb.AdminDailyReply, error) {
+	return a.ac.AdminDaily(ctx, req)
+}
+
+func (a *AppService) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequest) (*pb.AdminSetLandReply, error) {
+	return a.ac.AdminSetLand(ctx, req)
+}
+
+func (a *AppService) AdminSetProp(ctx context.Context, req *pb.AdminSetPropRequest) (*pb.AdminSetPropReply, error) {
+	return a.ac.AdminSetProp(ctx, req)
+}
+
+func (a *AppService) AdminSetSeed(ctx context.Context, req *pb.AdminSetSeedRequest) (*pb.AdminSetSeedReply, error) {
+	return a.ac.AdminSetSeed(ctx, req)
+}
+
+func (a *AppService) AdminSetBuyLand(ctx context.Context, req *pb.AdminSetBuyLandRequest) (*pb.AdminSetBuyLandReply, error) {
+	return a.ac.AdminSetBuyLand(ctx, req)
+}
+
 func getUserLength(address string) (int64, error) {
 	url1 := "https://bsc-dataseed4.binance.org/"
 

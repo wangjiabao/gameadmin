@@ -32,6 +32,7 @@ const OperationAppAdminRecordList = "/api.app.v1.App/AdminRecordList"
 const OperationAppAdminSeedConfigList = "/api.app.v1.App/AdminSeedConfigList"
 const OperationAppAdminSeedConfigSet = "/api.app.v1.App/AdminSeedConfigSet"
 const OperationAppAdminSetBox = "/api.app.v1.App/AdminSetBox"
+const OperationAppAdminSetBuyLand = "/api.app.v1.App/AdminSetBuyLand"
 const OperationAppAdminSetConfig = "/api.app.v1.App/AdminSetConfig"
 const OperationAppAdminSetGit = "/api.app.v1.App/AdminSetGit"
 const OperationAppAdminSetGiw = "/api.app.v1.App/AdminSetGiw"
@@ -112,6 +113,8 @@ type AppHTTPServer interface {
 	AdminSeedConfigSet(context.Context, *AdminSeedConfigSetRequest) (*AdminSeedConfigSetReply, error)
 	// AdminSetBox 设置盲盒
 	AdminSetBox(context.Context, *AdminSetBoxRequest) (*AdminSetBoxReply, error)
+	// AdminSetBuyLand 上级拍卖行
+	AdminSetBuyLand(context.Context, *AdminSetBuyLandRequest) (*AdminSetBuyLandReply, error)
 	// AdminSetConfig 修改配置
 	AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error)
 	// AdminSetGit 设置余额
@@ -271,8 +274,8 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.POST("/api/admin_dhb/set_seed_config", _App_AdminSeedConfigSet0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/prop_config_list", _App_AdminPropConfigList0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_prop_config", _App_AdminPropConfigSet0_HTTP_Handler(srv))
-	r.POST("/api/admin_dhb/set_giw", _App_AdminSetGiw0_HTTP_Handler(srv))
-	r.POST("/api/admin_dhb/set_git", _App_AdminSetGit0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_giw", _App_AdminSetGiw0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_git", _App_AdminSetGit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/get_box", _App_AdminGetBox0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_box", _App_AdminSetBox0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/get_config", _App_AdminGetConfig0_HTTP_Handler(srv))
@@ -280,6 +283,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.POST("/api/admin_dhb/set_land", _App_AdminSetLand0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_prop", _App_AdminSetProp0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_seed", _App_AdminSetSeed0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_buy_land", _App_AdminSetBuyLand0_HTTP_Handler(srv))
 }
 
 func _App_TestSign0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
@@ -1424,9 +1428,6 @@ func _App_AdminPropConfigSet0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Cont
 func _App_AdminSetGiw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetGiwRequest
-		if err := ctx.Bind(&in.SendBody); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -1446,9 +1447,6 @@ func _App_AdminSetGiw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) er
 func _App_AdminSetGit0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetGitRequest
-		if err := ctx.Bind(&in.SendBody); err != nil {
-			return err
-		}
 		if err := ctx.BindQuery(&in); err != nil {
 			return err
 		}
@@ -1613,6 +1611,28 @@ func _App_AdminSetSeed0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _App_AdminSetBuyLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetBuyLandRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetBuyLand)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetBuyLand(ctx, req.(*AdminSetBuyLandRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetBuyLandReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AppHTTPClient interface {
 	AdminDaily(ctx context.Context, req *AdminDailyRequest, opts ...http.CallOption) (rsp *AdminDailyReply, err error)
 	AdminDeposit(ctx context.Context, req *AdminDepositRequest, opts ...http.CallOption) (rsp *AdminDepositReply, err error)
@@ -1627,6 +1647,7 @@ type AppHTTPClient interface {
 	AdminSeedConfigList(ctx context.Context, req *AdminSeedConfigRequest, opts ...http.CallOption) (rsp *AdminSeedConfigReply, err error)
 	AdminSeedConfigSet(ctx context.Context, req *AdminSeedConfigSetRequest, opts ...http.CallOption) (rsp *AdminSeedConfigSetReply, err error)
 	AdminSetBox(ctx context.Context, req *AdminSetBoxRequest, opts ...http.CallOption) (rsp *AdminSetBoxReply, err error)
+	AdminSetBuyLand(ctx context.Context, req *AdminSetBuyLandRequest, opts ...http.CallOption) (rsp *AdminSetBuyLandReply, err error)
 	AdminSetConfig(ctx context.Context, req *AdminSetConfigRequest, opts ...http.CallOption) (rsp *AdminSetConfigReply, err error)
 	AdminSetGit(ctx context.Context, req *AdminSetGitRequest, opts ...http.CallOption) (rsp *AdminSetGitReply, err error)
 	AdminSetGiw(ctx context.Context, req *AdminSetGiwRequest, opts ...http.CallOption) (rsp *AdminSetGiwReply, err error)
@@ -1858,6 +1879,19 @@ func (c *AppHTTPClientImpl) AdminSetBox(ctx context.Context, in *AdminSetBoxRequ
 	return &out, err
 }
 
+func (c *AppHTTPClientImpl) AdminSetBuyLand(ctx context.Context, in *AdminSetBuyLandRequest, opts ...http.CallOption) (*AdminSetBuyLandReply, error) {
+	var out AdminSetBuyLandReply
+	pattern := "/api/admin_dhb/set_buy_land"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppAdminSetBuyLand))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AppHTTPClientImpl) AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...http.CallOption) (*AdminSetConfigReply, error) {
 	var out AdminSetConfigReply
 	pattern := "/api/admin_dhb/set_config"
@@ -1874,10 +1908,10 @@ func (c *AppHTTPClientImpl) AdminSetConfig(ctx context.Context, in *AdminSetConf
 func (c *AppHTTPClientImpl) AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...http.CallOption) (*AdminSetGitReply, error) {
 	var out AdminSetGitReply
 	pattern := "/api/admin_dhb/set_git"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetGit))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1887,10 +1921,10 @@ func (c *AppHTTPClientImpl) AdminSetGit(ctx context.Context, in *AdminSetGitRequ
 func (c *AppHTTPClientImpl) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...http.CallOption) (*AdminSetGiwReply, error) {
 	var out AdminSetGiwReply
 	pattern := "/api/admin_dhb/set_giw"
-	path := binding.EncodeURL(pattern, in, false)
+	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetGiw))
 	opts = append(opts, http.PathTemplate(pattern))
-	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

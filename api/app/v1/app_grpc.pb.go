@@ -84,6 +84,7 @@ const (
 	App_AdminSetLand_FullMethodName           = "/api.app.v1.App/AdminSetLand"
 	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
 	App_AdminSetSeed_FullMethodName           = "/api.app.v1.App/AdminSetSeed"
+	App_AdminSetBuyLand_FullMethodName        = "/api.app.v1.App/AdminSetBuyLand"
 )
 
 // AppClient is the client API for App service.
@@ -215,6 +216,8 @@ type AppClient interface {
 	AdminSetProp(ctx context.Context, in *AdminSetPropRequest, opts ...grpc.CallOption) (*AdminSetPropReply, error)
 	// 发种子
 	AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, opts ...grpc.CallOption) (*AdminSetSeedReply, error)
+	// 上级拍卖行
+	AdminSetBuyLand(ctx context.Context, in *AdminSetBuyLandRequest, opts ...grpc.CallOption) (*AdminSetBuyLandReply, error)
 }
 
 type appClient struct {
@@ -810,6 +813,15 @@ func (c *appClient) AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, o
 	return out, nil
 }
 
+func (c *appClient) AdminSetBuyLand(ctx context.Context, in *AdminSetBuyLandRequest, opts ...grpc.CallOption) (*AdminSetBuyLandReply, error) {
+	out := new(AdminSetBuyLandReply)
+	err := c.cc.Invoke(ctx, App_AdminSetBuyLand_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility
@@ -939,6 +951,8 @@ type AppServer interface {
 	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
 	// 发种子
 	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
+	// 上级拍卖行
+	AdminSetBuyLand(context.Context, *AdminSetBuyLandRequest) (*AdminSetBuyLandReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -1140,6 +1154,9 @@ func (UnimplementedAppServer) AdminSetProp(context.Context, *AdminSetPropRequest
 }
 func (UnimplementedAppServer) AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetSeed not implemented")
+}
+func (UnimplementedAppServer) AdminSetBuyLand(context.Context, *AdminSetBuyLandRequest) (*AdminSetBuyLandReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetBuyLand not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 
@@ -2324,6 +2341,24 @@ func _App_AdminSetSeed_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetBuyLand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetBuyLandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetBuyLand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetBuyLand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetBuyLand(ctx, req.(*AdminSetBuyLandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -2590,6 +2625,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetSeed",
 			Handler:    _App_AdminSetSeed_Handler,
+		},
+		{
+			MethodName: "AdminSetBuyLand",
+			Handler:    _App_AdminSetBuyLand_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

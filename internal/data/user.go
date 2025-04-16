@@ -179,11 +179,12 @@ type Market struct {
 }
 
 type Notice struct {
-	ID            uint64    `gorm:"primarykey;type:int"`
-	UserId        uint64    `gorm:"type:int;not null;comment:用户id"`
-	NoticeContent string    `gorm:"type:varchar(500);not null;comment:消息内容"`
-	CreatedAt     time.Time `gorm:"type:datetime;not null"`
-	UpdatedAt     time.Time `gorm:"type:datetime;not null"`
+	ID               uint64    `gorm:"primarykey;type:int"`
+	UserId           uint64    `gorm:"type:int;not null;comment:用户id"`
+	NoticeContent    string    `gorm:"type:varchar(500);not null;comment:消息内容"`
+	NoticeContentTwo string    `gorm:"type:varchar(500);not null;comment:消息内容"`
+	CreatedAt        time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
 }
 
 type Prop struct {
@@ -3676,19 +3677,19 @@ func (u *UserRepo) SetAdminPropConfig(ctx context.Context, info *biz.PropInfo) e
 		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	if 12 < info.PropType && 0 < info.ThreeOne {
+	if 12 == info.PropType && 0 < info.ThreeOne {
 		updateMap["three_one"] = info.ThreeOne
 	}
 
-	if 13 < info.PropType && 0 < info.FiveOne {
+	if 13 == info.PropType && 0 < info.FiveOne {
 		updateMap["five_one"] = info.FiveOne
 	}
 
-	if 14 < info.PropType && 0 < info.FourOne {
+	if 14 == info.PropType && 0 < info.FourOne {
 		updateMap["four_one"] = info.FourOne
 	}
 
-	if 15 < info.PropType && 0 < info.TwoOne {
+	if 15 == info.PropType && 0 < info.TwoOne {
 		updateMap["two_one"] = info.TwoOne
 	}
 
@@ -3729,6 +3730,161 @@ func (u *UserRepo) UpdateConfig(ctx context.Context, id uint64, value string) er
 		Updates(map[string]interface{}{"value": value, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "UpdateConfig", "config")
+	}
+
+	return nil
+}
+
+func (u *UserRepo) GetStakeGitRecords(ctx context.Context) ([]*biz.StakeGitRecord, error) {
+	var (
+		records []*StakeGitRecord
+	)
+
+	res := make([]*biz.StakeGitRecord, 0)
+	instance := u.data.DB(ctx).Table("stake_git_record").
+		Where("stake_type=?", 1).
+		Order("id desc")
+
+	if err := instance.Find(&records).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+		return nil, errors.New(500, "STAKE GIT RECORD ERROR", err.Error())
+	}
+
+	for _, record := range records {
+		res = append(res, &biz.StakeGitRecord{
+			ID:        record.ID,
+			UserId:    record.UserId,
+			Amount:    record.Amount,
+			StakeType: record.StakeType,
+			CreatedAt: record.CreatedAt,
+			UpdatedAt: record.UpdatedAt,
+		})
+	}
+
+	return res, nil
+}
+
+// DailyReward .
+func (u *UserRepo) DailyReward(ctx context.Context, id, userId uint64, amount float64) error {
+	if amount > 0 {
+		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+			Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "BuyBox", "用户信息修改失败")
+		}
+
+		var reward Reward
+
+		reward.Reason = 1
+		reward.UserId = userId
+		reward.Amount = amount
+		reward.Two = id
+		res = u.data.DB(ctx).Table("reward").Create(&reward)
+		if res.Error != nil {
+			return errors.New(500, "DailyReward", "用户信息修改失败")
+		}
+	}
+
+	return nil
+}
+
+// DailyRewardL .
+func (u *UserRepo) DailyRewardL(ctx context.Context, id, userId, lowUserId, num uint64, amount float64) error {
+	if amount > 0 {
+		if 6 == num {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_three": gorm.Expr("reward_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			if res.Error != nil {
+				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
+			}
+		} else if 9 == num {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_two_three": gorm.Expr("reward_two_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			if res.Error != nil {
+				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
+			}
+		} else if 12 == num {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_three_three": gorm.Expr("reward_three_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			if res.Error != nil {
+				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
+			}
+		}
+
+		var reward Reward
+
+		reward.Reason = num
+		reward.UserId = userId
+		reward.Amount = amount
+		reward.One = lowUserId
+		reward.Two = id
+		res := u.data.DB(ctx).Table("reward").Create(&reward)
+		if res.Error != nil {
+			return errors.New(500, "DailyRewardL", "用户信息修改失败")
+		}
+	}
+
+	return nil
+}
+
+func (u *UserRepo) CreateNotice(ctx context.Context, userId uint64, content string, contentTwo string) error {
+	var notice Notice
+	notice.UserId = userId
+	notice.NoticeContent = content
+	notice.NoticeContentTwo = contentTwo
+
+	res := u.data.DB(ctx).Table("notice").Create(&notice)
+	if res.Error != nil {
+		return errors.New(500, "CREATE_NOTICE_ERROR", "创建消息记录失败")
+	}
+
+	return nil
+}
+
+func (u *UserRepo) SetSeed(ctx context.Context, seedInfo *biz.Seed) (uint64, error) {
+	var seed Seed
+	seed.SeedId = seedInfo.SeedId
+	seed.UserId = seedInfo.UserId
+	seed.OutMaxAmount = seedInfo.OutMaxAmount
+	seed.OutOverTime = seedInfo.OutOverTime
+	res := u.data.DB(ctx).Table("seed").Create(&seed)
+	if res.Error != nil {
+		return 0, errors.New(500, "SetSeed", "创建失败")
+	}
+
+	return seed.ID, nil
+}
+
+func (u *UserRepo) SetProp(ctx context.Context, propInfo *biz.Prop) (uint64, error) {
+	var prop Prop
+	prop.PropType = propInfo.PropType
+	prop.UserId = propInfo.UserId
+	prop.OneOne = propInfo.OneOne
+	prop.OneTwo = propInfo.OneTwo
+	prop.TwoOne = propInfo.TwoOne
+	prop.TwoTwo = propInfo.TwoTwo
+	prop.ThreeOne = propInfo.ThreeOne
+	prop.FourOne = propInfo.FourOne
+	prop.FiveOne = propInfo.FiveOne
+	res := u.data.DB(ctx).Table("prop").Create(&prop)
+	if res.Error != nil {
+		return 0, errors.New(500, "SetProp", "创建失败")
+	}
+
+	return prop.ID, nil
+}
+
+func (u *UserRepo) SetBuyLand(ctx context.Context, buyLand *biz.BuyLand) error {
+	var record BuyLand
+	record.Limit = buyLand.Limit
+	record.Amount = buyLand.Amount
+	record.AmountTwo = buyLand.AmountTwo
+
+	res := u.data.DB(ctx).Table("buy_land").Create(&record)
+	if res.Error != nil {
+		return errors.New(500, "SetProp", "创建失败")
 	}
 
 	return nil
