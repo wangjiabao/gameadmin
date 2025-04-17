@@ -6319,7 +6319,7 @@ func (ac *AppUsecase) DepositNew(ctx context.Context, eth *EthRecord) error {
 		}
 
 		// 加业绩
-		dai := uint64(1)
+		dai := uint64(0)
 		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
 			tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
 			if 0 >= tmpUserId {
