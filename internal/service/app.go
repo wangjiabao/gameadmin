@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/ecdsa"
 	"fmt"
 	pb "game/api/app/v1"
 	"game/internal/biz"
@@ -18,6 +19,7 @@ import (
 	jwt2 "github.com/golang-jwt/jwt/v5"
 	"math/big"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -2017,4 +2019,131 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 	}
 
 	return nil, nil
+}
+
+func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawRequest) (*pb.AdminWithdrawReply, error) {
+	end := time.Now().UTC().Add(45 * time.Second)
+	for {
+		now := time.Now().UTC()
+		if end.Before(now) {
+			break
+		}
+
+		var (
+			withdraw *biz.Withdraw
+			users    map[uint64]*biz.User
+			err      error
+		)
+
+		withdraw, err = a.ac.GetWithdrawPassOrRewardedFirst(ctx)
+		if nil == withdraw {
+			break
+		}
+
+		if 0 >= withdraw.RelAmount {
+			continue
+		}
+
+		userIds := []uint64{withdraw.UserId}
+		users, err = a.ac.GetUserByUserIds(ctx, userIds)
+		if nil != err {
+			fmt.Println(err)
+			continue
+		}
+
+		if _, ok := users[withdraw.UserId]; !ok {
+			continue
+		}
+
+		err = a.ac.UpdateWithdrawDoing(ctx, withdraw.ID)
+		if nil != err {
+			fmt.Println(err)
+			continue
+		}
+
+		tmpUrl1 := "https://bsc-dataseed4.binance.org/"
+
+		withDrawAmount := strconv.FormatUint(withdraw.RelAmount, 10) + "000000000000000000"
+		if len(withDrawAmount) <= 15 {
+			fmt.Println(withDrawAmount, withdraw)
+			err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)
+			fmt.Println(err)
+			continue
+		}
+
+		for i := 0; i <= 5; i++ {
+			_, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, "0x36081a3d9d4abA91D2075e4aD980c740e1B9BE76", tmpUrl1)
+			if err == nil {
+				err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)
+				fmt.Println(err)
+				break
+			} else {
+				fmt.Println(err)
+				if 0 == i {
+					tmpUrl1 = "https://bsc-dataseed1.binance.org"
+				} else if 1 == i {
+					tmpUrl1 = "https://bsc-dataseed3.binance.org"
+				} else if 2 == i {
+					tmpUrl1 = "https://bsc-dataseed2.binance.org"
+				} else if 3 == i {
+					tmpUrl1 = "https://bnb-bscnews.rpc.blxrbdn.com/"
+				} else if 4 == i {
+					tmpUrl1 = "https://bsc-dataseed.binance.org"
+				}
+				fmt.Println(33331, err, users[withdraw.UserId].Address, withDrawAmount)
+				time.Sleep(3 * time.Second)
+			}
+		}
+
+	}
+
+	return nil, nil
+}
+
+func toToken(userPrivateKey string, toAccount string, withdrawAmount string, withdrawTokenAddress string, url1 string) (string, error) {
+	client, err := ethclient.Dial(url1)
+	//client, err := ethclient.Dial("https://bsc-dataseed.binance.org/")
+	if err != nil {
+		return "", err
+	}
+
+	tokenAddress := common.HexToAddress(withdrawTokenAddress)
+	instance, err := NewDfil(tokenAddress, client)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	var authUser *bind.TransactOpts
+
+	var privateKey *ecdsa.PrivateKey
+	privateKey, err = crypto.HexToECDSA(userPrivateKey)
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	//gasPrice, err := client.SuggestGasPrice(context.Background())
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return "", err
+	//}
+
+	authUser, err = bind.NewKeyedTransactorWithChainID(privateKey, new(big.Int).SetInt64(56))
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	tmpWithdrawAmount, _ := new(big.Int).SetString(withdrawAmount, 10)
+	_, err = instance.Transfer(&bind.TransactOpts{
+		From:     authUser.From,
+		Signer:   authUser.Signer,
+		GasLimit: 0,
+	}, common.HexToAddress(toAccount), tmpWithdrawAmount)
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
 }

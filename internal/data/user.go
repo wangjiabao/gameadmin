@@ -3891,3 +3891,37 @@ func (u *UserRepo) SetBuyLand(ctx context.Context, buyLand *biz.BuyLand) error {
 
 	return nil
 }
+
+// GetWithdrawPassOrRewardedFirst .
+func (u *UserRepo) GetWithdrawPassOrRewardedFirst(ctx context.Context) (*biz.Withdraw, error) {
+	var record *Withdraw
+	if err := u.data.db.Table("withdraw").Where("status=?", "rewarded").First(&record).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.NotFound("WITHDRAW_NOT_FOUND", "withdraw not found")
+		}
+
+		return nil, errors.New(500, "WITHDRAW ERROR", err.Error())
+	}
+
+	return &biz.Withdraw{
+		ID:        record.ID,
+		UserId:    record.UserId,
+		Amount:    record.Amount,
+		RelAmount: record.RelAmount,
+		Status:    record.Status,
+		CreatedAt: record.CreatedAt,
+		UpdatedAt: record.UpdatedAt,
+	}, nil
+}
+
+// UpdateWithdraw .
+func (u *UserRepo) UpdateWithdraw(ctx context.Context, id uint64, status string) error {
+	var withdraw Withdraw
+	withdraw.Status = status
+	res := u.data.DB(ctx).Table("withdraw").Where("id=?", id).Updates(&withdraw)
+	if res.Error != nil {
+		return errors.New(500, "UPDATE_WITHDRAW_ERROR", "提现记录修改失败")
+	}
+
+	return nil
+}

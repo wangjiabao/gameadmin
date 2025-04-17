@@ -488,6 +488,8 @@ type UserRepo interface {
 	SetSeed(ctx context.Context, seedInfo *Seed) (uint64, error)
 	SetProp(ctx context.Context, propInfo *Prop) (uint64, error)
 	SetBuyLand(ctx context.Context, buyLand *BuyLand) error
+	GetWithdrawPassOrRewardedFirst(ctx context.Context) (*Withdraw, error)
+	UpdateWithdraw(ctx context.Context, id uint64, status string) error
 }
 
 // AppUsecase is an app usecase.
@@ -4807,7 +4809,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -6391,4 +6393,20 @@ func (ac *AppUsecase) DepositNew(ctx context.Context, eth *EthRecord) error {
 	}
 
 	return nil
+}
+
+func (ac *AppUsecase) GetWithdrawPassOrRewardedFirst(ctx context.Context) (*Withdraw, error) {
+	return ac.userRepo.GetWithdrawPassOrRewardedFirst(ctx)
+}
+
+func (ac *AppUsecase) GetUserByUserIds(ctx context.Context, userIds []uint64) (map[uint64]*User, error) {
+	return ac.userRepo.GetUserByUserIds(ctx, userIds)
+}
+
+func (ac *AppUsecase) UpdateWithdrawSuccess(ctx context.Context, id uint64) error {
+	return ac.userRepo.UpdateWithdraw(ctx, id, "success")
+}
+
+func (ac *AppUsecase) UpdateWithdrawDoing(ctx context.Context, id uint64) error {
+	return ac.userRepo.UpdateWithdraw(ctx, id, "doing")
 }
