@@ -1765,8 +1765,16 @@ func (a *AppService) AdminSetGit(ctx context.Context, req *pb.AdminSetGitRequest
 	return a.ac.AdminSetGit(ctx, req)
 }
 
+func (a *AppService) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtRequest) (*pb.AdminSetUsdtReply, error) {
+	return a.ac.AdminSetUsdt(ctx, req)
+}
+
 func (a *AppService) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest) (*pb.AdminDailyReply, error) {
 	return a.ac.AdminDaily(ctx, req)
+}
+
+func (a *AppService) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRewardRequest) (*pb.AdminDailyRewardReply, error) {
+	return a.ac.AdminDailyReward(ctx, req)
 }
 
 func (a *AppService) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequest) (*pb.AdminSetLandReply, error) {
