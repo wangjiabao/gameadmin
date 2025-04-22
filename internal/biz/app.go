@@ -5761,6 +5761,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"area_one", "area_two", "area_three", "area_four", "area_five", "area_zero",
 		"all_each",
 		"u_price",
+		"recommend",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
