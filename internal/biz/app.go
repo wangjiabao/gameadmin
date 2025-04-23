@@ -6233,8 +6233,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 		lastLevel := 0
 		lastLevelNum := float64(0)
 		lastKey := len(tmpRecommendUserIds) - 1
+		tmpI := uint64(0)
 		for i := lastKey; i >= 0; i-- {
 			currentLevel := 0
+			tmpI++
 
 			tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
 			if 0 >= tmpUserId {
@@ -6429,7 +6431,7 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 
-				err = ac.userRepo.UpdateUserRewardArea(ctx, tmpRecommendUser.ID, tmpBiw, tmp2, tmpAreaAmount, tmpRecommendUser.Amount, stopArea, tmpLevel, uint64(currentLevel), uint64(i), v.Address)
+				err = ac.userRepo.UpdateUserRewardArea(ctx, tmpRecommendUser.ID, tmpBiw, tmp2, tmpAreaAmount, tmpRecommendUser.Amount, stopArea, tmpLevel, uint64(currentLevel), tmpI, v.Address)
 				if err != nil {
 					fmt.Println("错误分红小区：", err, tmpRecommendUser)
 				}
@@ -6650,7 +6652,7 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 
-				err = ac.userRepo.UpdateUserRewardAreaTwo(ctx, tmpRecommendUser.ID, tmpBiw, tmp2, tmpAreaAmount, tmpRecommendUser.Amount, stopArea, uint64(i), v.Address)
+				err = ac.userRepo.UpdateUserRewardAreaTwo(ctx, tmpRecommendUser.ID, tmpBiw, tmp2, tmpAreaAmount, tmpRecommendUser.Amount, stopArea, uint64(tmpI), v.Address)
 				if err != nil {
 					fmt.Println("错误分红小区：", err, tmpRecommendUser)
 				}
