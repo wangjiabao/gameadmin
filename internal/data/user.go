@@ -546,6 +546,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			RewardThreeOne:   user.RewardThreeOne,
 			RewardThreeTwo:   user.RewardThreeTwo,
 			RewardThreeThree: user.RewardThreeThree,
+			AmountUsdt:       user.AmountUsdt,
 		})
 	}
 	return res, nil

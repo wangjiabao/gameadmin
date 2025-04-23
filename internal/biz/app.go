@@ -5221,6 +5221,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			RecommendTotalRewardThree: v.RewardThree,
 			MyStakeGit:                stakeGitAmount,
 			MyStakeGetTotal:           stakeGetTotalMy,
+			AmountUsdt:                v.AmountUsdt,
 		})
 	}
 

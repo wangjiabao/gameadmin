@@ -1999,6 +1999,9 @@ components:
                 git:
                     type: number
                     format: double
+                amountUsdt:
+                    type: number
+                    format: double
                 recommendTotal:
                     type: string
                 recommendTotalBiw:
