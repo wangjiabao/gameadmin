@@ -6232,7 +6232,8 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 		lastLevel := 0
 		lastLevelNum := float64(0)
-		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+		lastKey := len(tmpRecommendUserIds) - 1
+		for i := lastKey; i >= 0; i-- {
 			currentLevel := 0
 
 			tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
@@ -6293,6 +6294,30 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			if 0 >= tmpMaxId {
 				continue
+			}
+
+			// 如果是我大区的人，不拿，当前人的下级是不是大区的用户id
+			if i == lastKey {
+				// 直推，是我的大区
+				if tmpMaxId == v.ID {
+					continue
+				}
+			} else {
+				if i+1 > lastKey {
+					fmt.Println("错误分红小区，信息缺失44：", err, tmpUserId, lastKey, i+1, v)
+					continue
+				}
+
+				tmpLastUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i+1], 10, 64) // 最后一位是直推人
+				if 0 >= tmpLastUserId {
+					fmt.Println("错误分红小区，信息缺失445：", err, tmpUserId, lastKey, i+1, v)
+					continue
+				}
+
+				// 是我大区的人，跳过
+				if tmpMaxId == tmpLastUserId {
+					continue
+				}
 			}
 
 			for _, vMyLowUser := range myLowUser[tmpUserId] {
