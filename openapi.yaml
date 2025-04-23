@@ -63,6 +63,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/deposit_usdt:
+        get:
+            tags:
+                - App
+            description: 充值处理
+            operationId: App_AdminDepositUsdt
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminDepositUsdtReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/get_box:
         get:
             tags:
@@ -172,6 +191,10 @@ paths:
             operationId: App_AdminRecordList
             parameters:
                 - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: coin
                   in: query
                   schema:
                     type: string
@@ -1669,6 +1692,9 @@ components:
         AdminDepositReply:
             type: object
             properties: {}
+        AdminDepositUsdtReply:
+            type: object
+            properties: {}
         AdminGetBoxReply:
             type: object
             properties:
@@ -2308,6 +2334,8 @@ components:
                 amount:
                     type: string
                 address:
+                    type: string
+                coin:
                     type: string
         RentLandReply:
             type: object

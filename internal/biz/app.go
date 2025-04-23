@@ -330,6 +330,7 @@ type EthRecord struct {
 	Amount    uint64
 	Last      uint64
 	Address   string
+	Coin      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -392,9 +393,12 @@ type UserRepo interface {
 	GetUserPageCount(ctx context.Context, address string) (int64, error)
 	GetWithdrawPageCount(ctx context.Context, userId uint64) (int64, error)
 	GetRecordPageCount(ctx context.Context, address string) (int64, error)
+	GetRecordPageCountTwo(ctx context.Context, address string) (int64, error)
 	GetUserPage(ctx context.Context, userId string, b *Pagination) ([]*User, error)
 	GetWithdrawPage(ctx context.Context, userId uint64, b *Pagination) ([]*Withdraw, error)
 	GetEthUserRecordLast(ctx context.Context) (int64, error)
+	GetEthUserRecordLastTwo(ctx context.Context) (int64, error)
+	GetRecordPageTwo(ctx context.Context, address string, b *Pagination) ([]*EthRecord, error)
 	GetUserByAddress(ctx context.Context, address string) (*User, error)
 	GetRecordPage(ctx context.Context, address string, b *Pagination) ([]*EthRecord, error)
 	GetUserRecommendByUserId(ctx context.Context, userId uint64) (*UserRecommend, error)
@@ -503,7 +507,9 @@ type UserRepo interface {
 	CreateBuyLandRecord(ctx context.Context, limit uint64, bl *BuyLandRecord) error
 	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
 	CreateEth(ctx context.Context, e *EthRecord) error
+	CreateEthTwo(ctx context.Context, e *EthRecord) error
 	AddGiw(ctx context.Context, address string, giw uint64) error
+	AddUsdt(ctx context.Context, address string, usdt uint64) error
 	AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error
 	RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error
 	SetAdminPropConfig(ctx context.Context, info *PropInfo) error
@@ -5365,21 +5371,41 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 	)
 
 	res := make([]*pb.RecordListReply_List, 0)
-	count, err = ac.userRepo.GetRecordPageCount(ctx, req.Address)
-	if nil != err {
-		return &pb.RecordListReply{
-			Status: "错误",
-		}, nil
-	}
 
-	list, err = ac.userRepo.GetRecordPage(ctx, req.Address, &Pagination{
-		PageNum:  int(req.Page),
-		PageSize: 10,
-	})
-	if nil != err {
-		return &pb.RecordListReply{
-			Status: "错误",
-		}, nil
+	if "usdt" == req.Coin {
+		count, err = ac.userRepo.GetRecordPageCountTwo(ctx, req.Address)
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
+
+		list, err = ac.userRepo.GetRecordPageTwo(ctx, req.Address, &Pagination{
+			PageNum:  int(req.Page),
+			PageSize: 10,
+		})
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
+	} else {
+		count, err = ac.userRepo.GetRecordPageCount(ctx, req.Address)
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
+
+		list, err = ac.userRepo.GetRecordPage(ctx, req.Address, &Pagination{
+			PageNum:  int(req.Page),
+			PageSize: 10,
+		})
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
 	}
 
 	for _, v := range list {
@@ -5387,6 +5413,7 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 			Address:   v.Address,
 			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			Amount:    v.Amount,
+			Coin:      v.Coin,
 		})
 	}
 
@@ -6533,7 +6560,16 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 			}
 
 			// 2代1个，依次类推
-			if len(myLowUser[tmpUserId]) < tmpI-1 {
+			tmpLen := 0
+			for _, vTmp := range myLowUser[tmpUserId] {
+				if 0 >= usersMap[vTmp.UserId].Amount && 0 >= usersMap[vTmp.UserId].OutNum {
+					continue
+				}
+
+				tmpLen++
+			}
+
+			if tmpLen < tmpI-1 {
 				continue
 			}
 
@@ -7609,6 +7645,10 @@ func (ac *AppUsecase) GetEthUserRecordLast(ctx context.Context) (int64, error) {
 	return ac.userRepo.GetEthUserRecordLast(ctx)
 }
 
+func (ac *AppUsecase) GetEthUserRecordLastTwo(ctx context.Context) (int64, error) {
+	return ac.userRepo.GetEthUserRecordLastTwo(ctx)
+}
+
 func (ac *AppUsecase) GetUserByAddress(ctx context.Context, Addresses []string) (map[string]*User, error) {
 	return ac.userRepo.GetUserByAddresses(ctx, Addresses)
 }
@@ -7711,6 +7751,32 @@ func (ac *AppUsecase) DepositNew(ctx context.Context, eth *EthRecord) error {
 			fmt.Println(err, "deposit err reward", eth, tmpUserId)
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (ac *AppUsecase) DepositNewTwo(ctx context.Context, eth *EthRecord) error {
+	// 推荐人
+	var (
+		err error
+	)
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		err = ac.userRepo.AddUsdt(ctx, eth.Address, eth.Amount)
+		if nil != err {
+			return err
+		}
+
+		err = ac.userRepo.CreateEthTwo(ctx, eth)
+		if nil != err {
+			return err
+		}
+
+		return nil
+	}); nil != err {
+		fmt.Println(err, "deposit err", eth)
+		return err
 	}
 
 	return nil

@@ -305,6 +305,7 @@ type EthRecord struct {
 	Amount    uint64    `gorm:"type:bigint(20);not null;"`
 	Last      uint64    `gorm:"type:bigint(20);not null;"`
 	Address   string    `gorm:"type:varchar(100);not null;default:'default';"`
+	Coin      string    `gorm:"type:varchar(100);"`
 	CreatedAt time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
@@ -487,6 +488,21 @@ func (u *UserRepo) GetRecordPageCount(ctx context.Context, address string) (int6
 	return count, nil
 }
 
+func (u *UserRepo) GetRecordPageCountTwo(ctx context.Context, address string) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("eth_record_two")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return count, errors.New(500, "record ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
 // GetUserPage .
 func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagination) ([]*biz.User, error) {
 	var users []*User
@@ -581,6 +597,54 @@ func (u *UserRepo) GetEthUserRecordLast(ctx context.Context) (int64, error) {
 	return int64(ethUserRecord.Last), nil
 }
 
+func (u *UserRepo) GetEthUserRecordLastTwo(ctx context.Context) (int64, error) {
+	var ethUserRecord *EthRecord
+	if err := u.data.DB(ctx).Table("eth_record_two").Order("last desc").First(&ethUserRecord).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return 0, nil
+		}
+
+		return -1, errors.New(500, "user record ERROR", err.Error())
+	}
+
+	return int64(ethUserRecord.Last), nil
+}
+
+// GetRecordPageTwo .
+func (u *UserRepo) GetRecordPageTwo(ctx context.Context, address string, b *biz.Pagination) ([]*biz.EthRecord, error) {
+	var eth []*EthRecord
+
+	res := make([]*biz.EthRecord, 0)
+
+	instance := u.data.DB(ctx).Table("eth_record_two")
+
+	if 0 < len(address) {
+		instance = instance.Where("address=?", address)
+	}
+
+	if err := instance.Order("id desc").Scopes(Paginate(b.PageNum, b.PageSize)).Find(&eth).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "ethRecord ERROR", err.Error())
+	}
+
+	for _, v := range eth {
+		res = append(res, &biz.EthRecord{
+			ID:        v.ID,
+			UserId:    v.UserId,
+			Amount:    v.Amount,
+			Last:      v.Last,
+			Address:   v.Address,
+			CreatedAt: v.CreatedAt,
+			Coin:      v.Coin,
+		})
+	}
+
+	return res, nil
+}
+
 // GetRecordPage .
 func (u *UserRepo) GetRecordPage(ctx context.Context, address string, b *biz.Pagination) ([]*biz.EthRecord, error) {
 	var eth []*EthRecord
@@ -609,6 +673,7 @@ func (u *UserRepo) GetRecordPage(ctx context.Context, address string, b *biz.Pag
 			Last:      v.Last,
 			Address:   v.Address,
 			CreatedAt: v.CreatedAt,
+			Coin:      v.Coin,
 		})
 	}
 
@@ -3555,12 +3620,29 @@ func (u *UserRepo) CreateBuyLandRecord(ctx context.Context, limit uint64, bl *bi
 	return nil
 }
 
+func (u *UserRepo) CreateEthTwo(ctx context.Context, e *biz.EthRecord) error {
+	var eth EthRecord
+	eth.Address = e.Address
+	eth.Last = e.Last
+	eth.Amount = e.Amount
+	eth.UserId = e.UserId
+	eth.Coin = e.Coin
+
+	res := u.data.DB(ctx).Table("eth_record_two").Create(&eth)
+	if res.Error != nil {
+		return errors.New(500, "CREATE ETH RECORD ERROR", "创建充值记录失败")
+	}
+
+	return nil
+}
+
 func (u *UserRepo) CreateEth(ctx context.Context, e *biz.EthRecord) error {
 	var eth EthRecord
 	eth.Address = e.Address
 	eth.Last = e.Last
 	eth.Amount = e.Amount
 	eth.UserId = e.UserId
+	eth.Coin = e.Coin
 
 	res := u.data.DB(ctx).Table("eth_record").Create(&eth)
 	if res.Error != nil {
@@ -3654,6 +3736,20 @@ func (u *UserRepo) AddGiw(ctx context.Context, address string, giw uint64) error
 			"giw":        gorm.Expr("giw + ?", float64(giw)),
 			"giw_add":    gorm.Expr("giw_add + ?", float64(giw)),
 			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+		})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// AddUsdt .
+func (u *UserRepo) AddUsdt(ctx context.Context, address string, usdt uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{
+			"amount_usdt": gorm.Expr("amount_usdt + ?", usdt),
+			"updated_at":  time.Now().Format("2006-01-02 15:04:05"),
 		})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")

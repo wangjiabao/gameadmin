@@ -348,6 +348,13 @@ service App {
 		};
 	};
 
+	// 充值处理
+	rpc AdminDepositUsdt (AdminDepositUsdtRequest) returns (AdminDepositUsdtReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/deposit_usdt"
+		};
+	};
+
 	// 提现处理
 	rpc AdminWithdraw (AdminWithdrawRequest) returns (AdminWithdrawReply) {
 		option (google.api.http) = {
@@ -1266,6 +1273,12 @@ message AdminDepositRequest {
 message AdminDepositReply {
 }
 
+message AdminDepositUsdtRequest {
+}
+
+message AdminDepositUsdtReply {
+}
+
 message AdminDailyRequest {
 }
 
@@ -1304,6 +1317,7 @@ message AdminWithdrawListReply {
 
 message RecordListRequest {
 	int64 page = 1;
+	string coin = 3;
 	string address = 2;
 }
 
@@ -1313,6 +1327,7 @@ message RecordListReply { // 充值列表
 		string createdAt = 1; // 时间
 		uint64 amount = 2; // 金额
 		string address = 3; // 充值地址
+		string coin = 4; // 币种
 	}
 	string status = 3; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 	int64 count = 2;
