@@ -5985,7 +5985,9 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 		if 0 < vUsers.Amount {
 			usersReward = append(usersReward, vUsers)
 		}
+	}
 
+	for _, vUsers := range users {
 		if 0 < vUsers.Vip {
 			if 1 == vUsers.Vip {
 				levelOne = append(levelOne, vUsers)
@@ -6047,8 +6049,6 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 				tmpAreaMin += usersMap[vMyLowUser.UserId].MyTotalAmount + usersMap[vMyLowUser.UserId].Amount
 			}
 		}
-
-		fmt.Println(vUsers, tmpAreaMin, tmpAreaMax)
 
 		if 1000000 <= tmpAreaMin {
 			levelFive = append(levelFive, vUsers)
