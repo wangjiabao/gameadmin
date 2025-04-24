@@ -5990,17 +5990,29 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 			if 1 == vUsers.Vip {
 				levelOne = append(levelOne, vUsers)
 			} else if 2 == vUsers.Vip {
+				levelOne = append(levelOne, vUsers)
 				levelTwo = append(levelTwo, vUsers)
 			} else if 3 == vUsers.Vip {
+				levelOne = append(levelOne, vUsers)
+				levelTwo = append(levelTwo, vUsers)
 				levelThree = append(levelThree, vUsers)
 			} else if 4 == vUsers.Vip {
+				levelOne = append(levelOne, vUsers)
+				levelTwo = append(levelTwo, vUsers)
+				levelThree = append(levelThree, vUsers)
 				levelFour = append(levelFour, vUsers)
 			} else if 5 == vUsers.Vip {
+				levelOne = append(levelOne, vUsers)
+				levelTwo = append(levelTwo, vUsers)
+				levelThree = append(levelThree, vUsers)
+				levelFour = append(levelFour, vUsers)
 				levelFive = append(levelFive, vUsers)
 			} else {
 				// 跳过，没级别
 				continue
 			}
+
+			continue
 		}
 
 		if 1 >= len(myLowUser[vUsers.ID]) {
@@ -6038,12 +6050,22 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 		if 1000000 <= tmpAreaMin {
 			levelFive = append(levelFive, vUsers)
+			levelFour = append(levelFour, vUsers)
+			levelThree = append(levelThree, vUsers)
+			levelTwo = append(levelTwo, vUsers)
+			levelOne = append(levelOne, vUsers)
 		} else if 500000 <= tmpAreaMin {
 			levelFour = append(levelFour, vUsers)
+			levelThree = append(levelThree, vUsers)
+			levelTwo = append(levelTwo, vUsers)
+			levelOne = append(levelOne, vUsers)
 		} else if 150000 <= tmpAreaMin {
 			levelThree = append(levelThree, vUsers)
+			levelTwo = append(levelTwo, vUsers)
+			levelOne = append(levelOne, vUsers)
 		} else if 50000 <= tmpAreaMin {
 			levelTwo = append(levelTwo, vUsers)
+			levelOne = append(levelOne, vUsers)
 		} else if 10000 <= tmpAreaMin {
 			levelOne = append(levelOne, vUsers)
 		} else {
@@ -6714,6 +6736,7 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 		tmpAmountAll += vReward.Amount
 	}
 
+	fmt.Println("昨日入金:", tmpAmountAll, len(levelOne), len(levelTwo), len(levelThree), len(levelFour), len(levelFive))
 	if 0 >= tmpAmountAll {
 		return &pb.AdminDailyRewardReply{}, nil
 	}

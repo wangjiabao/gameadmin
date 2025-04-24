@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"game/internal/biz"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -4299,6 +4300,7 @@ func (u *UserRepo) GetRewardYes(ctx context.Context) ([]*biz.RewardTwo, error) {
 	todayStart := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 16, 0, 0, 0, time.UTC)
 	todayEnd := time.Date(endDate.Year(), endDate.Month(), endDate.Day(), 16, 0, 0, 0, time.UTC)
 
+	fmt.Println(todayStart, todayEnd)
 	res := make([]*biz.RewardTwo, 0)
 	if err := u.data.db.
 		Where("created_at>=?", todayStart).
