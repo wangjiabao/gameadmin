@@ -215,6 +215,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/reward_list:
+        get:
+            tags:
+                - App
+            description: 认购分红
+            operationId: App_AdminRewardListTwo
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminRewardListTwoReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/seed_config_list:
         get:
             tags:
@@ -1813,6 +1845,9 @@ components:
                     type: string
                 max:
                     type: string
+                rate:
+                    type: number
+                    format: double
         AdminPropConfigSetReply:
             type: object
             properties:
@@ -1824,6 +1859,38 @@ components:
                 propType:
                     type: string
                 max:
+                    type: string
+                rate:
+                    type: number
+                    format: double
+        AdminRewardListTwoReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminRewardListTwoReply_List'
+        AdminRewardListTwoReply_List:
+            type: object
+            properties:
+                amountThree:
+                    type: number
+                    format: double
+                amount:
+                    type: number
+                    format: double
+                amountTwo:
+                    type: number
+                    format: double
+                address:
+                    type: string
+                num:
+                    type: string
+                createdAt:
                     type: string
         AdminSeedConfigReply:
             type: object
@@ -1849,6 +1916,9 @@ components:
                     format: double
                 outOverTime:
                     type: string
+                rate:
+                    type: number
+                    format: double
         AdminSeedConfigSetReply:
             type: object
             properties:
@@ -1867,6 +1937,9 @@ components:
                     format: double
                 outOverTime:
                     type: string
+                rate:
+                    type: number
+                    format: double
         AdminSetBoxReply:
             type: object
             properties:

@@ -3812,6 +3812,10 @@ func (u *UserRepo) SetAdminSeedConfig(ctx context.Context, info *biz.SeedInfo) e
 		updateMap["out_over_time"] = info.OutOverTime
 	}
 
+	if 0 < info.GetRate {
+		updateMap["get_rate"] = info.GetRate
+	}
+
 	res := u.data.DB(ctx).Table("seed_info").Where("id=?", info.ID).
 		Updates(updateMap)
 	if res.Error != nil {
@@ -3828,20 +3832,32 @@ func (u *UserRepo) SetAdminPropConfig(ctx context.Context, info *biz.PropInfo) e
 		"updated_at": time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	if 12 == info.PropType && 0 < info.ThreeOne {
-		updateMap["three_one"] = info.ThreeOne
+	if 12 == info.PropType {
+		if 0 < info.ThreeOne {
+			updateMap["three_one"] = info.ThreeOne
+		}
 	}
 
-	if 13 == info.PropType && 0 < info.FiveOne {
-		updateMap["five_one"] = info.FiveOne
+	if 13 == info.PropType {
+		if 0 < info.FiveOne {
+			updateMap["five_one"] = info.FiveOne
+		}
 	}
 
-	if 14 == info.PropType && 0 < info.FourOne {
-		updateMap["four_one"] = info.FourOne
+	if 14 == info.PropType {
+		if 0 < info.FourOne {
+			updateMap["four_one"] = info.FourOne
+		}
 	}
 
-	if 15 == info.PropType && 0 < info.TwoOne {
-		updateMap["two_one"] = info.TwoOne
+	if 15 == info.PropType {
+		if 0 < info.TwoOne {
+			updateMap["two_one"] = info.TwoOne
+		}
+	}
+
+	if 0 < info.GetRate {
+		updateMap["get_rate"] = info.GetRate
 	}
 
 	res := u.data.DB(ctx).Table("prop_info").Where("prop_type=?", info.PropType).
@@ -4382,4 +4398,69 @@ func (u *UserRepo) UpdateUserRewardNewThree(ctx context.Context, userId uint64, 
 	}
 
 	return nil
+}
+
+func (u *UserRepo) GetUserRewardTwoPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error) {
+	var count int64
+
+	instance := u.data.DB(ctx).Table("reward_two")
+
+	if 0 < userId {
+		instance = instance.Where("user_id = ?", userId)
+	}
+
+	if 0 < reason {
+		instance = instance.Where("reason=?", reason)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return 0, errors.New(500, "GetUserRewardPageCount ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
+// GetUserRewardTwoByCodePage .
+func (u *UserRepo) GetUserRewardTwoPage(ctx context.Context, userId uint64, reason uint64, b *biz.Pagination) ([]*biz.RewardTwo, error) {
+	var (
+		rewards []*RewardTwo
+	)
+
+	res := make([]*biz.RewardTwo, 0)
+	instance := u.data.DB(ctx).Table("reward_two").Order("id desc").
+		Scopes(Paginate(b.PageNum, b.PageSize))
+
+	if 0 < userId {
+		instance = instance.Where("user_id = ?", userId)
+	}
+
+	if 0 < reason {
+		instance = instance.Where("reason=?", reason)
+	}
+
+	if err := instance.Find(&rewards).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "GetUserRewardByCodePage ERROR", err.Error())
+	}
+
+	for _, v := range rewards {
+		res = append(res, &biz.RewardTwo{
+			ID:        v.ID,
+			UserId:    v.UserId,
+			Amount:    v.Amount,
+			One:       v.One,
+			Two:       v.Two,
+			Three:     v.Three,
+			Five:      v.Five,
+			Four:      v.Four,
+			Reason:    v.Reason,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		})
+	}
+
+	return res, nil
 }

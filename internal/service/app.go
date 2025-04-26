@@ -1713,6 +1713,10 @@ func (a *AppService) AdminRecordList(ctx context.Context, req *pb.RecordListRequ
 	return a.ac.AdminRecordList(ctx, req)
 }
 
+func (a *AppService) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewardListTwoRequest) (*pb.AdminRewardListTwoReply, error) {
+	return a.ac.AdminRewardListTwo(ctx, req)
+}
+
 func (a *AppService) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdrawListRequest) (*pb.AdminWithdrawListReply, error) {
 	return a.ac.AdminWithdrawList(ctx, req)
 }

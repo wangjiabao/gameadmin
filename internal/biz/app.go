@@ -531,6 +531,8 @@ type UserRepo interface {
 	UpdateUserRewardAreaTwo(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, stop bool, i uint64, address string) error
 	GetRewardYes(ctx context.Context) ([]*RewardTwo, error)
 	UpdateUserRewardNewThree(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, level uint64, stop bool) error
+	GetUserRewardTwoPage(ctx context.Context, userId uint64, reason uint64, b *Pagination) ([]*RewardTwo, error)
+	GetUserRewardTwoPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error)
 }
 
 // AppUsecase is an app usecase.
@@ -4850,7 +4852,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -5497,6 +5499,7 @@ func (ac *AppUsecase) AdminSeedConfigSet(ctx context.Context, req *pb.AdminSeedC
 		OutMinAmount: req.SendBody.OutMinAmount,
 		OutMaxAmount: req.SendBody.OutMaxAmount,
 		OutOverTime:  req.SendBody.OutOverTime,
+		GetRate:      req.SendBody.Rate,
 	})
 
 	if nil != err {
@@ -5529,6 +5532,7 @@ func (ac *AppUsecase) AdminSeedConfig(ctx context.Context, req *pb.AdminSeedConf
 
 	for _, v := range seedInfos {
 		res = append(res, &pb.AdminSeedConfigReply_List{
+			Rate:         v.GetRate,
 			CreatedAt:    v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			OutMaxAmount: v.OutMaxAmount,
 			OutMinAmount: v.OutMinAmount,
@@ -5565,12 +5569,15 @@ func (ac *AppUsecase) AdminPropConfigSet(ctx context.Context, req *pb.AdminPropC
 		tmp.FourOne = req.SendBody.Max
 	} else if 15 == req.SendBody.PropType {
 		tmp.TwoOne = req.SendBody.Max
+	} else if 11 == req.SendBody.PropType {
+
 	} else {
 		return &pb.AdminPropConfigSetReply{
 			Status: "参数错误",
 		}, nil
 	}
 
+	tmp.GetRate = req.SendBody.Rate
 	err := ac.userRepo.SetAdminPropConfig(ctx, tmp)
 	if nil != err {
 		return &pb.AdminPropConfigSetReply{
@@ -5614,6 +5621,7 @@ func (ac *AppUsecase) AdminPropConfig(ctx context.Context, req *pb.AdminPropConf
 		}
 
 		res = append(res, &pb.AdminPropConfigReply_List{
+			Rate:      v.GetRate,
 			PropType:  v.PropType,
 			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			Max:       useNum,
@@ -5789,6 +5797,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"area_one", "area_two", "area_three", "area_four", "area_five", "area_zero",
 		"all_each",
 		"u_price",
+		"b_price",
 		"recommend",
 	)
 	if nil != err || nil == configs {
@@ -7849,4 +7858,159 @@ func (ac *AppUsecase) UpdateWithdrawSuccess(ctx context.Context, id uint64) erro
 
 func (ac *AppUsecase) UpdateWithdrawDoing(ctx context.Context, id uint64) error {
 	return ac.userRepo.UpdateWithdraw(ctx, id, "doing")
+}
+
+func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewardListTwoRequest) (*pb.AdminRewardListTwoReply, error) {
+	res := make([]*pb.AdminRewardListTwoReply_List, 0)
+
+	var (
+		user   *User
+		count  int64
+		err    error
+		userId uint64
+		num    uint64
+	)
+
+	if 0 < len(req.Address) {
+		user, err = ac.userRepo.GetUserByAddress(ctx, req.Address) // 查询用户
+		if nil != err || nil == user {
+			return &pb.AdminRewardListTwoReply{
+				Status: "不存在用户",
+			}, nil
+		}
+		userId = user.ID
+	}
+
+	var (
+		reward []*RewardTwo
+	)
+	if 0 < req.Num {
+		num = req.Num
+	}
+
+	count, err = ac.userRepo.GetUserRewardTwoPageCount(ctx, userId, num)
+	if nil != err {
+		return &pb.AdminRewardListTwoReply{
+			Status: "不存在数据L，count",
+		}, nil
+	}
+
+	reward, err = ac.userRepo.GetUserRewardTwoPage(ctx, userId, num, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 20,
+	})
+	if nil != err {
+		return &pb.AdminRewardListTwoReply{
+			Status: "不存在数据L",
+		}, nil
+	}
+
+	for _, v := range reward {
+
+		if 1 == v.Reason {
+			res = append(res, &pb.AdminRewardListTwoReply_List{
+				AmountThree: v.Amount,
+				Amount:      v.Five,
+				AmountTwo:   v.Three,
+				Address:     v.Four,
+				Num:         v.One,
+				CreatedAt:   v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			})
+		} else {
+			res = append(res, &pb.AdminRewardListTwoReply_List{
+				Amount:    v.Three,
+				AmountTwo: v.Amount,
+				Address:   v.Four,
+				Num:       v.One,
+				CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			})
+		}
+	}
+
+	return &pb.AdminRewardListTwoReply{
+		Status: "ok",
+		Count:  uint64(count),
+		List:   res,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminRewardList(ctx context.Context, address string, req *pb.UserRecommendLRequest) (*pb.UserRecommendLReply, error) {
+	res := make([]*pb.UserRecommendLReply_List, 0)
+	var (
+		user  *User
+		err   error
+		count int64
+	)
+	user, err = ac.userRepo.GetUserByAddress(ctx, address) // 查询用户
+	if nil != err || nil == user {
+		return &pb.UserRecommendLReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	var (
+		reward []*Reward
+	)
+
+	status := []uint64{}
+	if 1 == req.Num {
+		status = append(status, 4, 5, 6)
+	} else if 2 == req.Num {
+		status = append(status, 7, 8, 9)
+	} else if 3 == req.Num {
+		status = append(status, 10, 11, 12)
+	} else {
+		return &pb.UserRecommendLReply{
+			Status: "参数错误",
+		}, nil
+	}
+
+	count, err = ac.userRepo.GetUserRewardPageCount(ctx, user.ID, status)
+	if nil != err {
+		return &pb.UserRecommendLReply{
+			Status: "不存在数据L，count",
+		}, nil
+	}
+
+	reward, err = ac.userRepo.GetUserRewardPage(ctx, user.ID, status, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 20,
+	})
+	if nil != err {
+		return &pb.UserRecommendLReply{
+			Status: "不存在数据L",
+		}, nil
+	}
+
+	userIds := []uint64{}
+	for _, v := range reward {
+		userIds = append(userIds, v.One)
+	}
+
+	usersMap := make(map[uint64]*User)
+	usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+	if nil != err {
+		return &pb.UserRecommendLReply{
+			Status: "不存在数据L,用户",
+		}, nil
+	}
+
+	for _, v := range reward {
+		tmpAddress := ""
+		if _, ok := usersMap[v.One]; ok {
+			tmpAddress = usersMap[v.One].Address
+		}
+
+		res = append(res, &pb.UserRecommendLReply_List{
+			Address:   tmpAddress,
+			Amount:    v.Amount,
+			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	return &pb.UserRecommendLReply{
+		Status: "ok",
+		Count:  uint64(count),
+		List:   res,
+	}, nil
 }

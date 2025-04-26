@@ -390,6 +390,13 @@ service App {
 		};
 	};
 
+	// 认购分红
+	rpc AdminRewardListTwo (AdminRewardListTwoRequest) returns (AdminRewardListTwoReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/reward_list"
+		};
+	};
+
 	// 土地配置
 	rpc AdminLandConfigList (AdminLandConfigRequest) returns (AdminLandConfigReply) {
 		option (google.api.http) = {
@@ -1334,6 +1341,27 @@ message RecordListReply { // 充值列表
 	int64 count = 2;
 }
 
+message AdminRewardListTwoRequest {
+	uint64 page = 1; // 页数
+	string address = 3; // 输入框搜索地址
+	uint64 num = 2; // 1认购 2直推 3静态 4直推加速 5团队 6平级 7全网
+}
+
+message AdminRewardListTwoReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页20个
+	repeated List list = 3;
+	message List {
+		double amountThree = 7; // 认购金额
+		double amount = 2; // 奖励USDT 加上usdt后缀
+		double amountTwo = 3; // 奖励BIW 加上biw后缀
+		string address = 4; // 下级地址
+		uint64 num = 6; // 代数
+		string createdAt = 5; // 奖励时间
+	}
+}
+
 message AdminLandConfigRequest {
 }
 
@@ -1380,6 +1408,7 @@ message AdminSeedConfigReply {
 		double outMaxAmount = 2; // 最大产出
 		double outMinAmount = 3; // 最小产出
 		uint64 outOverTime = 5; // 成熟时间
+		double rate = 6; // 盲盒产出概率万分之
 	}
 
 	int64 count = 2;
@@ -1391,6 +1420,7 @@ message AdminSeedConfigSetRequest {
 		double outMaxAmount = 2; // 最大产出
 		double outMinAmount = 3; // 最小产出
 		uint64 outOverTime = 5; // 成熟时间
+		double rate = 4; // 开盲盒产出概率
 	}
 
 	SendBody send_body = 1;
@@ -1410,6 +1440,7 @@ message AdminPropConfigReply {
 		uint64 propType = 2; // 11化肥，12水，13手套，14除虫剂，15铲子，17地契
 		string createdAt = 1; // 时间
 		uint64 max = 6; // 最大使用次数
+		double rate = 3; // 盲盒产出概率万分之
 	}
 
 	int64 count = 2;
@@ -1417,8 +1448,9 @@ message AdminPropConfigReply {
 
 message AdminPropConfigSetRequest {
 	message SendBody{
-		uint64 propType = 2; // 12水，13手套，14除虫剂，15铲子
+		uint64 propType = 2; // 11化肥, 12水，13手套，14除虫剂，15铲子
 		uint64 max = 6; // 最大使用次数
+		double rate = 4; // 开盲盒产出概率
 	}
 
 	SendBody send_body = 1;
