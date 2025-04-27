@@ -334,6 +334,41 @@ service App {
 		};
 	};
 
+	// 管理认购信息
+	rpc AdminUserBuy (AdminUserBuyRequest) returns (AdminUserBuyReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/user_buy"
+		};
+	};
+
+	// 管理土地信息
+	rpc AdminUserLand (AdminUserLandRequest) returns (AdminUserLandReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/user_land"
+		};
+	};
+
+	// 管理认购收益
+	rpc AdminRewardListTwo (AdminRewardListTwoRequest) returns (AdminRewardListTwoReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/reward_list_two"
+		};
+	};
+
+	// 管理游戏收益
+	rpc AdminRewardList (AdminRewardListRequest) returns (AdminRewardListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/reward_list"
+		};
+	};
+
+	// 管理仓库
+	rpc AdminUserBackList (AdminUserBackListRequest) returns (AdminUserBackListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/user_back_list"
+		};
+	};
+
 	// 用户下级
 	rpc AdminUserRecommend (AdminUserRecommendRequest) returns (AdminUserRecommendReply) {
 		option (google.api.http) = {
@@ -387,13 +422,6 @@ service App {
 	rpc AdminRecordList (RecordListRequest) returns (RecordListReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/record_list"
-		};
-	};
-
-	// 认购分红
-	rpc AdminRewardListTwo (AdminRewardListTwoRequest) returns (AdminRewardListTwoReply) {
-		option (google.api.http) = {
-			get: "/api/admin_dhb/reward_list"
 		};
 	};
 
@@ -1275,6 +1303,82 @@ message AdminUserListReply { // 用户信息
 	int64 count = 3;
 }
 
+message AdminUserBuyRequest {
+	string address = 2;
+}
+
+message AdminUserBuyReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	double one = 2; // 认购金额，认购金额大于0时候，隐藏认购按钮
+	double two = 3; // 倍率
+	double three = 4; // 已释放
+	double four = 5; // 待释放
+	double five = 6; // 静态
+	double six = 7; // 直推
+	double seven = 8; // 直推加速
+	double eight = 9; // 团队
+	double nine = 10; // 平级
+	double ten = 11; // 全网
+	double elven = 12; // 总业绩
+	double twelve = 13; // 直推业绩
+	double thirteen = 14; // 大区业绩
+	double fourteen = 15; // 小区业绩
+	uint64 recommendNum = 16; // 直推人数
+	double price = 17; // 价格 biw的数量=usdt的数量/price
+	double giw = 18; // biw余额
+	double usdt = 19; // usdt余额
+	uint64 buyNum  = 20;
+	uint64 teamNum = 21;
+	uint64 level = 22;
+}
+
+message AdminUserLandRequest {
+	uint64 page = 1; // 页数
+	string address = 2;
+}
+
+message AdminUserLandReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页20个
+	repeated List list = 3;
+	message List {
+		uint64 id = 1; // id，一共6个整数位
+		uint64 level = 2; // 等级
+		uint64 health = 3; // 肥沃度
+		uint64 status = 4; // 状态：默认1,种植2, 出租中3，出售中4，拍卖中5
+		double outRate = 5; // 增产率
+		uint64 perHealth = 6; // 种植消耗
+		double rentAmount = 10;
+		uint64 one = 7; // 可出租
+		uint64 two = 8; // 可合成
+		uint64 three = 9; // 可出售
+	}
+}
+
+message AdminUserBackListRequest {
+	uint64 page = 1; // 页数
+	string address = 2;
+}
+
+message AdminUserBackListReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页1000个
+	repeated List list = 3;
+	message List {
+		uint64 id = 1; // id 操作时需要使用的参数，显示时#000001，一共6个整数位
+		uint64 type = 5; // 1种子，2道具
+		uint64 num = 2; // 对应的内容：对应文档种子和道具那列从上到下，1-14，15铲子，16盲盒，17地契
+		uint64 useNum = 3; // 剩余使用次数
+		uint64 status = 4; // 状态：默认1，2，出售中4，左上角显示对应的英文文案，在资源里找对应的图
+		double outMax = 6; // 如果是种子，需要展示的产出数量
+		uint64 time = 7;
+		double amount = 8;
+	}
+}
+
 message AdminDepositRequest {
 }
 
@@ -1344,7 +1448,7 @@ message RecordListReply { // 充值列表
 message AdminRewardListTwoRequest {
 	uint64 page = 1; // 页数
 	string address = 3; // 输入框搜索地址
-	uint64 num = 2; // 1认购 2直推 3静态 4直推加速 5团队 6平级 7全网
+	uint64 rewardType = 2; // 类型：0=全部 1=认购 2=直推 3=静态 4=直推加速 5=团队 6=平级 7=全网
 }
 
 message AdminRewardListTwoReply {
@@ -1358,6 +1462,26 @@ message AdminRewardListTwoReply {
 		double amountTwo = 3; // 奖励BIW 加上biw后缀
 		string address = 4; // 下级地址
 		uint64 num = 6; // 代数
+		string createdAt = 5; // 奖励时间
+		uint64 rewardType = 8; // 类型
+	}
+}
+
+message AdminRewardListRequest {
+	uint64 page = 1; // 页数
+	string address = 3; // 输入框搜索地址
+	uint64 rewardType = 2; // 类型：0=全部 1=种植 2=收租 3=粮仓 4=L1种植 5=L1收租 6=L1粮仓 7=L2种植 8=L2收租 9=L2粮仓 10=L3种植 11=L3收租 12=L3粮仓 13=手套偷取
+}
+
+message AdminRewardListReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页20个
+	repeated List list = 3;
+	message List {
+		double amount = 2; // 金额
+		string address = 4; // 下级地址
+		uint64 rewardType = 6; // 类型
 		string createdAt = 5; // 奖励时间
 	}
 }

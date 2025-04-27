@@ -219,7 +219,39 @@ paths:
         get:
             tags:
                 - App
-            description: 认购分红
+            description: 管理游戏收益
+            operationId: App_AdminRewardList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: rewardType
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminRewardListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/reward_list_two:
+        get:
+            tags:
+                - App
+            description: 管理认购收益
             operationId: App_AdminRewardListTwo
             parameters:
                 - name: page
@@ -230,7 +262,7 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: num
+                - name: rewardType
                   in: query
                   schema:
                     type: string
@@ -569,6 +601,86 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminSetUsdtReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/user_back_list:
+        get:
+            tags:
+                - App
+            description: 管理仓库
+            operationId: App_AdminUserBackList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUserBackListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/user_buy:
+        get:
+            tags:
+                - App
+            description: 管理认购信息
+            operationId: App_AdminUserBuy
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUserBuyReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/user_land:
+        get:
+            tags:
+                - App
+            description: 管理土地信息
+            operationId: App_AdminUserLand
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminUserLandReply'
                 default:
                     description: Default error response
                     content:
@@ -1863,6 +1975,29 @@ components:
                 rate:
                     type: number
                     format: double
+        AdminRewardListReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminRewardListReply_List'
+        AdminRewardListReply_List:
+            type: object
+            properties:
+                amount:
+                    type: number
+                    format: double
+                address:
+                    type: string
+                rewardType:
+                    type: string
+                createdAt:
+                    type: string
         AdminRewardListTwoReply:
             type: object
             properties:
@@ -1891,6 +2026,8 @@ components:
                 num:
                     type: string
                 createdAt:
+                    type: string
+                rewardType:
                     type: string
         AdminSeedConfigReply:
             type: object
@@ -2045,6 +2182,138 @@ components:
             type: object
             properties:
                 status:
+                    type: string
+        AdminUserBackListReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminUserBackListReply_List'
+        AdminUserBackListReply_List:
+            type: object
+            properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                num:
+                    type: string
+                useNum:
+                    type: string
+                status:
+                    type: string
+                outMax:
+                    type: number
+                    format: double
+                time:
+                    type: string
+                amount:
+                    type: number
+                    format: double
+        AdminUserBuyReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                one:
+                    type: number
+                    format: double
+                two:
+                    type: number
+                    format: double
+                three:
+                    type: number
+                    format: double
+                four:
+                    type: number
+                    format: double
+                five:
+                    type: number
+                    format: double
+                six:
+                    type: number
+                    format: double
+                seven:
+                    type: number
+                    format: double
+                eight:
+                    type: number
+                    format: double
+                nine:
+                    type: number
+                    format: double
+                ten:
+                    type: number
+                    format: double
+                elven:
+                    type: number
+                    format: double
+                twelve:
+                    type: number
+                    format: double
+                thirteen:
+                    type: number
+                    format: double
+                fourteen:
+                    type: number
+                    format: double
+                recommendNum:
+                    type: string
+                price:
+                    type: number
+                    format: double
+                giw:
+                    type: number
+                    format: double
+                usdt:
+                    type: number
+                    format: double
+                buyNum:
+                    type: string
+                teamNum:
+                    type: string
+                level:
+                    type: string
+        AdminUserLandReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminUserLandReply_List'
+        AdminUserLandReply_List:
+            type: object
+            properties:
+                id:
+                    type: string
+                level:
+                    type: string
+                health:
+                    type: string
+                status:
+                    type: string
+                outRate:
+                    type: number
+                    format: double
+                perHealth:
+                    type: string
+                rentAmount:
+                    type: number
+                    format: double
+                one:
+                    type: string
+                two:
+                    type: string
+                three:
                     type: string
         AdminUserListReply:
             type: object

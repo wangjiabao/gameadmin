@@ -1717,6 +1717,23 @@ func (a *AppService) AdminRewardListTwo(ctx context.Context, req *pb.AdminReward
 	return a.ac.AdminRewardListTwo(ctx, req)
 }
 
+func (a *AppService) AdminRewardList(ctx context.Context, req *pb.AdminRewardListRequest) (*pb.AdminRewardListReply, error) {
+	return a.ac.AdminRewardList(ctx, req)
+}
+
+func (a *AppService) AdminUserLand(ctx context.Context, req *pb.AdminUserLandRequest) (*pb.AdminUserLandReply, error) {
+	return a.ac.AdminUserLand(ctx, req)
+}
+
+func (a *AppService) AdminUserBackListBuy(ctx context.Context, req *pb.AdminUserBackListRequest) (*pb.AdminUserBackListReply, error) {
+	return a.ac.AdminUserBackList(ctx, req)
+}
+
+// AdminUserBuy userBuy.
+func (a *AppService) AdminUserBuy(ctx context.Context, req *pb.AdminUserBuyRequest) (*pb.AdminUserBuyReply, error) {
+	return a.ac.AdminUserBuy(ctx, req)
+}
+
 func (a *AppService) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdrawListRequest) (*pb.AdminWithdrawListReply, error) {
 	return a.ac.AdminWithdrawList(ctx, req)
 }
@@ -1959,7 +1976,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			continue
 		}
 
-		userLength, err = getUserLength("0x36081a3d9d4abA91D2075e4aD980c740e1B9BE76")
+		userLength, err = getUserLength("0xD5465e27f5839264CeB657527BdeDF006e31994b")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -1976,7 +1993,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x36081a3d9d4abA91D2075e4aD980c740e1B9BE76")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xD5465e27f5839264CeB657527BdeDF006e31994b")
 		if nil != err {
 			break
 		}
@@ -2057,7 +2074,7 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 			continue
 		}
 
-		userLength, err = getUserLength("0x1862dFAf25b65Ec644C0cddCAf904c8D460aed45")
+		userLength, err = getUserLength("0x9CE82dC797D49Db9847D667683d3043CccCa95C8")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2074,7 +2091,7 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x1862dFAf25b65Ec644C0cddCAf904c8D460aed45")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x9CE82dC797D49Db9847D667683d3043CccCa95C8")
 		if nil != err {
 			break
 		}
@@ -2183,7 +2200,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 		}
 
 		for i := 0; i <= 5; i++ {
-			_, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, "0x36081a3d9d4abA91D2075e4aD980c740e1B9BE76", tmpUrl1)
+			_, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, "0x74545c882f857B557200d564A81F70Eda6E3bD27", tmpUrl1)
 			if err == nil {
 				err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)
 				fmt.Println(err)

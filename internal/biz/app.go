@@ -99,7 +99,7 @@ type StakeGit struct {
 type Reward struct {
 	ID        uint64
 	UserId    uint64
-	reason    uint64
+	Reason    uint64
 	One       uint64
 	Two       uint64
 	Three     float64
@@ -533,6 +533,9 @@ type UserRepo interface {
 	UpdateUserRewardNewThree(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, level uint64, stop bool) error
 	GetUserRewardTwoPage(ctx context.Context, userId uint64, reason uint64, b *Pagination) ([]*RewardTwo, error)
 	GetUserRewardTwoPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error)
+	GetUserRewardAdminPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error)
+	GetUserRewardAdminPage(ctx context.Context, userId uint64, reason uint64, b *Pagination) ([]*Reward, error)
+	GetUserRecommendLikeCode(ctx context.Context, code string) ([]*UserRecommend, error)
 }
 
 // AppUsecase is an app usecase.
@@ -4852,7 +4855,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else { // 输：下注金额加入池子
+	} else {                                                         // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -5799,6 +5802,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"u_price",
 		"b_price",
 		"recommend",
+		"low_reward_u",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
@@ -7188,6 +7192,8 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		twoRate         float64
 		threeRate       float64
 		rewardStakeRate float64
+		uPrice          float64
+		lowRewardU      float64
 		err             error
 	)
 	stakeGitRecord, err = ac.userRepo.GetStakeGitRecords(ctx)
@@ -7198,7 +7204,7 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 
 	// 配置
 	configs, err = ac.userRepo.GetConfigByKeys(ctx,
-		"one_rate", "two_rate", "three_rate", "reward_stake_rate",
+		"one_rate", "two_rate", "three_rate", "reward_stake_rate", "u_price", "low_reward_u",
 	)
 	if nil != err || nil == configs {
 		fmt.Println("错误粮仓分红，配置", err)
@@ -7221,6 +7227,19 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		if "reward_stake_rate" == vConfig.KeyName {
 			rewardStakeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
 		}
+
+		if "u_price" == vConfig.KeyName {
+			uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+
+		if "low_reward_u" == vConfig.KeyName {
+			lowRewardU, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+
+	if 0 >= uPrice {
+		fmt.Println("错误粮仓分红，u和biw价格，配置", uPrice, err)
+		return &pb.AdminDailyReply{}, nil
 	}
 
 	// 推荐人
@@ -7265,6 +7284,31 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		)
 		tmpRecommendUserIds = strings.Split(vUr.RecommendCode, "D")
 
+		userIds := make([]uint64, 0)
+		tmpIi := 0
+		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+			if 3 <= tmpIi {
+				break
+			}
+			tmpIi++
+
+			tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+			if 0 >= tmpUserId {
+				continue
+			}
+
+			userIds = append(userIds, tmpUserId)
+		}
+
+		usersMap := make(map[uint64]*User, 0)
+		if 0 < len(userIds) {
+			usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+			if nil != err {
+				fmt.Println(err, "每日粮仓，上级查询")
+				continue
+			}
+		}
+
 		tmpAmount := v.Amount * rewardStakeRate
 
 		// 分红，状态变更
@@ -7293,10 +7337,19 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 					}
 					tmpI++
 
-					tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+					tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
 					if 0 >= tmpUserId {
 						continue
 					}
+
+					if _, ok := usersMap[tmpUserId]; !ok {
+						continue
+					}
+
+					if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
+						continue
+					}
+
 					tmpReward := float64(0)
 
 					tmpNum := uint64(6)
@@ -7314,14 +7367,14 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 					}
 
 					// 奖励
-					err = ac.userRepo.DailyRewardL(ctx, v.ID, uint64(tmpUserId), v.UserId, tmpNum, tmpReward)
+					err = ac.userRepo.DailyRewardL(ctx, v.ID, tmpUserId, v.UserId, tmpNum, tmpReward)
 					if nil != err {
 						return err
 					}
 
 					err = ac.userRepo.CreateNotice(
 						ctx,
-						uint64(tmpUserId),
+						tmpUserId,
 						"您从下级粮仓收获了"+fmt.Sprintf("%.2f", tmpReward)+"GIT",
 						"You've harvest "+fmt.Sprintf("%.2f", tmpReward)+" GIT from neighbor stake",
 					)
@@ -7884,8 +7937,8 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 	var (
 		reward []*RewardTwo
 	)
-	if 0 < req.Num {
-		num = req.Num
+	if 0 < req.RewardType {
+		num = req.RewardType
 	}
 
 	count, err = ac.userRepo.GetUserRewardTwoPageCount(ctx, userId, num)
@@ -7914,15 +7967,17 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 				AmountTwo:   v.Three,
 				Address:     v.Four,
 				Num:         v.One,
+				RewardType:  v.Reason,
 				CreatedAt:   v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			})
 		} else {
 			res = append(res, &pb.AdminRewardListTwoReply_List{
-				Amount:    v.Three,
-				AmountTwo: v.Amount,
-				Address:   v.Four,
-				Num:       v.One,
-				CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+				Amount:     v.Three,
+				AmountTwo:  v.Amount,
+				Address:    v.Four,
+				Num:        v.One,
+				RewardType: v.Reason,
+				CreatedAt:  v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			})
 		}
 	}
@@ -7934,83 +7989,420 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 	}, nil
 }
 
-func (ac *AppUsecase) AdminRewardList(ctx context.Context, address string, req *pb.UserRecommendLRequest) (*pb.UserRecommendLReply, error) {
-	res := make([]*pb.UserRecommendLReply_List, 0)
+func (ac *AppUsecase) AdminRewardList(ctx context.Context, req *pb.AdminRewardListRequest) (*pb.AdminRewardListReply, error) {
+	res := make([]*pb.AdminRewardListReply_List, 0)
+
 	var (
-		user  *User
-		err   error
-		count int64
+		user   *User
+		count  int64
+		err    error
+		userId uint64
+		num    uint64
 	)
-	user, err = ac.userRepo.GetUserByAddress(ctx, address) // 查询用户
-	if nil != err || nil == user {
-		return &pb.UserRecommendLReply{
-			Status: "不存在用户",
-		}, nil
+
+	if 0 < len(req.Address) {
+		user, err = ac.userRepo.GetUserByAddress(ctx, req.Address) // 查询用户
+		if nil != err || nil == user {
+			return &pb.AdminRewardListReply{
+				Status: "不存在用户",
+			}, nil
+		}
+		userId = user.ID
 	}
 
 	var (
 		reward []*Reward
 	)
-
-	status := []uint64{}
-	if 1 == req.Num {
-		status = append(status, 4, 5, 6)
-	} else if 2 == req.Num {
-		status = append(status, 7, 8, 9)
-	} else if 3 == req.Num {
-		status = append(status, 10, 11, 12)
-	} else {
-		return &pb.UserRecommendLReply{
-			Status: "参数错误",
-		}, nil
+	if 0 < req.RewardType {
+		num = req.RewardType
 	}
 
-	count, err = ac.userRepo.GetUserRewardPageCount(ctx, user.ID, status)
+	count, err = ac.userRepo.GetUserRewardAdminPageCount(ctx, userId, num)
 	if nil != err {
-		return &pb.UserRecommendLReply{
+		return &pb.AdminRewardListReply{
 			Status: "不存在数据L，count",
 		}, nil
 	}
 
-	reward, err = ac.userRepo.GetUserRewardPage(ctx, user.ID, status, &Pagination{
+	reward, err = ac.userRepo.GetUserRewardAdminPage(ctx, userId, num, &Pagination{
 		PageNum:  int(req.Page),
 		PageSize: 20,
 	})
 	if nil != err {
-		return &pb.UserRecommendLReply{
+		return &pb.AdminRewardListReply{
 			Status: "不存在数据L",
 		}, nil
 	}
 
-	userIds := []uint64{}
+	userIds := make([]uint64, 0)
 	for _, v := range reward {
+		if 0 >= v.One {
+			continue
+		}
+
 		userIds = append(userIds, v.One)
 	}
 
-	usersMap := make(map[uint64]*User)
-	usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
-	if nil != err {
-		return &pb.UserRecommendLReply{
-			Status: "不存在数据L,用户",
-		}, nil
+	usersMap := make(map[uint64]*User, 0)
+	if 0 < len(userIds) {
+		usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+		if nil != err {
+			return &pb.AdminRewardListReply{
+				Status: "不存在数据L",
+			}, nil
+		}
 	}
 
 	for _, v := range reward {
-		tmpAddress := ""
-		if _, ok := usersMap[v.One]; ok {
-			tmpAddress = usersMap[v.One].Address
+		address := ""
+		if 0 < v.One {
+			if _, ok := usersMap[v.One]; ok {
+				address = usersMap[v.One].Address
+			}
 		}
 
-		res = append(res, &pb.UserRecommendLReply_List{
-			Address:   tmpAddress,
-			Amount:    v.Amount,
-			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+		res = append(res, &pb.AdminRewardListReply_List{
+			Amount:     v.Amount,
+			Address:    address,
+			RewardType: v.Reason,
+			CreatedAt:  v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 		})
 	}
 
-	return &pb.UserRecommendLReply{
+	return &pb.AdminRewardListReply{
 		Status: "ok",
 		Count:  uint64(count),
+		List:   res,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminUserBuy(ctx context.Context, req *pb.AdminUserBuyRequest) (*pb.AdminUserBuyReply, error) {
+	var (
+		address = req.Address
+		user    *User
+		err     error
+	)
+	if 0 >= len(address) {
+		return &pb.AdminUserBuyReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	user, err = ac.userRepo.GetUserByAddress(ctx, address) // 查询用户
+	if nil != err || nil == user {
+		return &pb.AdminUserBuyReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	var (
+		configs []*Config
+		uPrice  float64
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"u_price",
+	)
+	if nil != err || nil == configs {
+		return &pb.AdminUserBuyReply{
+			Status: "配置错误",
+		}, nil
+	}
+	for _, vConfig := range configs {
+		if "u_price" == vConfig.KeyName {
+			uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+
+	// 推荐
+	var (
+		userRecommend   *UserRecommend
+		myUserRecommend []*UserRecommend
+		team            []*UserRecommend
+	)
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, user.ID)
+	if nil == userRecommend || nil != err {
+		return &pb.AdminUserBuyReply{
+			Status: "推荐错误查询",
+		}, nil
+	}
+
+	myUserRecommend, err = ac.userRepo.GetUserRecommendByCode(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(user.ID, 10))
+	if nil == myUserRecommend || nil != err {
+		return &pb.AdminUserBuyReply{
+			Status: "推荐错误查询",
+		}, nil
+	}
+
+	team, err = ac.userRepo.GetUserRecommendLikeCode(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(user.ID, 10))
+	if nil != err {
+		return &pb.AdminUserBuyReply{
+			Status: "推荐错误查询",
+		}, nil
+	}
+
+	var (
+		users    []*User
+		usersMap map[uint64]*User
+	)
+	users, err = ac.userRepo.GetAllUsers(ctx)
+	if nil == users {
+		return &pb.AdminUserBuyReply{
+			Status: "错误",
+		}, nil
+	}
+
+	usersMap = make(map[uint64]*User, 0)
+	for _, vUsers := range users {
+		usersMap[vUsers.ID] = vUsers
+	}
+
+	// 获取业绩
+	tmpAreaMax := float64(0)
+	tmpAreaMin := float64(0)
+	tmpMaxId := uint64(0)
+	tmpTwelve := float64(0)
+	tmpRecommendNum := uint64(0)
+	for _, vMyLowUser := range myUserRecommend {
+		if _, ok := usersMap[vMyLowUser.ID]; !ok {
+			continue
+		}
+
+		tmpTwelve += usersMap[vMyLowUser.UserId].MyTotalAmount
+		tmpRecommendNum += 1
+		if tmpAreaMax < usersMap[vMyLowUser.UserId].MyTotalAmount+usersMap[vMyLowUser.UserId].Amount {
+			tmpAreaMax = usersMap[vMyLowUser.UserId].MyTotalAmount + usersMap[vMyLowUser.UserId].Amount
+			tmpMaxId = vMyLowUser.ID
+		}
+	}
+
+	if 0 < tmpMaxId {
+		for _, vMyLowUser := range myUserRecommend {
+			if _, ok := usersMap[vMyLowUser.ID]; !ok {
+				continue
+			}
+
+			if tmpMaxId != vMyLowUser.ID {
+				tmpAreaMin += usersMap[vMyLowUser.UserId].MyTotalAmount + usersMap[vMyLowUser.UserId].Amount
+			}
+		}
+	}
+
+	tmpLevel := uint64(0)
+	if 1000000 <= tmpAreaMin {
+		tmpLevel = 5
+	} else if 500000 <= tmpAreaMin {
+		tmpLevel = 4
+	} else if 150000 <= tmpAreaMin {
+		tmpLevel = 3
+	} else if 50000 <= tmpAreaMin {
+		tmpLevel = 2
+	} else if 10000 <= tmpAreaMin {
+		tmpLevel = 1
+	}
+
+	tmpBuyNum := uint64(0)
+	for _, v := range team {
+		if _, ok := usersMap[v.UserId]; !ok {
+			continue
+		}
+
+		if 0 >= usersMap[v.UserId].OutNum && 0 >= usersMap[v.UserId].Amount {
+			continue
+		}
+
+		tmpBuyNum++
+	}
+
+	tmpFour := float64(0)
+	if user.Amount*2.5 <= user.AmountGet {
+		tmpFour = 0
+	} else {
+		tmpFour = user.Amount*2.5 - user.AmountGet
+	}
+
+	return &pb.AdminUserBuyReply{
+		Status:       "ok",
+		One:          user.Amount,
+		Two:          2.5,
+		Three:        user.AmountGet,
+		Four:         tmpFour,
+		Five:         user.Location,
+		Six:          user.Recommend,
+		Seven:        user.RecommendTwo,
+		Eight:        user.Area,
+		Nine:         user.AreaTwo,
+		Ten:          user.All,
+		Elven:        user.MyTotalAmount,
+		Twelve:       tmpTwelve,
+		Thirteen:     tmpAreaMax,
+		Fourteen:     tmpAreaMin,
+		RecommendNum: tmpRecommendNum,
+		Usdt:         user.AmountUsdt,
+		Giw:          user.Giw,
+		Price:        uPrice,
+		TeamNum:      uint64(len(team)),
+		BuyNum:       tmpBuyNum,
+		Level:        tmpLevel,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminUserLand(ctx context.Context, req *pb.AdminUserLandRequest) (*pb.AdminUserLandReply, error) {
+	res := make([]*pb.AdminUserLandReply_List, 0)
+	var (
+		address = req.Address
+		user    *User
+		lands   []*Land
+		err     error
+	)
+
+	if 0 >= len(address) {
+		return &pb.AdminUserLandReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	user, err = ac.userRepo.GetUserByAddress(ctx, address) // 查询用户
+	if nil != err || nil == user {
+		return &pb.AdminUserLandReply{
+			Status: "不存在用户",
+		}, nil
+	}
+	status := []uint64{0, 1, 2, 3, 4, 5, 8}
+	lands, err = ac.userRepo.GetLandByUserID(ctx, user.ID, status, nil)
+	if nil != err {
+		return &pb.AdminUserLandReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	for _, v := range lands {
+		statusTmp := v.Status
+		if 8 == v.Status {
+			statusTmp = 3
+		}
+
+		res = append(res, &pb.AdminUserLandReply_List{
+			Id:         v.ID,
+			Level:      v.Level,
+			Health:     v.MaxHealth,
+			Status:     statusTmp,
+			OutRate:    v.OutPutRate,
+			PerHealth:  v.PerHealth,
+			RentAmount: v.RentOutPutRate,
+			One:        v.One,
+			Two:        v.Two,
+			Three:      v.Three,
+		})
+	}
+
+	return &pb.AdminUserLandReply{
+		Status: "ok",
+		Count:  uint64(len(res)),
+		List:   res,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminUserBackList(ctx context.Context, req *pb.AdminUserBackListRequest) (*pb.AdminUserBackListReply, error) {
+	res := make([]*pb.AdminUserBackListReply_List, 0)
+	var (
+		address = req.Address
+		user    *User
+		err     error
+	)
+	if 0 >= len(address) {
+		return &pb.AdminUserBackListReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	user, err = ac.userRepo.GetUserByAddress(ctx, address) // 查询用户
+	if nil != err || nil == user {
+		return &pb.AdminUserBackListReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	var (
+		seed []*Seed
+	)
+	seedStatus := []uint64{0, 4}
+	seed, err = ac.userRepo.GetSeedByUserID(ctx, user.ID, seedStatus, nil)
+	if nil != err {
+		return &pb.AdminUserBackListReply{
+			Status: "查询种子错误",
+		}, nil
+	}
+
+	for _, vSeed := range seed {
+		tmpStatus := uint64(1)
+		if 4 == vSeed.Status {
+			tmpStatus = 4
+		}
+
+		res = append(res, &pb.UserBackListReply_List{
+			Id:     vSeed.ID,
+			Type:   1,
+			Num:    vSeed.SeedId,
+			UseNum: 0,
+			Status: tmpStatus,
+			OutMax: vSeed.OutMaxAmount,
+			Time:   vSeed.OutOverTime,
+			Amount: vSeed.SellAmount,
+		})
+	}
+
+	var (
+		prop []*Prop
+	)
+	// 11化肥，12水，13手套，14除虫剂，15铲子，16盲盒，17地契
+	propStatus := []uint64{1, 2, 4}
+	prop, err = ac.userRepo.GetPropsByUserID(ctx, user.ID, propStatus, nil)
+	if nil != err {
+		return &pb.AdminUserBackListReply{
+			Status: "道具错误",
+		}, nil
+	}
+
+	for _, vProp := range prop {
+		useNum := uint64(0)
+		res = append(res, &pb.AdminUserBackListReply_List{
+			Id:     vProp.ID,
+			Type:   2,
+			Num:    uint64(vProp.PropType),
+			UseNum: useNum,
+			Status: uint64(vProp.Status),
+			OutMax: 0,
+			Amount: vProp.SellAmount,
+		})
+	}
+
+	var (
+		box []*BoxRecord
+	)
+
+	box, err = ac.userRepo.GetUserBoxRecordOpen(ctx, user.ID, 0, false, nil)
+	if nil != err {
+		return &pb.AdminUserBackListReply{
+			Status: "查询盒子错误",
+		}, nil
+	}
+
+	for _, v := range box {
+		res = append(res, &pb.AdminUserBackListReply_List{
+			Id:     v.ID,
+			Type:   2,
+			Num:    16,
+			UseNum: 0,
+			Status: 0,
+			OutMax: 0,
+		})
+	}
+
+	return &pb.AdminUserBackListReply{
+		Status: "ok",
+		Count:  0,
 		List:   res,
 	}, nil
 }

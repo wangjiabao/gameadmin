@@ -4464,3 +4464,95 @@ func (u *UserRepo) GetUserRewardTwoPage(ctx context.Context, userId uint64, reas
 
 	return res, nil
 }
+
+func (u *UserRepo) GetUserRewardAdminPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error) {
+	var count int64
+
+	instance := u.data.DB(ctx).Table("reward")
+
+	if 0 < userId {
+		instance = instance.Where("user_id = ?", userId)
+	}
+
+	if 0 < reason {
+		instance = instance.Where("reason=?", reason)
+	}
+
+	if err := instance.Count(&count).Error; err != nil {
+		return 0, errors.New(500, "GetUserRewardPageCount ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
+// GetUserRewardAdminByCodePage .
+func (u *UserRepo) GetUserRewardAdminPage(ctx context.Context, userId uint64, reason uint64, b *biz.Pagination) ([]*biz.Reward, error) {
+	var (
+		rewards []*Reward
+	)
+
+	res := make([]*biz.Reward, 0)
+	instance := u.data.DB(ctx).Table("reward").Order("id desc").
+		Scopes(Paginate(b.PageNum, b.PageSize))
+
+	if 0 < userId {
+		instance = instance.Where("user_id = ?", userId)
+	}
+
+	if 0 < reason {
+		instance = instance.Where("reason=?", reason)
+	}
+
+	if err := instance.Find(&rewards).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "GetUserRewardByCodePage ERROR", err.Error())
+	}
+
+	for _, v := range rewards {
+		res = append(res, &biz.Reward{
+			ID:        v.ID,
+			UserId:    v.UserId,
+			Amount:    v.Amount,
+			One:       v.One,
+			Two:       v.Two,
+			Three:     v.Three,
+			Reason:    v.Reason,
+			CreatedAt: v.CreatedAt,
+			UpdatedAt: v.UpdatedAt,
+		})
+	}
+
+	return res, nil
+}
+
+// GetUserRecommendLikeCode .
+func (u *UserRepo) GetUserRecommendLikeCode(ctx context.Context, code string) ([]*biz.UserRecommend, error) {
+	var (
+		userRecommends []*UserRecommend
+	)
+
+	res := make([]*biz.UserRecommend, 0)
+	instance := u.data.DB(ctx).Table("user_recommend").Where("recommend_code Like ?", code+"%")
+	if err := instance.Find(&userRecommends).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "USER RECOMMEND ERROR", err.Error())
+	}
+
+	for _, userRecommend := range userRecommends {
+		res = append(res, &biz.UserRecommend{
+			ID:            userRecommend.ID,
+			UserId:        userRecommend.UserId,
+			RecommendCode: userRecommend.RecommendCode,
+			CreatedAt:     userRecommend.CreatedAt,
+			UpdatedAt:     userRecommend.UpdatedAt,
+		})
+	}
+
+	return res, nil
+}
