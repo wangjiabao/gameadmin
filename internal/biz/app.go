@@ -4855,7 +4855,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -8341,7 +8341,7 @@ func (ac *AppUsecase) AdminUserBackList(ctx context.Context, req *pb.AdminUserBa
 			tmpStatus = 4
 		}
 
-		res = append(res, &pb.UserBackListReply_List{
+		res = append(res, &pb.AdminUserBackListReply_List{
 			Id:     vSeed.ID,
 			Type:   1,
 			Num:    vSeed.SeedId,
