@@ -43,9 +43,12 @@ const OperationAppAdminSetConfig = "/api.app.v1.App/AdminSetConfig"
 const OperationAppAdminSetGit = "/api.app.v1.App/AdminSetGit"
 const OperationAppAdminSetGiw = "/api.app.v1.App/AdminSetGiw"
 const OperationAppAdminSetLand = "/api.app.v1.App/AdminSetLand"
+const OperationAppAdminSetLock = "/api.app.v1.App/AdminSetLock"
+const OperationAppAdminSetLockReward = "/api.app.v1.App/AdminSetLockReward"
 const OperationAppAdminSetProp = "/api.app.v1.App/AdminSetProp"
 const OperationAppAdminSetSeed = "/api.app.v1.App/AdminSetSeed"
 const OperationAppAdminSetUsdt = "/api.app.v1.App/AdminSetUsdt"
+const OperationAppAdminSetVip = "/api.app.v1.App/AdminSetVip"
 const OperationAppAdminUserBackList = "/api.app.v1.App/AdminUserBackList"
 const OperationAppAdminUserBuy = "/api.app.v1.App/AdminUserBuy"
 const OperationAppAdminUserLand = "/api.app.v1.App/AdminUserLand"
@@ -145,12 +148,16 @@ type AppHTTPServer interface {
 	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
 	// AdminSetLand 发土地
 	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
+	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
+	AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error)
 	// AdminSetProp 发道具
 	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
 	// AdminSetSeed 发种子
 	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
 	// AdminSetUsdt 设置余额
 	AdminSetUsdt(context.Context, *AdminSetUsdtRequest) (*AdminSetUsdtReply, error)
+	// AdminSetVip 设置余额
+	AdminSetVip(context.Context, *AdminSetVipRequest) (*AdminSetVipReply, error)
 	// AdminUserBackList 管理仓库
 	AdminUserBackList(context.Context, *AdminUserBackListRequest) (*AdminUserBackListReply, error)
 	// AdminUserBuy 管理认购信息
@@ -316,6 +323,9 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/set_biw", _App_AdminSetGiw0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_giw", _App_AdminSetGit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_usdt", _App_AdminSetUsdt0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_vip", _App_AdminSetVip0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_lock", _App_AdminSetLock0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_lock_reward", _App_AdminSetLockReward0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/get_box", _App_AdminGetBox0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_box", _App_AdminSetBox0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/get_config", _App_AdminGetConfig0_HTTP_Handler(srv))
@@ -1693,6 +1703,63 @@ func _App_AdminSetUsdt0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _App_AdminSetVip0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetVipRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetVip)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetVip(ctx, req.(*AdminSetVipRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetVipReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetLock0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetLockRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetLock)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetLock(ctx, req.(*AdminSetLockRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetLockReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetLockReward0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetLockRewardRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetLockReward)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetLockReward(ctx, req.(*AdminSetLockRewardRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetLockRewardReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminGetBox0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminGetBoxRequest
@@ -1888,9 +1955,12 @@ type AppHTTPClient interface {
 	AdminSetGit(ctx context.Context, req *AdminSetGitRequest, opts ...http.CallOption) (rsp *AdminSetGitReply, err error)
 	AdminSetGiw(ctx context.Context, req *AdminSetGiwRequest, opts ...http.CallOption) (rsp *AdminSetGiwReply, err error)
 	AdminSetLand(ctx context.Context, req *AdminSetLandRequest, opts ...http.CallOption) (rsp *AdminSetLandReply, err error)
+	AdminSetLock(ctx context.Context, req *AdminSetLockRequest, opts ...http.CallOption) (rsp *AdminSetLockReply, err error)
+	AdminSetLockReward(ctx context.Context, req *AdminSetLockRewardRequest, opts ...http.CallOption) (rsp *AdminSetLockRewardReply, err error)
 	AdminSetProp(ctx context.Context, req *AdminSetPropRequest, opts ...http.CallOption) (rsp *AdminSetPropReply, err error)
 	AdminSetSeed(ctx context.Context, req *AdminSetSeedRequest, opts ...http.CallOption) (rsp *AdminSetSeedReply, err error)
 	AdminSetUsdt(ctx context.Context, req *AdminSetUsdtRequest, opts ...http.CallOption) (rsp *AdminSetUsdtReply, err error)
+	AdminSetVip(ctx context.Context, req *AdminSetVipRequest, opts ...http.CallOption) (rsp *AdminSetVipReply, err error)
 	AdminUserBackList(ctx context.Context, req *AdminUserBackListRequest, opts ...http.CallOption) (rsp *AdminUserBackListReply, err error)
 	AdminUserBuy(ctx context.Context, req *AdminUserBuyRequest, opts ...http.CallOption) (rsp *AdminUserBuyReply, err error)
 	AdminUserLand(ctx context.Context, req *AdminUserLandRequest, opts ...http.CallOption) (rsp *AdminUserLandReply, err error)
@@ -2262,6 +2332,32 @@ func (c *AppHTTPClientImpl) AdminSetLand(ctx context.Context, in *AdminSetLandRe
 	return &out, err
 }
 
+func (c *AppHTTPClientImpl) AdminSetLock(ctx context.Context, in *AdminSetLockRequest, opts ...http.CallOption) (*AdminSetLockReply, error) {
+	var out AdminSetLockReply
+	pattern := "/api/admin_dhb/set_lock"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetLock))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetLockReward(ctx context.Context, in *AdminSetLockRewardRequest, opts ...http.CallOption) (*AdminSetLockRewardReply, error) {
+	var out AdminSetLockRewardReply
+	pattern := "/api/admin_dhb/set_lock_reward"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetLockReward))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AppHTTPClientImpl) AdminSetProp(ctx context.Context, in *AdminSetPropRequest, opts ...http.CallOption) (*AdminSetPropReply, error) {
 	var out AdminSetPropReply
 	pattern := "/api/admin_dhb/set_prop"
@@ -2293,6 +2389,19 @@ func (c *AppHTTPClientImpl) AdminSetUsdt(ctx context.Context, in *AdminSetUsdtRe
 	pattern := "/api/admin_dhb/set_usdt"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetUsdt))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetVip(ctx context.Context, in *AdminSetVipRequest, opts ...http.CallOption) (*AdminSetVipReply, error) {
+	var out AdminSetVipReply
+	pattern := "/api/admin_dhb/set_vip"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetVip))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

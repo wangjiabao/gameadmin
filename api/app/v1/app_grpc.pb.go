@@ -87,6 +87,9 @@ const (
 	App_AdminSetGiw_FullMethodName            = "/api.app.v1.App/AdminSetGiw"
 	App_AdminSetGit_FullMethodName            = "/api.app.v1.App/AdminSetGit"
 	App_AdminSetUsdt_FullMethodName           = "/api.app.v1.App/AdminSetUsdt"
+	App_AdminSetVip_FullMethodName            = "/api.app.v1.App/AdminSetVip"
+	App_AdminSetLock_FullMethodName           = "/api.app.v1.App/AdminSetLock"
+	App_AdminSetLockReward_FullMethodName     = "/api.app.v1.App/AdminSetLockReward"
 	App_AdminGetBox_FullMethodName            = "/api.app.v1.App/AdminGetBox"
 	App_AdminSetBox_FullMethodName            = "/api.app.v1.App/AdminSetBox"
 	App_AdminGetConfig_FullMethodName         = "/api.app.v1.App/AdminGetConfig"
@@ -232,6 +235,10 @@ type AppClient interface {
 	AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error)
 	// 设置余额
 	AdminSetUsdt(ctx context.Context, in *AdminSetUsdtRequest, opts ...grpc.CallOption) (*AdminSetUsdtReply, error)
+	// 设置余额
+	AdminSetVip(ctx context.Context, in *AdminSetVipRequest, opts ...grpc.CallOption) (*AdminSetVipReply, error)
+	AdminSetLock(ctx context.Context, in *AdminSetLockRequest, opts ...grpc.CallOption) (*AdminSetLockReply, error)
+	AdminSetLockReward(ctx context.Context, in *AdminSetLockRewardRequest, opts ...grpc.CallOption) (*AdminSetLockRewardReply, error)
 	// 当前盲盒信息
 	AdminGetBox(ctx context.Context, in *AdminGetBoxRequest, opts ...grpc.CallOption) (*AdminGetBoxReply, error)
 	// 设置盲盒
@@ -870,6 +877,33 @@ func (c *appClient) AdminSetUsdt(ctx context.Context, in *AdminSetUsdtRequest, o
 	return out, nil
 }
 
+func (c *appClient) AdminSetVip(ctx context.Context, in *AdminSetVipRequest, opts ...grpc.CallOption) (*AdminSetVipReply, error) {
+	out := new(AdminSetVipReply)
+	err := c.cc.Invoke(ctx, App_AdminSetVip_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetLock(ctx context.Context, in *AdminSetLockRequest, opts ...grpc.CallOption) (*AdminSetLockReply, error) {
+	out := new(AdminSetLockReply)
+	err := c.cc.Invoke(ctx, App_AdminSetLock_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetLockReward(ctx context.Context, in *AdminSetLockRewardRequest, opts ...grpc.CallOption) (*AdminSetLockRewardReply, error) {
+	out := new(AdminSetLockRewardReply)
+	err := c.cc.Invoke(ctx, App_AdminSetLockReward_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminGetBox(ctx context.Context, in *AdminGetBoxRequest, opts ...grpc.CallOption) (*AdminGetBoxReply, error) {
 	out := new(AdminGetBoxReply)
 	err := c.cc.Invoke(ctx, App_AdminGetBox_FullMethodName, in, out, opts...)
@@ -1077,6 +1111,10 @@ type AppServer interface {
 	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
 	// 设置余额
 	AdminSetUsdt(context.Context, *AdminSetUsdtRequest) (*AdminSetUsdtReply, error)
+	// 设置余额
+	AdminSetVip(context.Context, *AdminSetVipRequest) (*AdminSetVipReply, error)
+	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
+	AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error)
 	// 当前盲盒信息
 	AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error)
 	// 设置盲盒
@@ -1303,6 +1341,15 @@ func (UnimplementedAppServer) AdminSetGit(context.Context, *AdminSetGitRequest) 
 }
 func (UnimplementedAppServer) AdminSetUsdt(context.Context, *AdminSetUsdtRequest) (*AdminSetUsdtReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetUsdt not implemented")
+}
+func (UnimplementedAppServer) AdminSetVip(context.Context, *AdminSetVipRequest) (*AdminSetVipReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetVip not implemented")
+}
+func (UnimplementedAppServer) AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLock not implemented")
+}
+func (UnimplementedAppServer) AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLockReward not implemented")
 }
 func (UnimplementedAppServer) AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminGetBox not implemented")
@@ -2565,6 +2612,60 @@ func _App_AdminSetUsdt_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetVip_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetVipRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetVip(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetVip_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetVip(ctx, req.(*AdminSetVipRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetLock_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetLockRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetLock(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetLock_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetLock(ctx, req.(*AdminSetLockRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetLockReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetLockRewardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetLockReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetLockReward_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetLockReward(ctx, req.(*AdminSetLockRewardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminGetBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminGetBoxRequest)
 	if err := dec(in); err != nil {
@@ -2987,6 +3088,18 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetUsdt",
 			Handler:    _App_AdminSetUsdt_Handler,
+		},
+		{
+			MethodName: "AdminSetVip",
+			Handler:    _App_AdminSetVip_Handler,
+		},
+		{
+			MethodName: "AdminSetLock",
+			Handler:    _App_AdminSetLock_Handler,
+		},
+		{
+			MethodName: "AdminSetLockReward",
+			Handler:    _App_AdminSetLockReward_Handler,
 		},
 		{
 			MethodName: "AdminGetBox",

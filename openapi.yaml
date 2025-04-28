@@ -517,6 +517,60 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_lock:
+        get:
+            tags:
+                - App
+            operationId: App_AdminSetLock
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: lock
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetLockReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_lock_reward:
+        get:
+            tags:
+                - App
+            operationId: App_AdminSetLockReward
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: lockReward
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetLockRewardReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/set_prop:
         post:
             tags:
@@ -639,6 +693,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminSetUsdtReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_vip:
+        get:
+            tags:
+                - App
+            description: 设置余额
+            operationId: App_AdminSetVip
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: vip
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetVipReply'
                 default:
                     description: Default error response
                     content:
@@ -2202,6 +2284,16 @@ components:
                     type: string
                 limit:
                     type: string
+        AdminSetLockReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetLockRewardReply:
+            type: object
+            properties:
+                status:
+                    type: string
         AdminSetPropReply:
             type: object
             properties:
@@ -2227,6 +2319,11 @@ components:
                 seedId:
                     type: string
         AdminSetUsdtReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetVipReply:
             type: object
             properties:
                 status:
