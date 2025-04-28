@@ -6557,6 +6557,7 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 			tmpAreaMax := float64(0)
 			tmpAreaMin := float64(0)
 			tmpMaxId := uint64(0)
+			tmpMaxUserId := uint64(0)
 			for _, vMyLowUser := range myLowUser[tmpUserId] {
 				if _, ok := usersMap[vMyLowUser.UserId]; !ok {
 					fmt.Println("错误分红小区，信息缺失4：", err, tmpUserId, v)
@@ -6566,21 +6567,23 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 				if tmpAreaMax < usersMap[vMyLowUser.UserId].MyTotalAmount+usersMap[vMyLowUser.UserId].Amount {
 					tmpAreaMax = usersMap[vMyLowUser.UserId].MyTotalAmount + usersMap[vMyLowUser.UserId].Amount
 					tmpMaxId = vMyLowUser.ID
+					tmpMaxUserId = vMyLowUser.UserId
 				}
 			}
 
-			if 0 >= tmpMaxId {
+			if 0 >= tmpMaxId || 0 >= tmpMaxUserId {
 				continue
 			}
 
 			// 如果是我大区的人，不拿，当前人的下级是不是大区的用户id
 			if i == lastKey {
 				// 直推，是我的大区
-				if tmpMaxId == v.ID {
+				if tmpMaxUserId == v.ID {
+					fmt.Println("测试1：", tmpUserId, tmpMaxId, v.ID)
 					continue
 				}
 
-				fmt.Println("测试：", tmpUserId, tmpMaxId, v.ID)
+				fmt.Println("测试2：", tmpUserId, tmpMaxId, v.ID)
 			} else {
 				if i+1 > lastKey {
 					fmt.Println("错误分红小区，信息缺失44：", err, tmpUserId, lastKey, i+1, v)
@@ -6594,11 +6597,12 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 				}
 
 				// 是我大区的人，跳过
-				if tmpMaxId == tmpLastUserId {
+				if tmpMaxUserId == tmpLastUserId {
+					fmt.Println("测试3：", tmpUserId, tmpMaxId, tmpLastUserId)
 					continue
 				}
 
-				fmt.Println("测试1：", tmpUserId, tmpMaxId, tmpLastUserId)
+				fmt.Println("测试4：", tmpUserId, tmpMaxId, tmpLastUserId)
 			}
 
 			for _, vMyLowUser := range myLowUser[tmpUserId] {
