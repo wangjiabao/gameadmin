@@ -183,6 +183,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/price_change:
+        get:
+            tags:
+                - App
+            description: 每日粮仓
+            operationId: App_AdminPriceChange
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminPriceChangeReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/prop_config_list:
         get:
             tags:
@@ -1959,6 +1978,9 @@ components:
                     type: string
                 password:
                     type: string
+        AdminPriceChangeReply:
+            type: object
+            properties: {}
         AdminPropConfigReply:
             type: object
             properties:

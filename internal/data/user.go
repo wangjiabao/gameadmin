@@ -324,6 +324,15 @@ type EthRecordThree struct {
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
 
+type PriceChange struct {
+	ID        uint64    `gorm:"primarykey;type:int;comment:主键"`
+	Price     float64   `gorm:"type:decimal(65,20);not null;"`
+	PriceNew  float64   `gorm:"type:decimal(65,20);not null;"`
+	Status    uint64    `gorm:"type:int;not null;default:0;"`
+	CreatedAt time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt time.Time `gorm:"type:datetime;not null"`
+}
+
 type SeedInfo struct {
 	ID           uint64    `gorm:"primaryKey;autoIncrement" json:"id"`
 	Name         string    `gorm:"type:varchar(45);not null;default:'1'" json:"name"`
@@ -400,6 +409,61 @@ func NewUserRepo(data *Data, logger log.Logger) biz.UserRepo {
 		data: data,
 		log:  log.NewHelper(logger),
 	}
+}
+
+// GetAllUsers .
+func (u *UserRepo) GetAllUsersBuy(ctx context.Context) ([]*biz.User, error) {
+	var users []*User
+
+	res := make([]*biz.User, 0)
+	if err := u.data.DB(ctx).Table("user").Where("amount>?", 0).Order("id asc").Find(&users).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "USER ERROR", err.Error())
+	}
+
+	for _, user := range users {
+		res = append(res, &biz.User{
+			ID:               user.ID,
+			Address:          user.Address,
+			Level:            user.Level,
+			Giw:              user.Giw,
+			GiwAdd:           user.GiwAdd,
+			Git:              user.Git,
+			Total:            user.Total,
+			TotalOne:         user.TotalOne,
+			TotalTwo:         user.TotalTwo,
+			TotalThree:       user.TotalThree,
+			CreatedAt:        user.CreatedAt,
+			UpdatedAt:        user.UpdatedAt,
+			RewardOne:        user.RewardOne,
+			RewardTwo:        user.RewardTwo,
+			RewardThree:      user.RewardThree,
+			RewardTwoOne:     user.RewardTwoOne,
+			RewardTwoTwo:     user.RewardTwoTwo,
+			RewardTwoThree:   user.RewardTwoThree,
+			RewardThreeOne:   user.RewardThreeOne,
+			RewardThreeTwo:   user.RewardThreeTwo,
+			RewardThreeThree: user.RewardThreeThree,
+			Location:         user.Location,
+			Recommend:        user.Recommend,
+			RecommendTwo:     user.RecommendTwo,
+			All:              user.AllNum,
+			Area:             user.Area,
+			AreaTwo:          user.AreaTwo,
+			Amount:           user.Amount,
+			AmountGet:        user.AmountGet,
+			AmountUsdt:       user.AmountUsdt,
+			MyTotalAmount:    user.MyTotalAmount,
+			OutNum:           user.OutNum,
+			Vip:              user.Vip,
+			VipAdmin:         user.VipAdmin,
+		})
+	}
+
+	return res, nil
 }
 
 // GetAllUsers .
@@ -4243,6 +4307,39 @@ func (u *UserRepo) UpdateWithdraw(ctx context.Context, id uint64, status string)
 	return nil
 }
 
+func (u *UserRepo) UpdateUserRewardOut(ctx context.Context, userId uint64, amountGet, amountOrigin float64) error {
+	var err error
+
+	res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+		Updates(map[string]interface{}{
+			"amount":        0,
+			"amount_get":    0,
+			"out_num":       gorm.Expr("out_num + ?", 1),
+			"updated_at":    time.Now().Format("2006-01-02 15:04:05"),
+			"location":      0,
+			"recommend":     0,
+			"recommend_two": 0,
+			"area":          0,
+			"area_two":      0,
+			"all_num":       0,
+		})
+	if res.Error != nil {
+		return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+	}
+
+	var rewardStop RewardTwo
+	rewardStop.UserId = userId
+	rewardStop.Reason = 100 // 给我分红的理由
+	rewardStop.Three = amountOrigin
+	rewardStop.Amount = amountGet
+	err = u.data.DB(ctx).Table("reward_two").Create(&rewardStop).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (u *UserRepo) UpdateUserRewardNew(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, stop bool) error {
 	var err error
 
@@ -4274,27 +4371,31 @@ func (u *UserRepo) UpdateUserRewardNew(ctx context.Context, userId uint64, giw, 
 			return err
 		}
 	} else {
-		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-			Updates(map[string]interface{}{
-				"amount_get": gorm.Expr("amount_get + ?", usdt),
-				"location":   gorm.Expr("location + ?", usdt),
-				"giw":        gorm.Expr("giw + ?", giw),
-				"updated_at": time.Now().Format("2006-01-02 15:04:05"),
-			})
-		if res.Error != nil {
-			return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+		if 0 < usdt {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{
+					"amount_get": gorm.Expr("amount_get + ?", usdt),
+					"location":   gorm.Expr("location + ?", usdt),
+					"giw":        gorm.Expr("giw + ?", giw),
+					"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+				})
+			if res.Error != nil {
+				return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+			}
 		}
 	}
 
-	var reward RewardTwo
-	reward.UserId = userId
-	reward.Amount = giw
-	reward.Three = usdt
-	reward.Five = usdt2
-	reward.Reason = 3 // 直推
-	err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
-	if err != nil {
-		return err
+	if 0 < usdt {
+		var reward RewardTwo
+		reward.UserId = userId
+		reward.Amount = giw
+		reward.Three = usdt
+		reward.Five = usdt2
+		reward.Reason = 3 // 直推
+		err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -4332,47 +4433,52 @@ func (u *UserRepo) UpdateUserRewardArea(ctx context.Context, userId uint64, giw,
 			return err
 		}
 	} else {
-		if level {
-			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-				Updates(map[string]interface{}{
-					"amount_get": gorm.Expr("amount_get + ?", usdt),
-					"area_two":   gorm.Expr("area_two + ?", usdt),
-					"giw":        gorm.Expr("giw + ?", giw),
-					"updated_at": time.Now().Format("2006-01-02 15:04:05"),
-				})
-			if res.Error != nil {
-				return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
-			}
-		} else {
-			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-				Updates(map[string]interface{}{
-					"amount_get": gorm.Expr("amount_get + ?", usdt),
-					"area":       gorm.Expr("area + ?", usdt),
-					"giw":        gorm.Expr("giw + ?", giw),
-					"updated_at": time.Now().Format("2006-01-02 15:04:05"),
-				})
-			if res.Error != nil {
-				return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+		if 0 < usdt {
+			if level {
+				res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+					Updates(map[string]interface{}{
+						"amount_get": gorm.Expr("amount_get + ?", usdt),
+						"area_two":   gorm.Expr("area_two + ?", usdt),
+						"giw":        gorm.Expr("giw + ?", giw),
+						"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+					})
+				if res.Error != nil {
+					return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+				}
+			} else {
+				res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+					Updates(map[string]interface{}{
+						"amount_get": gorm.Expr("amount_get + ?", usdt),
+						"area":       gorm.Expr("area + ?", usdt),
+						"giw":        gorm.Expr("giw + ?", giw),
+						"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+					})
+				if res.Error != nil {
+					return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+				}
 			}
 		}
+
 	}
 
 	if level {
 		tmp = 6
 	}
 
-	var reward RewardTwo
-	reward.UserId = userId
-	reward.Amount = giw
-	reward.Three = usdt
-	reward.Five = usdt2
-	reward.One = i
-	reward.Two = currentLevel
-	reward.Four = address
-	reward.Reason = tmp // 直推
-	err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
-	if err != nil {
-		return err
+	if 0 < usdt {
+		var reward RewardTwo
+		reward.UserId = userId
+		reward.Amount = giw
+		reward.Three = usdt
+		reward.Five = usdt2
+		reward.One = i
+		reward.Two = currentLevel
+		reward.Four = address
+		reward.Reason = tmp // 直推
+		err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -4410,30 +4516,33 @@ func (u *UserRepo) UpdateUserRewardAreaTwo(ctx context.Context, userId uint64, g
 		}
 	} else {
 
-		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-			Updates(map[string]interface{}{
-				"amount_get":    gorm.Expr("amount_get + ?", usdt),
-				"recommend_two": gorm.Expr("recommend_two + ?", usdt),
-				"giw":           gorm.Expr("giw + ?", giw),
-				"updated_at":    time.Now().Format("2006-01-02 15:04:05"),
-			})
-		if res.Error != nil {
-			return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+		if 0 < usdt {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{
+					"amount_get":    gorm.Expr("amount_get + ?", usdt),
+					"recommend_two": gorm.Expr("recommend_two + ?", usdt),
+					"giw":           gorm.Expr("giw + ?", giw),
+					"updated_at":    time.Now().Format("2006-01-02 15:04:05"),
+				})
+			if res.Error != nil {
+				return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+			}
 		}
-
 	}
 
-	var reward RewardTwo
-	reward.UserId = userId
-	reward.Amount = giw
-	reward.Three = usdt
-	reward.Five = usdt2
-	reward.One = i
-	reward.Four = address
-	reward.Reason = 4 // 直推
-	err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
-	if err != nil {
-		return err
+	if 0 < usdt {
+		var reward RewardTwo
+		reward.UserId = userId
+		reward.Amount = giw
+		reward.Three = usdt
+		reward.Five = usdt2
+		reward.One = i
+		reward.Four = address
+		reward.Reason = 4 // 直推
+		err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -4524,26 +4633,84 @@ func (u *UserRepo) UpdateUserRewardNewThree(ctx context.Context, userId uint64, 
 			return err
 		}
 	} else {
-		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-			Updates(map[string]interface{}{
-				"amount_get": gorm.Expr("amount_get + ?", usdt),
-				"all_num":    gorm.Expr("all_num + ?", usdt),
-				"giw":        gorm.Expr("giw + ?", giw),
-				"updated_at": time.Now().Format("2006-01-02 15:04:05"),
-			})
-		if res.Error != nil {
-			return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+		if 0 < usdt {
+			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+				Updates(map[string]interface{}{
+					"amount_get": gorm.Expr("amount_get + ?", usdt),
+					"all_num":    gorm.Expr("all_num + ?", usdt),
+					"giw":        gorm.Expr("giw + ?", giw),
+					"updated_at": time.Now().Format("2006-01-02 15:04:05"),
+				})
+			if res.Error != nil {
+				return errors.New(500, "UPDATE_USER_ERROR", "用户信息修改失败")
+			}
 		}
 	}
 
-	var reward RewardTwo
-	reward.UserId = userId
-	reward.Amount = giw
-	reward.Three = usdt
-	reward.Five = usdt2
-	reward.One = level
-	reward.Reason = 7 // 直推
-	err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
+	if 0 < usdt {
+		var reward RewardTwo
+		reward.UserId = userId
+		reward.Amount = giw
+		reward.Three = usdt
+		reward.Five = usdt2
+		reward.One = level
+		reward.Reason = 7 // 直推
+		err = u.data.DB(ctx).Table("reward_two").Create(&reward).Error
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetPriceChange .
+func (u *UserRepo) GetPriceChange(ctx context.Context) ([]*biz.PriceChange, error) {
+	var records []*PriceChange
+	res := make([]*biz.PriceChange, 0)
+
+	if err := u.data.db.Table("price_change").Where("status=?", 0).Order("id asc").Find(&records).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, errors.NotFound("WITHDRAW_NOT_FOUND", "withdraw not found")
+		}
+
+		return nil, errors.New(500, "WITHDRAW ERROR", err.Error())
+	}
+
+	for _, record := range records {
+		res = append(res, &biz.PriceChange{
+			ID:        record.ID,
+			Price:     record.Price,
+			PriceNew:  record.PriceNew,
+			Status:    record.Status,
+			CreatedAt: record.CreatedAt,
+			UpdatedAt: record.UpdatedAt,
+		})
+	}
+
+	return res, nil
+}
+
+// UpdatePriceChange .
+func (u *UserRepo) UpdatePriceChange(ctx context.Context, id uint64) error {
+	res := u.data.DB(ctx).Table("price_change").Where("id=?", id).
+		Updates(map[string]interface{}{"status": 1})
+	if res.Error != nil {
+		return errors.New(500, "UPDATE_PRICE_CHANGE_ERROR", "信息修改失败")
+	}
+
+	return nil
+}
+
+func (u *UserRepo) CreatePriceChange(ctx context.Context, price, priceNew float64) error {
+	var (
+		priceChange PriceChange
+	)
+
+	priceChange.Price = price
+	priceChange.PriceNew = priceNew
+
+	err := u.data.DB(ctx).Table("price_change").Create(&priceChange).Error
 	if err != nil {
 		return err
 	}

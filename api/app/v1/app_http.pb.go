@@ -29,6 +29,7 @@ const OperationAppAdminGetConfig = "/api.app.v1.App/AdminGetConfig"
 const OperationAppAdminLandConfigList = "/api.app.v1.App/AdminLandConfigList"
 const OperationAppAdminLandConfigSet = "/api.app.v1.App/AdminLandConfigSet"
 const OperationAppAdminLogin = "/api.app.v1.App/AdminLogin"
+const OperationAppAdminPriceChange = "/api.app.v1.App/AdminPriceChange"
 const OperationAppAdminPropConfigList = "/api.app.v1.App/AdminPropConfigList"
 const OperationAppAdminPropConfigSet = "/api.app.v1.App/AdminPropConfigSet"
 const OperationAppAdminRecordList = "/api.app.v1.App/AdminRecordList"
@@ -116,6 +117,8 @@ type AppHTTPServer interface {
 	AdminLandConfigSet(context.Context, *AdminLandConfigSetRequest) (*AdminLandConfigSetReply, error)
 	// AdminLogin 登录
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
+	// AdminPriceChange 每日粮仓
+	AdminPriceChange(context.Context, *AdminPriceChangeRequest) (*AdminPriceChangeReply, error)
 	// AdminPropConfigList 道具配置
 	AdminPropConfigList(context.Context, *AdminPropConfigRequest) (*AdminPropConfigReply, error)
 	// AdminPropConfigSet 设置道具配置
@@ -301,6 +304,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/withdraw", _App_AdminWithdraw0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily", _App_AdminDaily0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily_reward", _App_AdminDailyReward0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/price_change", _App_AdminPriceChange0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw_list", _App_AdminWithdrawList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/record_list", _App_AdminRecordList0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/land_config_list", _App_AdminLandConfigList0_HTTP_Handler(srv))
@@ -1452,6 +1456,25 @@ func _App_AdminDailyReward0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Contex
 	}
 }
 
+func _App_AdminPriceChange0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminPriceChangeRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminPriceChange)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminPriceChange(ctx, req.(*AdminPriceChangeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminPriceChangeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminWithdrawList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminWithdrawListRequest
@@ -1851,6 +1874,7 @@ type AppHTTPClient interface {
 	AdminLandConfigList(ctx context.Context, req *AdminLandConfigRequest, opts ...http.CallOption) (rsp *AdminLandConfigReply, err error)
 	AdminLandConfigSet(ctx context.Context, req *AdminLandConfigSetRequest, opts ...http.CallOption) (rsp *AdminLandConfigSetReply, err error)
 	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
+	AdminPriceChange(ctx context.Context, req *AdminPriceChangeRequest, opts ...http.CallOption) (rsp *AdminPriceChangeReply, err error)
 	AdminPropConfigList(ctx context.Context, req *AdminPropConfigRequest, opts ...http.CallOption) (rsp *AdminPropConfigReply, err error)
 	AdminPropConfigSet(ctx context.Context, req *AdminPropConfigSetRequest, opts ...http.CallOption) (rsp *AdminPropConfigSetReply, err error)
 	AdminRecordList(ctx context.Context, req *RecordListRequest, opts ...http.CallOption) (rsp *RecordListReply, err error)
@@ -2050,6 +2074,19 @@ func (c *AppHTTPClientImpl) AdminLogin(ctx context.Context, in *AdminLoginReques
 	opts = append(opts, http.Operation(OperationAppAdminLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminPriceChange(ctx context.Context, in *AdminPriceChangeRequest, opts ...http.CallOption) (*AdminPriceChangeReply, error) {
+	var out AdminPriceChangeReply
+	pattern := "/api/admin_dhb/price_change"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminPriceChange))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

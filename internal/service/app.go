@@ -1798,6 +1798,10 @@ func (a *AppService) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRew
 	return a.ac.AdminDailyReward(ctx, req)
 }
 
+func (a *AppService) AdminPriceChange(ctx context.Context, req *pb.AdminPriceChangeRequest) (*pb.AdminPriceChangeReply, error) {
+	return a.ac.AdminPriceChange(ctx, req)
+}
+
 func (a *AppService) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequest) (*pb.AdminSetLandReply, error) {
 	return a.ac.AdminSetLand(ctx, req)
 }

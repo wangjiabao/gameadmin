@@ -418,6 +418,13 @@ service App {
 		};
 	};
 
+	// 每日粮仓
+	rpc AdminPriceChange (AdminPriceChangeRequest) returns (AdminPriceChangeReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/price_change"
+		};
+	};
+
 	// 提现
 	rpc AdminWithdrawList (AdminWithdrawListRequest) returns (AdminWithdrawListReply) {
 		option (google.api.http) = {
@@ -1414,6 +1421,12 @@ message AdminDailyRewardRequest {
 }
 
 message AdminDailyRewardReply {
+}
+
+message AdminPriceChangeRequest {
+}
+
+message AdminPriceChangeReply {
 }
 
 message AdminWithdrawRequest {

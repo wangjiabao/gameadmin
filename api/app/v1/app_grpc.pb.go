@@ -75,6 +75,7 @@ const (
 	App_AdminWithdraw_FullMethodName          = "/api.app.v1.App/AdminWithdraw"
 	App_AdminDaily_FullMethodName             = "/api.app.v1.App/AdminDaily"
 	App_AdminDailyReward_FullMethodName       = "/api.app.v1.App/AdminDailyReward"
+	App_AdminPriceChange_FullMethodName       = "/api.app.v1.App/AdminPriceChange"
 	App_AdminWithdrawList_FullMethodName      = "/api.app.v1.App/AdminWithdrawList"
 	App_AdminRecordList_FullMethodName        = "/api.app.v1.App/AdminRecordList"
 	App_AdminLandConfigList_FullMethodName    = "/api.app.v1.App/AdminLandConfigList"
@@ -207,6 +208,8 @@ type AppClient interface {
 	AdminDaily(ctx context.Context, in *AdminDailyRequest, opts ...grpc.CallOption) (*AdminDailyReply, error)
 	// 每日粮仓
 	AdminDailyReward(ctx context.Context, in *AdminDailyRewardRequest, opts ...grpc.CallOption) (*AdminDailyRewardReply, error)
+	// 每日粮仓
+	AdminPriceChange(ctx context.Context, in *AdminPriceChangeRequest, opts ...grpc.CallOption) (*AdminPriceChangeReply, error)
 	// 提现
 	AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error)
 	// 充值
@@ -759,6 +762,15 @@ func (c *appClient) AdminDailyReward(ctx context.Context, in *AdminDailyRewardRe
 	return out, nil
 }
 
+func (c *appClient) AdminPriceChange(ctx context.Context, in *AdminPriceChangeRequest, opts ...grpc.CallOption) (*AdminPriceChangeReply, error) {
+	out := new(AdminPriceChangeReply)
+	err := c.cc.Invoke(ctx, App_AdminPriceChange_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminWithdrawList(ctx context.Context, in *AdminWithdrawListRequest, opts ...grpc.CallOption) (*AdminWithdrawListReply, error) {
 	out := new(AdminWithdrawListReply)
 	err := c.cc.Invoke(ctx, App_AdminWithdrawList_FullMethodName, in, out, opts...)
@@ -1041,6 +1053,8 @@ type AppServer interface {
 	AdminDaily(context.Context, *AdminDailyRequest) (*AdminDailyReply, error)
 	// 每日粮仓
 	AdminDailyReward(context.Context, *AdminDailyRewardRequest) (*AdminDailyRewardReply, error)
+	// 每日粮仓
+	AdminPriceChange(context.Context, *AdminPriceChangeRequest) (*AdminPriceChangeReply, error)
 	// 提现
 	AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error)
 	// 充值
@@ -1253,6 +1267,9 @@ func (UnimplementedAppServer) AdminDaily(context.Context, *AdminDailyRequest) (*
 }
 func (UnimplementedAppServer) AdminDailyReward(context.Context, *AdminDailyRewardRequest) (*AdminDailyRewardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDailyReward not implemented")
+}
+func (UnimplementedAppServer) AdminPriceChange(context.Context, *AdminPriceChangeRequest) (*AdminPriceChangeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminPriceChange not implemented")
 }
 func (UnimplementedAppServer) AdminWithdrawList(context.Context, *AdminWithdrawListRequest) (*AdminWithdrawListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdrawList not implemented")
@@ -2332,6 +2349,24 @@ func _App_AdminDailyReward_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminPriceChange_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminPriceChangeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminPriceChange(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminPriceChange_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminPriceChange(ctx, req.(*AdminPriceChangeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminWithdrawList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminWithdrawListRequest)
 	if err := dec(in); err != nil {
@@ -2904,6 +2939,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminDailyReward",
 			Handler:    _App_AdminDailyReward_Handler,
+		},
+		{
+			MethodName: "AdminPriceChange",
+			Handler:    _App_AdminPriceChange_Handler,
 		},
 		{
 			MethodName: "AdminWithdrawList",
