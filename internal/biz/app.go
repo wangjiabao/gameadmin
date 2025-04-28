@@ -335,6 +335,18 @@ type EthRecord struct {
 	UpdatedAt time.Time
 }
 
+type EthRecordThree struct {
+	ID        uint64
+	UserId    uint64
+	AmountBiw float64
+	Amount    uint64
+	Last      uint64
+	Address   string
+	Coin      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type BuyLand struct {
 	ID        uint64
 	Amount    float64
@@ -398,9 +410,12 @@ type UserRepo interface {
 	GetWithdrawPage(ctx context.Context, userId uint64, b *Pagination) ([]*Withdraw, error)
 	GetEthUserRecordLast(ctx context.Context) (int64, error)
 	GetEthUserRecordLastTwo(ctx context.Context) (int64, error)
+	GetEthUserRecordLastThree(ctx context.Context) (int64, error)
 	GetRecordPageTwo(ctx context.Context, address string, b *Pagination) ([]*EthRecord, error)
+	GetRecordPageThree(ctx context.Context, address string, b *Pagination) ([]*EthRecordThree, error)
 	GetUserByAddress(ctx context.Context, address string) (*User, error)
 	GetRecordPage(ctx context.Context, address string, b *Pagination) ([]*EthRecord, error)
+	GetRecordPageCountThree(ctx context.Context, address string) (int64, error)
 	GetUserRecommendByUserId(ctx context.Context, userId uint64) (*UserRecommend, error)
 	GetUserRecommendByCode(ctx context.Context, code string) ([]*UserRecommend, error)
 	GetUserRecommends(ctx context.Context) ([]*UserRecommend, error)
@@ -508,9 +523,12 @@ type UserRepo interface {
 	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
 	CreateEth(ctx context.Context, e *EthRecord) error
 	CreateEthTwo(ctx context.Context, e *EthRecord) error
+	CreateEthThree(ctx context.Context, e *EthRecordThree) error
 	AddGiw(ctx context.Context, address string, giw uint64) error
+	AddGiwThree(ctx context.Context, address string, giw float64) error
 	AddUsdt(ctx context.Context, address string, usdt uint64) error
 	AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error
+	AddUserTotalThree(ctx context.Context, userId, num uint64, giw float64) error
 	RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error
 	SetAdminPropConfig(ctx context.Context, info *PropInfo) error
 	SetAdminSeedConfig(ctx context.Context, info *SeedInfo) error
@@ -5395,7 +5413,16 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 				Status: "错误",
 			}, nil
 		}
-	} else {
+
+		for _, v := range list {
+			res = append(res, &pb.RecordListReply_List{
+				Address:   v.Address,
+				CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+				Amount:    v.Amount,
+				Coin:      v.Coin,
+			})
+		}
+	} else if "biw" == req.Coin {
 		count, err = ac.userRepo.GetRecordPageCount(ctx, req.Address)
 		if nil != err {
 			return &pb.RecordListReply{
@@ -5412,15 +5439,45 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 				Status: "错误",
 			}, nil
 		}
-	}
 
-	for _, v := range list {
-		res = append(res, &pb.RecordListReply_List{
-			Address:   v.Address,
-			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
-			Amount:    v.Amount,
-			Coin:      v.Coin,
+		for _, v := range list {
+			res = append(res, &pb.RecordListReply_List{
+				Address:   v.Address,
+				CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+				Amount:    v.Amount,
+				Coin:      v.Coin,
+			})
+		}
+	} else {
+		count, err = ac.userRepo.GetRecordPageCountThree(ctx, req.Address)
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
+
+		var (
+			listThree []*EthRecordThree
+		)
+		listThree, err = ac.userRepo.GetRecordPageThree(ctx, req.Address, &Pagination{
+			PageNum:  int(req.Page),
+			PageSize: 10,
 		})
+		if nil != err {
+			return &pb.RecordListReply{
+				Status: "错误",
+			}, nil
+		}
+
+		for _, v := range listThree {
+			res = append(res, &pb.RecordListReply_List{
+				Address:   v.Address,
+				CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+				Amount:    v.Amount,
+				AmountBiw: v.AmountBiw,
+				Coin:      v.Coin,
+			})
+		}
 	}
 
 	return &pb.RecordListReply{
@@ -7764,6 +7821,10 @@ func (ac *AppUsecase) GetEthUserRecordLastTwo(ctx context.Context) (int64, error
 	return ac.userRepo.GetEthUserRecordLastTwo(ctx)
 }
 
+func (ac *AppUsecase) GetEthUserRecordLastThree(ctx context.Context) (int64, error) {
+	return ac.userRepo.GetEthUserRecordLastThree(ctx)
+}
+
 func (ac *AppUsecase) GetUserByAddress(ctx context.Context, Addresses []string) (map[string]*User, error) {
 	return ac.userRepo.GetUserByAddresses(ctx, Addresses)
 }
@@ -7892,6 +7953,133 @@ func (ac *AppUsecase) DepositNewTwo(ctx context.Context, eth *EthRecord) error {
 	}); nil != err {
 		fmt.Println(err, "deposit err", eth)
 		return err
+	}
+
+	return nil
+}
+
+func (ac *AppUsecase) DepositNewThree(ctx context.Context, eth *EthRecordThree) error {
+
+	// 推荐人
+	var (
+		configs []*Config
+		uPrice  float64
+		err     error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"u_price",
+	)
+	if nil != err || nil == configs {
+		fmt.Println("配置错误，读取usdt充值biw价格")
+		return err
+	}
+	for _, vConfig := range configs {
+		if "u_price" == vConfig.KeyName {
+			uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+
+	if 0 >= uPrice {
+		fmt.Println("配置错误，读取usdt充值biw价格", uPrice, eth)
+		return nil
+	}
+
+	eth.AmountBiw = float64(eth.Amount) / uPrice
+
+	// 推荐
+	var (
+		userRecommend *UserRecommend
+	)
+	tmpRecommendUserIds := make([]string, 0)
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, eth.UserId)
+	if nil == userRecommend || nil != err {
+		fmt.Println(err, "deposit err user recommend", eth)
+		return nil
+	}
+	if "" != userRecommend.RecommendCode {
+		tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+	}
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		err = ac.userRepo.AddGiwThree(ctx, eth.Address, eth.AmountBiw)
+		if nil != err {
+			return err
+		}
+
+		// 加业绩
+		dai := uint64(0)
+		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+			tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+			if 0 >= tmpUserId {
+				continue
+			}
+
+			dai++
+			err = ac.userRepo.AddUserTotalThree(ctx, uint64(tmpUserId), dai, eth.AmountBiw)
+			if nil != err {
+				return err
+			}
+		}
+
+		err = ac.userRepo.CreateEthThree(ctx, eth)
+		if nil != err {
+			return err
+		}
+
+		return nil
+	}); nil != err {
+		fmt.Println(err, "deposit err", eth)
+		return err
+	}
+
+	// 奖励
+	for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+		tmpUserId, _ := strconv.ParseInt(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+		if 0 >= tmpUserId {
+			continue
+		}
+
+		var (
+			count int64
+			user  *User
+		)
+		count, err = ac.userRepo.GetUserRecommendCount(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(uint64(tmpUserId), 10))
+		if nil != err {
+			fmt.Println(err, "deposit err reward", eth, count, tmpUserId)
+			continue
+		}
+
+		if 50 > count {
+			continue
+		}
+
+		user, err = ac.userRepo.GetUserById(ctx, uint64(tmpUserId))
+		if nil != err || nil == user {
+			fmt.Println(err, "deposit err user reward", eth, count, tmpUserId)
+			continue
+		}
+
+		if user.Total <= user.LastRewardTotal {
+			continue
+		}
+
+		if 100000000 > (user.Total - user.LastRewardTotal) {
+			continue
+		}
+
+		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			err = ac.userRepo.RewardProp(ctx, 17, uint64(tmpUserId), user.LastRewardTotal+100000000)
+			if nil != err {
+				return err
+			}
+
+			return nil
+		}); nil != err {
+			fmt.Println(err, "deposit err reward", eth, tmpUserId)
+			return err
+		}
 	}
 
 	return nil

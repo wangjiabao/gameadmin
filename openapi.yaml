@@ -82,6 +82,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/deposit_usdt_two:
+        get:
+            tags:
+                - App
+            description: 充值处理
+            operationId: App_AdminDepositUsdtTwo
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminDepositUsdtTwoReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/get_box:
         get:
             tags:
@@ -1839,6 +1858,9 @@ components:
         AdminDepositUsdtReply:
             type: object
             properties: {}
+        AdminDepositUsdtTwoReply:
+            type: object
+            properties: {}
         AdminGetBoxReply:
             type: object
             properties:
@@ -2678,6 +2700,9 @@ components:
                     type: string
                 amount:
                     type: string
+                amountBiw:
+                    type: number
+                    format: double
                 address:
                     type: string
                 coin:

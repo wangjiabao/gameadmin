@@ -71,6 +71,7 @@ const (
 	App_AdminUserRecommend_FullMethodName     = "/api.app.v1.App/AdminUserRecommend"
 	App_AdminDeposit_FullMethodName           = "/api.app.v1.App/AdminDeposit"
 	App_AdminDepositUsdt_FullMethodName       = "/api.app.v1.App/AdminDepositUsdt"
+	App_AdminDepositUsdtTwo_FullMethodName    = "/api.app.v1.App/AdminDepositUsdtTwo"
 	App_AdminWithdraw_FullMethodName          = "/api.app.v1.App/AdminWithdraw"
 	App_AdminDaily_FullMethodName             = "/api.app.v1.App/AdminDaily"
 	App_AdminDailyReward_FullMethodName       = "/api.app.v1.App/AdminDailyReward"
@@ -198,6 +199,8 @@ type AppClient interface {
 	AdminDeposit(ctx context.Context, in *AdminDepositRequest, opts ...grpc.CallOption) (*AdminDepositReply, error)
 	// 充值处理
 	AdminDepositUsdt(ctx context.Context, in *AdminDepositUsdtRequest, opts ...grpc.CallOption) (*AdminDepositUsdtReply, error)
+	// 充值处理
+	AdminDepositUsdtTwo(ctx context.Context, in *AdminDepositUsdtTwoRequest, opts ...grpc.CallOption) (*AdminDepositUsdtTwoReply, error)
 	// 提现处理
 	AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error)
 	// 每日粮仓
@@ -720,6 +723,15 @@ func (c *appClient) AdminDepositUsdt(ctx context.Context, in *AdminDepositUsdtRe
 	return out, nil
 }
 
+func (c *appClient) AdminDepositUsdtTwo(ctx context.Context, in *AdminDepositUsdtTwoRequest, opts ...grpc.CallOption) (*AdminDepositUsdtTwoReply, error) {
+	out := new(AdminDepositUsdtTwoReply)
+	err := c.cc.Invoke(ctx, App_AdminDepositUsdtTwo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminWithdraw(ctx context.Context, in *AdminWithdrawRequest, opts ...grpc.CallOption) (*AdminWithdrawReply, error) {
 	out := new(AdminWithdrawReply)
 	err := c.cc.Invoke(ctx, App_AdminWithdraw_FullMethodName, in, out, opts...)
@@ -1021,6 +1033,8 @@ type AppServer interface {
 	AdminDeposit(context.Context, *AdminDepositRequest) (*AdminDepositReply, error)
 	// 充值处理
 	AdminDepositUsdt(context.Context, *AdminDepositUsdtRequest) (*AdminDepositUsdtReply, error)
+	// 充值处理
+	AdminDepositUsdtTwo(context.Context, *AdminDepositUsdtTwoRequest) (*AdminDepositUsdtTwoReply, error)
 	// 提现处理
 	AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error)
 	// 每日粮仓
@@ -1227,6 +1241,9 @@ func (UnimplementedAppServer) AdminDeposit(context.Context, *AdminDepositRequest
 }
 func (UnimplementedAppServer) AdminDepositUsdt(context.Context, *AdminDepositUsdtRequest) (*AdminDepositUsdtReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminDepositUsdt not implemented")
+}
+func (UnimplementedAppServer) AdminDepositUsdtTwo(context.Context, *AdminDepositUsdtTwoRequest) (*AdminDepositUsdtTwoReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminDepositUsdtTwo not implemented")
 }
 func (UnimplementedAppServer) AdminWithdraw(context.Context, *AdminWithdrawRequest) (*AdminWithdrawReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminWithdraw not implemented")
@@ -2243,6 +2260,24 @@ func _App_AdminDepositUsdt_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminDepositUsdtTwo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminDepositUsdtTwoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminDepositUsdtTwo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminDepositUsdtTwo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminDepositUsdtTwo(ctx, req.(*AdminDepositUsdtTwoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminWithdraw_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminWithdrawRequest)
 	if err := dec(in); err != nil {
@@ -2853,6 +2888,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminDepositUsdt",
 			Handler:    _App_AdminDepositUsdt_Handler,
+		},
+		{
+			MethodName: "AdminDepositUsdtTwo",
+			Handler:    _App_AdminDepositUsdtTwo_Handler,
 		},
 		{
 			MethodName: "AdminWithdraw",

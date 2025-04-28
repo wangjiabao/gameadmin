@@ -23,6 +23,7 @@ const OperationAppAdminDaily = "/api.app.v1.App/AdminDaily"
 const OperationAppAdminDailyReward = "/api.app.v1.App/AdminDailyReward"
 const OperationAppAdminDeposit = "/api.app.v1.App/AdminDeposit"
 const OperationAppAdminDepositUsdt = "/api.app.v1.App/AdminDepositUsdt"
+const OperationAppAdminDepositUsdtTwo = "/api.app.v1.App/AdminDepositUsdtTwo"
 const OperationAppAdminGetBox = "/api.app.v1.App/AdminGetBox"
 const OperationAppAdminGetConfig = "/api.app.v1.App/AdminGetConfig"
 const OperationAppAdminLandConfigList = "/api.app.v1.App/AdminLandConfigList"
@@ -103,6 +104,8 @@ type AppHTTPServer interface {
 	AdminDeposit(context.Context, *AdminDepositRequest) (*AdminDepositReply, error)
 	// AdminDepositUsdt 充值处理
 	AdminDepositUsdt(context.Context, *AdminDepositUsdtRequest) (*AdminDepositUsdtReply, error)
+	// AdminDepositUsdtTwo 充值处理
+	AdminDepositUsdtTwo(context.Context, *AdminDepositUsdtTwoRequest) (*AdminDepositUsdtTwoReply, error)
 	// AdminGetBox 当前盲盒信息
 	AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error)
 	// AdminGetConfig 获取配置
@@ -294,6 +297,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/user_recommend", _App_AdminUserRecommend0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/deposit", _App_AdminDeposit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/deposit_usdt", _App_AdminDepositUsdt0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/deposit_usdt_two", _App_AdminDepositUsdtTwo0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/withdraw", _App_AdminWithdraw0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily", _App_AdminDaily0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/daily_reward", _App_AdminDailyReward0_HTTP_Handler(srv))
@@ -1372,6 +1376,25 @@ func _App_AdminDepositUsdt0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Contex
 	}
 }
 
+func _App_AdminDepositUsdtTwo0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminDepositUsdtTwoRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminDepositUsdtTwo)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminDepositUsdtTwo(ctx, req.(*AdminDepositUsdtTwoRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminDepositUsdtTwoReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminWithdraw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminWithdrawRequest
@@ -1822,6 +1845,7 @@ type AppHTTPClient interface {
 	AdminDailyReward(ctx context.Context, req *AdminDailyRewardRequest, opts ...http.CallOption) (rsp *AdminDailyRewardReply, err error)
 	AdminDeposit(ctx context.Context, req *AdminDepositRequest, opts ...http.CallOption) (rsp *AdminDepositReply, err error)
 	AdminDepositUsdt(ctx context.Context, req *AdminDepositUsdtRequest, opts ...http.CallOption) (rsp *AdminDepositUsdtReply, err error)
+	AdminDepositUsdtTwo(ctx context.Context, req *AdminDepositUsdtTwoRequest, opts ...http.CallOption) (rsp *AdminDepositUsdtTwoReply, err error)
 	AdminGetBox(ctx context.Context, req *AdminGetBoxRequest, opts ...http.CallOption) (rsp *AdminGetBoxReply, err error)
 	AdminGetConfig(ctx context.Context, req *AdminGetConfigRequest, opts ...http.CallOption) (rsp *AdminGetConfigReply, err error)
 	AdminLandConfigList(ctx context.Context, req *AdminLandConfigRequest, opts ...http.CallOption) (rsp *AdminLandConfigReply, err error)
@@ -1946,6 +1970,19 @@ func (c *AppHTTPClientImpl) AdminDepositUsdt(ctx context.Context, in *AdminDepos
 	pattern := "/api/admin_dhb/deposit_usdt"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminDepositUsdt))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminDepositUsdtTwo(ctx context.Context, in *AdminDepositUsdtTwoRequest, opts ...http.CallOption) (*AdminDepositUsdtTwoReply, error) {
+	var out AdminDepositUsdtTwoReply
+	pattern := "/api/admin_dhb/deposit_usdt_two"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminDepositUsdtTwo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

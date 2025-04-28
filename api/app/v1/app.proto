@@ -390,6 +390,13 @@ service App {
 		};
 	};
 
+	// 充值处理
+	rpc AdminDepositUsdtTwo (AdminDepositUsdtTwoRequest) returns (AdminDepositUsdtTwoReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/deposit_usdt_two"
+		};
+	};
+
 	// 提现处理
 	rpc AdminWithdraw (AdminWithdrawRequest) returns (AdminWithdrawReply) {
 		option (google.api.http) = {
@@ -1391,6 +1398,12 @@ message AdminDepositUsdtRequest {
 message AdminDepositUsdtReply {
 }
 
+message AdminDepositUsdtTwoRequest {
+}
+
+message AdminDepositUsdtTwoReply {
+}
+
 message AdminDailyRequest {
 }
 
@@ -1438,6 +1451,7 @@ message RecordListReply { // 充值列表
 	message List {
 		string createdAt = 1; // 时间
 		uint64 amount = 2; // 金额
+		double amountBiw = 5; // 金额biw
 		string address = 3; // 充值地址
 		string coin = 4; // 币种
 	}

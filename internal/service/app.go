@@ -2149,6 +2149,105 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 	return nil, nil
 }
 
+func (a *AppService) AdminDepositUsdtTwo(ctx context.Context, req *pb.AdminDepositUsdtTwoRequest) (*pb.AdminDepositUsdtTwoReply, error) {
+	end := time.Now().UTC().Add(50 * time.Second)
+
+	for i := 1; i <= 10; i++ {
+		var (
+			depositUsdtResult []*userDeposit
+			depositUsers      map[string]*biz.User
+			userLength        int64
+			last              int64
+			err               error
+		)
+
+		last, err = a.ac.GetEthUserRecordLastThree(ctx)
+		if nil != err {
+			fmt.Println(err)
+			continue
+		}
+
+		if -1 == last {
+			fmt.Println(err)
+			continue
+		}
+
+		userLength, err = getUserLength("0x427Edc37dd3173993eAE2E1c02C926Fc89fc989F")
+		if nil != err {
+			fmt.Println(err)
+		}
+
+		if -1 == userLength {
+			continue
+		}
+
+		if 0 == userLength {
+			break
+		}
+
+		if last >= userLength {
+			break
+		}
+
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x427Edc37dd3173993eAE2E1c02C926Fc89fc989F")
+		if nil != err {
+			break
+		}
+
+		now := time.Now().UTC()
+		//fmt.Println(now, end)
+		if end.Before(now) {
+			break
+		}
+
+		if 0 >= len(depositUsdtResult) {
+			break
+		}
+
+		fromAccount := make([]string, 0)
+		for _, vUser := range depositUsdtResult {
+			fromAccount = append(fromAccount, vUser.Address)
+		}
+
+		depositUsers, err = a.ac.GetUserByAddress(ctx, fromAccount)
+		if nil != depositUsers {
+			// 统计开始
+			for _, vUser := range depositUsdtResult { // 主查usdt
+				if _, ok := depositUsers[vUser.Address]; !ok { // 用户不存在
+					continue
+				}
+
+				var (
+					tmpValue uint64
+				)
+
+				if 10 <= vUser.Amount {
+					tmpValue = uint64(vUser.Amount)
+				} else {
+					continue
+				}
+
+				// 充值
+				err = a.ac.DepositNewThree(ctx, &biz.EthRecordThree{ // 两种币的记录
+					UserId:    depositUsers[vUser.Address].ID,
+					Address:   vUser.Address,
+					Amount:    tmpValue,
+					Last:      uint64(userLength),
+					Coin:      "usdt",
+					AmountBiw: 0,
+				})
+				if nil != err {
+					fmt.Println(err)
+				}
+			}
+		}
+
+		time.Sleep(5 * time.Second)
+	}
+
+	return nil, nil
+}
+
 func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawRequest) (*pb.AdminWithdrawReply, error) {
 	end := time.Now().UTC().Add(45 * time.Second)
 	for {
