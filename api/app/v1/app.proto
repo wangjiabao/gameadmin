@@ -505,6 +505,25 @@ service App {
 		};
 	};
 
+	// 设置余额
+	rpc AdminSetVip (AdminSetVipRequest) returns (AdminSetVipReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_vip"
+		};
+	};
+
+	rpc AdminSetLock (AdminSetLockRequest) returns (AdminSetLockReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_lock"
+		};
+	};
+
+	rpc AdminSetLockReward (AdminSetLockRewardRequest) returns (AdminSetLockRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_lock_reward"
+		};
+	};
+
 	// 当前盲盒信息
 	rpc AdminGetBox (AdminGetBoxRequest) returns (AdminGetBoxReply) {
 		option (google.api.http) = {
@@ -1656,6 +1675,32 @@ message AdminSetUsdtReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 
+message AdminSetVipRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 vip = 2;
+}
+
+message AdminSetVipReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetLockRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 lock = 2;
+}
+
+message AdminSetLockReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetLockRewardRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 lockReward = 2;
+}
+
+message AdminSetLockRewardReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
 
 message AdminGetBoxRequest {
 }

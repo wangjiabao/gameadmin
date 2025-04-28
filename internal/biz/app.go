@@ -5175,7 +5175,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 
 	users, err = ac.userRepo.GetUserPage(ctx, req.Address, &Pagination{
 		PageNum:  int(req.Page),
-		PageSize: 10,
+		PageSize: 20,
 	})
 	if nil != err {
 		return &pb.AdminUserListReply{
@@ -5358,7 +5358,7 @@ func (ac *AppUsecase) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdr
 
 	withdrawList, err = ac.userRepo.GetWithdrawPage(ctx, userId, &Pagination{
 		PageNum:  int(req.Page),
-		PageSize: 10,
+		PageSize: 20,
 	})
 	if nil != err {
 		return &pb.AdminWithdrawListReply{
@@ -5420,7 +5420,7 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 
 		list, err = ac.userRepo.GetRecordPageTwo(ctx, req.Address, &Pagination{
 			PageNum:  int(req.Page),
-			PageSize: 10,
+			PageSize: 20,
 		})
 		if nil != err {
 			return &pb.RecordListReply{
@@ -5446,7 +5446,7 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 
 		list, err = ac.userRepo.GetRecordPage(ctx, req.Address, &Pagination{
 			PageNum:  int(req.Page),
-			PageSize: 10,
+			PageSize: 20,
 		})
 		if nil != err {
 			return &pb.RecordListReply{
@@ -5475,7 +5475,7 @@ func (ac *AppUsecase) AdminRecordList(ctx context.Context, req *pb.RecordListReq
 		)
 		listThree, err = ac.userRepo.GetRecordPageThree(ctx, req.Address, &Pagination{
 			PageNum:  int(req.Page),
-			PageSize: 10,
+			PageSize: 20,
 		})
 		if nil != err {
 			return &pb.RecordListReply{
