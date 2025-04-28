@@ -4887,7 +4887,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else { // 输：下注金额加入池子
+	} else {                                                         // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -8367,14 +8367,30 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 		}, nil
 	}
 
+	userIds := make([]uint64, 0)
 	for _, v := range reward {
+		userIds = append(userIds, v.UserId)
+	}
+	var (
+		usersMap map[uint64]*User
+	)
+	usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+	if nil != err {
+
+	}
+
+	for _, v := range reward {
+		tmpAddress := ""
+		if _, ok := usersMap[v.UserId]; ok {
+			tmpAddress = usersMap[v.UserId].Address
+		}
 
 		if 1 == v.Reason {
 			res = append(res, &pb.AdminRewardListTwoReply_List{
 				AmountThree: v.Amount,
 				Amount:      v.Five,
 				AmountTwo:   v.Three,
-				Address:     v.Four,
+				Address:     tmpAddress,
 				Num:         v.One,
 				RewardType:  v.Reason,
 				CreatedAt:   v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
