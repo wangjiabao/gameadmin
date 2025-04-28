@@ -1725,7 +1725,7 @@ func (a *AppService) AdminUserLand(ctx context.Context, req *pb.AdminUserLandReq
 	return a.ac.AdminUserLand(ctx, req)
 }
 
-func (a *AppService) AdminUserBackListBuy(ctx context.Context, req *pb.AdminUserBackListRequest) (*pb.AdminUserBackListReply, error) {
+func (a *AppService) AdminUserBackList(ctx context.Context, req *pb.AdminUserBackListRequest) (*pb.AdminUserBackListReply, error) {
 	return a.ac.AdminUserBackList(ctx, req)
 }
 
