@@ -5321,7 +5321,7 @@ func (ac *AppUsecase) AdminRecommendList(ctx context.Context, req *pb.AdminUserR
 			Address:           users[v.UserId].Address,
 			UserId:            v.UserId,
 			CreatedAt:         v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
-			RecommendTotalBiw: users[v.UserId].Total,
+			RecommendTotalBiw: users[v.UserId].MyTotalAmount,
 		})
 	}
 
