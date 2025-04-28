@@ -8484,6 +8484,7 @@ func (ac *AppUsecase) AdminRewardList(ctx context.Context, req *pb.AdminRewardLi
 
 	userIds := make([]uint64, 0)
 	for _, v := range reward {
+		userIds = append(userIds, v.UserId)
 		if 0 >= v.One {
 			continue
 		}
