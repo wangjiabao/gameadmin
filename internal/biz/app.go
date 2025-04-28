@@ -8653,16 +8653,20 @@ func (ac *AppUsecase) AdminUserBuy(ctx context.Context, req *pb.AdminUserBuyRequ
 	}
 
 	tmpLevel := uint64(0)
-	if 1000000 <= tmpAreaMin {
-		tmpLevel = 5
-	} else if 500000 <= tmpAreaMin {
-		tmpLevel = 4
-	} else if 150000 <= tmpAreaMin {
-		tmpLevel = 3
-	} else if 50000 <= tmpAreaMin {
-		tmpLevel = 2
-	} else if 10000 <= tmpAreaMin {
-		tmpLevel = 1
+	if 0 < user.Vip {
+		tmpLevel = user.Vip
+	} else {
+		if 1000000 <= tmpAreaMin {
+			tmpLevel = 5
+		} else if 500000 <= tmpAreaMin {
+			tmpLevel = 4
+		} else if 150000 <= tmpAreaMin {
+			tmpLevel = 3
+		} else if 50000 <= tmpAreaMin {
+			tmpLevel = 2
+		} else if 10000 <= tmpAreaMin {
+			tmpLevel = 1
+		}
 	}
 
 	tmpBuyNum := uint64(0)
