@@ -8367,6 +8367,18 @@ func (ac *AppUsecase) AdminUserBackList(ctx context.Context, req *pb.AdminUserBa
 
 	for _, vProp := range prop {
 		useNum := uint64(0)
+		if 12 == vProp.PropType {
+			useNum = uint64(vProp.ThreeOne) // 水
+		} else if 13 == vProp.PropType {
+			useNum = uint64(vProp.FiveOne) // 手套
+		} else if 14 == vProp.PropType {
+			useNum = uint64(vProp.FourOne) // 除虫剂
+		} else if 15 == vProp.PropType {
+			useNum = uint64(vProp.TwoOne) // 铲子
+		} else if 11 == vProp.PropType {
+			useNum = 1
+		}
+
 		res = append(res, &pb.AdminUserBackListReply_List{
 			Id:     vProp.ID,
 			Type:   2,
