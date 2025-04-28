@@ -4887,7 +4887,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -8333,6 +8333,27 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 		num    uint64
 	)
 
+	var (
+		configs []*Config
+		uPrice  float64
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"u_price",
+	)
+	if nil != err || nil == configs {
+		return &pb.AdminRewardListTwoReply{
+			Status: "配置错误",
+		}, nil
+	}
+
+	for _, vConfig := range configs {
+		if "u_price" == vConfig.KeyName {
+			uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+
 	if 0 < len(req.Address) {
 		user, err = ac.userRepo.GetUserByAddress(ctx, req.Address) // 查询用户
 		if nil != err || nil == user {
@@ -8397,7 +8418,7 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 			})
 		} else {
 			res = append(res, &pb.AdminRewardListTwoReply_List{
-				Amount:     v.Three,
+				Amount:     v.Three * uPrice,
 				AmountTwo:  v.Amount,
 				Address:    v.Four,
 				Num:        v.One,
@@ -8651,14 +8672,14 @@ func (ac *AppUsecase) AdminUserBuy(ctx context.Context, req *pb.AdminUserBuyRequ
 		Status:       "ok",
 		One:          user.Amount,
 		Two:          2.5,
-		Three:        user.AmountGet,
+		Three:        user.AmountGet * uPrice,
 		Four:         tmpFour,
-		Five:         user.Location,
-		Six:          user.Recommend,
-		Seven:        user.RecommendTwo,
-		Eight:        user.Area,
-		Nine:         user.AreaTwo,
-		Ten:          user.All,
+		Five:         user.Location * uPrice,
+		Six:          user.Recommend * uPrice,
+		Seven:        user.RecommendTwo * uPrice,
+		Eight:        user.Area * uPrice,
+		Nine:         user.AreaTwo * uPrice,
+		Ten:          user.All * uPrice,
 		Elven:        user.MyTotalAmount,
 		Twelve:       tmpTwelve,
 		Thirteen:     tmpAreaMax,
