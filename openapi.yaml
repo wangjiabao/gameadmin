@@ -2033,6 +2033,8 @@ components:
         AdminRewardListReply_List:
             type: object
             properties:
+                userAddress:
+                    type: string
                 amount:
                     type: number
                     format: double
@@ -2056,6 +2058,8 @@ components:
         AdminRewardListTwoReply_List:
             type: object
             properties:
+                userAddress:
+                    type: string
                 amountThree:
                     type: number
                     format: double

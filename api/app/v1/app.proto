@@ -1484,6 +1484,7 @@ message AdminRewardListTwoReply {
 	uint64 count = 2; // 总个数，每页20个
 	repeated List list = 3;
 	message List {
+		string userAddress = 9;
 		double amountThree = 7; // 认购金额
 		double amount = 2; // 奖励USDT 加上usdt后缀
 		double amountTwo = 3; // 奖励BIW 加上biw后缀
@@ -1506,6 +1507,7 @@ message AdminRewardListReply {
 	uint64 count = 2; // 总个数，每页20个
 	repeated List list = 3;
 	message List {
+		string userAddress = 9;
 		double amount = 2; // 金额
 		string address = 4; // 下级地址
 		uint64 rewardType = 6; // 类型

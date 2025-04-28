@@ -8408,6 +8408,7 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 
 		if 1 == v.Reason {
 			res = append(res, &pb.AdminRewardListTwoReply_List{
+				UserAddress: tmpAddress,
 				AmountThree: v.Amount,
 				Amount:      v.Five,
 				AmountTwo:   v.Three,
@@ -8418,12 +8419,13 @@ func (ac *AppUsecase) AdminRewardListTwo(ctx context.Context, req *pb.AdminRewar
 			})
 		} else {
 			res = append(res, &pb.AdminRewardListTwoReply_List{
-				Amount:     v.Three * uPrice,
-				AmountTwo:  v.Amount,
-				Address:    v.Four,
-				Num:        v.One,
-				RewardType: v.Reason,
-				CreatedAt:  v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+				UserAddress: tmpAddress,
+				Amount:      v.Three * uPrice,
+				AmountTwo:   v.Amount,
+				Address:     v.Four,
+				Num:         v.One,
+				RewardType:  v.Reason,
+				CreatedAt:   v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			})
 		}
 	}
@@ -8501,17 +8503,23 @@ func (ac *AppUsecase) AdminRewardList(ctx context.Context, req *pb.AdminRewardLi
 
 	for _, v := range reward {
 		address := ""
+		userAddress := ""
 		if 0 < v.One {
 			if _, ok := usersMap[v.One]; ok {
 				address = usersMap[v.One].Address
 			}
 		}
 
+		if _, ok := usersMap[v.UserId]; ok {
+			userAddress = usersMap[v.UserId].Address
+		}
+
 		res = append(res, &pb.AdminRewardListReply_List{
-			Amount:     v.Amount,
-			Address:    address,
-			RewardType: v.Reason,
-			CreatedAt:  v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
+			UserAddress: userAddress,
+			Amount:      v.Amount,
+			Address:     address,
+			RewardType:  v.Reason,
+			CreatedAt:   v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 		})
 	}
 
