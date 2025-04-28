@@ -859,6 +859,7 @@ func (u *UserRepo) GetUserByUserIds(ctx context.Context, userIds []uint64) (map[
 			RewardThreeOne:   user.RewardThreeOne,
 			RewardThreeTwo:   user.RewardThreeTwo,
 			RewardThreeThree: user.RewardThreeThree,
+			MyTotalAmount:    user.MyTotalAmount,
 		}
 	}
 	return res, nil
