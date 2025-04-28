@@ -6579,11 +6579,11 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 			if i == lastKey {
 				// 直推，是我的大区
 				if tmpMaxUserId == v.ID {
-					fmt.Println("测试1：", tmpUserId, tmpMaxId, v.ID)
+					//fmt.Println("测试1：", tmpUserId, tmpMaxId, v.ID)
 					continue
 				}
 
-				fmt.Println("测试2：", tmpUserId, tmpMaxId, v.ID)
+				//fmt.Println("测试2：", tmpUserId, tmpMaxId, v.ID)
 			} else {
 				if i+1 > lastKey {
 					fmt.Println("错误分红小区，信息缺失44：", err, tmpUserId, lastKey, i+1, v)
@@ -6598,11 +6598,11 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 				// 是我大区的人，跳过
 				if tmpMaxUserId == tmpLastUserId {
-					fmt.Println("测试3：", tmpUserId, tmpMaxId, tmpLastUserId)
+					//fmt.Println("测试3：", tmpUserId, tmpMaxId, tmpLastUserId)
 					continue
 				}
 
-				fmt.Println("测试4：", tmpUserId, tmpMaxId, tmpLastUserId)
+				//fmt.Println("测试4：", tmpUserId, tmpMaxId, tmpLastUserId)
 			}
 
 			for _, vMyLowUser := range myLowUser[tmpUserId] {
@@ -6646,13 +6646,13 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 					tmpLastLevelNum = areaFour
 				} else if 150000 <= tmpAreaMin {
 					currentLevel = 3
-					tmpLastLevelNum = areaFour
+					tmpLastLevelNum = areaThree
 				} else if 50000 <= tmpAreaMin {
 					currentLevel = 2
-					tmpLastLevelNum = areaFour
+					tmpLastLevelNum = areaTwo
 				} else if 10000 <= tmpAreaMin {
 					currentLevel = 1
-					tmpLastLevelNum = areaFour
+					tmpLastLevelNum = areaOne
 				} else {
 					// 跳过，没级别
 					continue
