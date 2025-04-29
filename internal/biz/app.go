@@ -65,6 +65,8 @@ type User struct {
 	OutNum           uint64
 	Vip              uint64
 	VipAdmin         uint64
+	LockUse          uint64
+	LockReward       uint64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
@@ -517,6 +519,9 @@ type UserRepo interface {
 	SetGiw(ctx context.Context, address string, giw uint64) error
 	SetGit(ctx context.Context, address string, git uint64) error
 	SetUsdt(ctx context.Context, address string, usdt uint64) error
+	SetLockUse(ctx context.Context, address string, lockUse uint64) error
+	SetLockReward(ctx context.Context, address string, lock uint64) error
+	SetVip(ctx context.Context, address string, vip uint64) error
 	SetStakeGetTotal(ctx context.Context, amount, balance float64) error
 	SetStakeGetTotalSub(ctx context.Context, amount, balance float64) error
 	SetStakeGet(ctx context.Context, userId uint64, git, amount float64) error
@@ -4887,7 +4892,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else { // 输：下注金额加入池子
+	} else {                                                         // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -4922,6 +4927,18 @@ func (ac *AppUsecase) AdminSetGit(ctx context.Context, req *pb.AdminSetGitReques
 
 func (ac *AppUsecase) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtRequest) (*pb.AdminSetUsdtReply, error) {
 	return &pb.AdminSetUsdtReply{Status: "ok"}, ac.userRepo.SetUsdt(ctx, req.Address, req.Usdt)
+}
+
+func (ac *AppUsecase) AdminSetVip(ctx context.Context, req *pb.AdminSetVipRequest) (*pb.AdminSetVipReply, error) {
+	return &pb.AdminSetVipReply{Status: "ok"}, ac.userRepo.SetVip(ctx, req.Address, req.Vip)
+}
+
+func (ac *AppUsecase) AdminSetLockUse(ctx context.Context, req *pb.AdminSetLockRequest) (*pb.AdminSetLockReply, error) {
+	return &pb.AdminSetLockReply{Status: "ok"}, ac.userRepo.SetLockUse(ctx, req.Address, req.Lock)
+}
+
+func (ac *AppUsecase) AdminSetLockReward(ctx context.Context, req *pb.AdminSetLockRewardRequest) (*pb.AdminSetLockRewardReply, error) {
+	return &pb.AdminSetLockRewardReply{Status: "ok"}, ac.userRepo.SetLockReward(ctx, req.Address, req.LockReward)
 }
 
 func (ac *AppUsecase) Exchange(ctx context.Context, address string, req *pb.ExchangeRequest) (*pb.ExchangeReply, error) {
@@ -5259,6 +5276,8 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			MyStakeGit:                stakeGitAmount,
 			MyStakeGetTotal:           stakeGetTotalMy,
 			AmountUsdt:                v.AmountUsdt,
+			Lock:                      v.LockUse,
+			LockReward:                v.LockReward,
 		})
 	}
 
@@ -5874,6 +5893,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"b_price",
 		"recommend",
 		"low_reward_u",
+		"withdraw_rate",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
@@ -6375,10 +6395,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 		tmpB = math.Round(tmpB*10000000) / 10000000
 
-		tmp2 := tmp * 0.1
+		tmp2 := tmp * 0.2
 		tmp2 = math.Round(tmp2*10000000) / 10000000
 
-		tmpBiw := tmpB * 0.9
+		tmpBiw := tmpB * 0.8
 		tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 		//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -6445,6 +6465,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 	// 团队和平级
 	for _, v := range usersReward {
 		tmpUsers := v
+
+		if 1 == tmpUsers.LockReward {
+			continue
+		}
 
 		// 出局的
 		if 0 >= tmpUsers.Amount {
@@ -6704,10 +6728,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpAreaAmountB = math.Round(tmpAreaAmountB*10000000) / 10000000
 
-			tmp2 := tmpAreaAmount * 0.1
+			tmp2 := tmpAreaAmount * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpAreaAmountB * 0.9
+			tmpBiw := tmpAreaAmountB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpAreaAmountB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -6779,6 +6803,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 	// 直推加速
 	for _, v := range usersReward {
 		tmpUsers := v
+
+		if 1 == tmpUsers.LockReward {
+			continue
+		}
 
 		// 出局的
 		if 0 >= tmpUsers.Amount {
@@ -6927,10 +6955,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpAreaAmountB = math.Round(tmpAreaAmountB*10000000) / 10000000
 
-			tmp2 := tmpAreaAmount * 0.1
+			tmp2 := tmpAreaAmount * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpAreaAmountB * 0.9
+			tmpBiw := tmpAreaAmountB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpAreaAmountB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -7034,10 +7062,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpB = math.Round(tmpB*10000000) / 10000000
 
-			tmp2 := tmp * 0.1
+			tmp2 := tmp * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpB * 0.9
+			tmpBiw := tmpB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -7125,10 +7153,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpB = math.Round(tmpB*10000000) / 10000000
 
-			tmp2 := tmp * 0.1
+			tmp2 := tmp * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpB * 0.9
+			tmpBiw := tmpB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -7216,10 +7244,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpB = math.Round(tmpB*10000000) / 10000000
 
-			tmp2 := tmp * 0.1
+			tmp2 := tmp * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpB * 0.9
+			tmpBiw := tmpB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -7307,10 +7335,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpB = math.Round(tmpB*10000000) / 10000000
 
-			tmp2 := tmp * 0.1
+			tmp2 := tmp * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpB * 0.9
+			tmpBiw := tmpB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {
@@ -7398,10 +7426,10 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 			tmpB = math.Round(tmpB*10000000) / 10000000
 
-			tmp2 := tmp * 0.1
+			tmp2 := tmp * 0.2
 			tmp2 = math.Round(tmp2*10000000) / 10000000
 
-			tmpBiw := tmpB * 0.9
+			tmpBiw := tmpB * 0.8
 			tmpBiw = math.Round(tmpBiw*10000000) / 10000000
 
 			//if 0 >= tmpB || 0 >= tmpBiw || 0 >= tmp2 {

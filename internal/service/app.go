@@ -1790,6 +1790,18 @@ func (a *AppService) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtReque
 	return a.ac.AdminSetUsdt(ctx, req)
 }
 
+func (a *AppService) AdminSetLock(ctx context.Context, req *pb.AdminSetLockRequest) (*pb.AdminSetLockReply, error) {
+	return a.ac.AdminSetLockUse(ctx, req)
+}
+
+func (a *AppService) AdminSetLockReward(ctx context.Context, req *pb.AdminSetLockRewardRequest) (*pb.AdminSetLockRewardReply, error) {
+	return a.ac.AdminSetLockReward(ctx, req)
+}
+
+func (a *AppService) AdminSetVip(ctx context.Context, req *pb.AdminSetVipRequest) (*pb.AdminSetVipReply, error) {
+	return a.ac.AdminSetVip(ctx, req)
+}
+
 func (a *AppService) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest) (*pb.AdminDailyReply, error) {
 	return a.ac.AdminDaily(ctx, req)
 }

@@ -45,6 +45,8 @@ type User struct {
 	OutNum           uint64    `gorm:"type:int;"`
 	Vip              uint64    `gorm:"type:int;"`
 	VipAdmin         uint64    `gorm:"type:int;"`
+	LockUse          uint64    `gorm:"type:int;"`
+	LockReward       uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	CreatedAt        time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
@@ -515,6 +517,7 @@ func (u *UserRepo) GetAllUsers(ctx context.Context) ([]*biz.User, error) {
 			OutNum:           user.OutNum,
 			Vip:              user.Vip,
 			VipAdmin:         user.VipAdmin,
+			LockReward:       user.LockReward,
 		})
 	}
 
@@ -640,6 +643,8 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			RewardThreeTwo:   user.RewardThreeTwo,
 			RewardThreeThree: user.RewardThreeThree,
 			AmountUsdt:       user.AmountUsdt,
+			LockReward:       user.LockReward,
+			LockUse:          user.LockUse,
 		})
 	}
 	return res, nil
@@ -3507,6 +3512,39 @@ func (u *UserRepo) SetGit(ctx context.Context, address string, git uint64) error
 func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"amount_usdt": usdt, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetVip .
+func (u *UserRepo) SetVip(ctx context.Context, address string, vip uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"vip": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetLockUse .
+func (u *UserRepo) SetLockUse(ctx context.Context, address string, lockUse uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"lock_use": lockUse, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetLockReward .
+func (u *UserRepo) SetLockReward(ctx context.Context, address string, lock uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"lock_reward": lock, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}

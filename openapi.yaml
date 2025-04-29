@@ -2521,6 +2521,10 @@ components:
                 myStakeGetTotal:
                     type: number
                     format: double
+                lock:
+                    type: string
+                lockReward:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

@@ -1331,6 +1331,8 @@ message AdminUserListReply { // 用户信息
 		double recommendTotalRewardThree = 14; // 邀请收益
 		double myStakeGit = 15; // 粮仓质押数量
 		double myStakeGetTotal = 26; // 果实放大器质押
+		uint64 lock = 111;
+		uint64 lockReward = 112;
 	}
 
 	int64 count = 3;
