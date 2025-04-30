@@ -1992,7 +1992,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			continue
 		}
 
-		userLength, err = getUserLength("0xD5465e27f5839264CeB657527BdeDF006e31994b")
+		userLength, err = getUserLength("0xC8B895E4Bb5Ea6B7a32F33DC49B1D41fc7f66046")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2009,7 +2009,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xD5465e27f5839264CeB657527BdeDF006e31994b")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xC8B895E4Bb5Ea6B7a32F33DC49B1D41fc7f66046")
 		if nil != err {
 			break
 		}
@@ -2041,7 +2041,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 					tmpValue uint64
 				)
 
-				if 100 <= vUser.Amount {
+				if 10 <= vUser.Amount {
 					tmpValue = uint64(vUser.Amount)
 				} else {
 					continue
@@ -2090,7 +2090,7 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 			continue
 		}
 
-		userLength, err = getUserLength("0x9CE82dC797D49Db9847D667683d3043CccCa95C8")
+		userLength, err = getUserLength("0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2107,7 +2107,7 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x9CE82dC797D49Db9847D667683d3043CccCa95C8")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
 		if nil != err {
 			break
 		}
@@ -2188,7 +2188,7 @@ func (a *AppService) AdminDepositUsdtTwo(ctx context.Context, req *pb.AdminDepos
 			continue
 		}
 
-		userLength, err = getUserLength("0x427Edc37dd3173993eAE2E1c02C926Fc89fc989F")
+		userLength, err = getUserLength("0x3B5E49ab1388429B2331C880Ee0a99D68907613e")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2205,7 +2205,7 @@ func (a *AppService) AdminDepositUsdtTwo(ctx context.Context, req *pb.AdminDepos
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x427Edc37dd3173993eAE2E1c02C926Fc89fc989F")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0x3B5E49ab1388429B2331C880Ee0a99D68907613e")
 		if nil != err {
 			break
 		}
