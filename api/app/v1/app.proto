@@ -1469,7 +1469,7 @@ message AdminWithdrawListReply {
 		uint64 id = 7;
 		string createdAt = 1; // 时间
 		string coin = 6;
-		uint64 amount = 2; // 金额
+		double amount = 2; // 金额
 		string status = 4; // success成功，rewarded正在处理
 	}
 	string status = 3; // 不是“ok”，弹窗内容，确定按钮关闭弹窗

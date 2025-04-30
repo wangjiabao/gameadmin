@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -2264,6 +2265,31 @@ func (a *AppService) AdminDepositUsdtTwo(ctx context.Context, req *pb.AdminDepos
 	return nil, nil
 }
 
+func FloatTo18DecimalsString(f float64) string {
+	// 最多保留 18 位小数（足够精度）
+	str := strconv.FormatFloat(f, 'f', -1, 64)
+
+	parts := strings.Split(str, ".")
+	integerPart := parts[0]
+	decimalPart := ""
+
+	if len(parts) > 1 {
+		decimalPart = parts[1]
+	}
+
+	// 计算还需要补多少个0
+	padZeros := 18 - len(decimalPart)
+	if padZeros < 0 {
+		// 多余则截断
+		decimalPart = decimalPart[:18]
+	} else {
+		// 不足则补0
+		decimalPart += strings.Repeat("0", padZeros)
+	}
+
+	return integerPart + decimalPart
+}
+
 func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawRequest) (*pb.AdminWithdrawReply, error) {
 	end := time.Now().UTC().Add(45 * time.Second)
 	for {
@@ -2305,8 +2331,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 		}
 
 		tmpUrl1 := "https://bsc-dataseed4.binance.org/"
-
-		withDrawAmount := strconv.FormatUint(withdraw.RelAmount, 10) + "000000000000000000"
+		withDrawAmount := FloatTo18DecimalsString(withdraw.RelAmountFloat)
 		if len(withDrawAmount) <= 15 {
 			fmt.Println(withDrawAmount, withdraw)
 			err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)

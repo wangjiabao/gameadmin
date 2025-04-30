@@ -327,14 +327,16 @@ type StakeGitRecord struct {
 }
 
 type Withdraw struct {
-	ID        uint64
-	UserId    uint64
-	Amount    uint64
-	RelAmount uint64
-	Status    string
-	Coin      string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID             uint64
+	UserId         uint64
+	Amount         uint64
+	RelAmount      uint64
+	AmountFloat    float64
+	RelAmountFloat float64
+	Status         string
+	Coin           string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
 }
 
 type EthRecord struct {
@@ -5411,7 +5413,7 @@ func (ac *AppUsecase) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdr
 			Address:   addressTmp,
 			Id:        v.ID,
 			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
-			Amount:    v.Amount,
+			Amount:    v.AmountFloat,
 			Status:    v.Status,
 			Coin:      v.Coin,
 		})

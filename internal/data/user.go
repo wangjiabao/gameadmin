@@ -295,14 +295,16 @@ type StakeGitRecord struct {
 }
 
 type Withdraw struct {
-	ID        uint64    `gorm:"primarykey;type:int;comment:主键"`
-	UserId    uint64    `gorm:"type:int;not null;comment:用户id"`
-	Amount    uint64    `gorm:"type:bigint(20);not null;comment:金额"`
-	RelAmount uint64    `gorm:"type:bigint(20);not null;comment:实际提现金额"`
-	Status    string    `gorm:"type:varchar(45);not null;default:'default';comment:状态"`
-	Coin      string    `gorm:"type:varchar(45);`
-	CreatedAt time.Time `gorm:"type:datetime;not null"`
-	UpdatedAt time.Time `gorm:"type:datetime;not null"`
+	ID             uint64    `gorm:"primarykey;type:int;comment:主键"`
+	UserId         uint64    `gorm:"type:int;not null;comment:用户id"`
+	Amount         uint64    `gorm:"type:bigint(20);not null;comment:金额"`
+	RelAmount      uint64    `gorm:"type:bigint(20);not null;comment:实际提现金额"`
+	Status         string    `gorm:"type:varchar(45);not null;default:'default';comment:状态"`
+	AmountFloat    float64   `gorm:"type:decimal(65,18);"`
+	RelAmountFloat float64   `gorm:"type:decimal(65,18);"`
+	Coin           string    `gorm:"type:varchar(45);`
+	CreatedAt      time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt      time.Time `gorm:"type:datetime;not null"`
 }
 
 type EthRecord struct {
@@ -675,13 +677,15 @@ func (u *UserRepo) GetWithdrawPage(ctx context.Context, userId uint64, b *biz.Pa
 
 	for _, v := range withdraws {
 		res = append(res, &biz.Withdraw{
-			ID:        v.ID,
-			UserId:    v.UserId,
-			Amount:    v.Amount,
-			RelAmount: v.RelAmount,
-			Status:    v.Status,
-			CreatedAt: v.CreatedAt,
-			Coin:      v.Coin,
+			ID:             v.ID,
+			UserId:         v.UserId,
+			Amount:         v.Amount,
+			RelAmount:      v.RelAmount,
+			Status:         v.Status,
+			CreatedAt:      v.CreatedAt,
+			RelAmountFloat: v.RelAmountFloat,
+			AmountFloat:    v.AmountFloat,
+			Coin:           v.Coin,
 		})
 	}
 	return res, nil
@@ -2346,13 +2350,15 @@ func (u *UserRepo) GetWithdrawRecordsByUserID(ctx context.Context, userID int64,
 
 	for _, record := range records {
 		res = append(res, &biz.Withdraw{
-			ID:        record.ID,
-			UserId:    record.UserId,
-			Amount:    record.Amount,
-			RelAmount: record.RelAmount,
-			Status:    record.Status,
-			CreatedAt: record.CreatedAt,
-			UpdatedAt: record.UpdatedAt,
+			ID:             record.ID,
+			UserId:         record.UserId,
+			Amount:         record.Amount,
+			RelAmount:      record.RelAmount,
+			RelAmountFloat: record.RelAmountFloat,
+			AmountFloat:    record.AmountFloat,
+			Status:         record.Status,
+			CreatedAt:      record.CreatedAt,
+			UpdatedAt:      record.UpdatedAt,
 		})
 	}
 
@@ -4328,14 +4334,16 @@ func (u *UserRepo) GetWithdrawPassOrRewardedFirst(ctx context.Context) (*biz.Wit
 	}
 
 	return &biz.Withdraw{
-		ID:        record.ID,
-		UserId:    record.UserId,
-		Amount:    record.Amount,
-		RelAmount: record.RelAmount,
-		Status:    record.Status,
-		Coin:      record.Coin,
-		CreatedAt: record.CreatedAt,
-		UpdatedAt: record.UpdatedAt,
+		ID:             record.ID,
+		UserId:         record.UserId,
+		Amount:         record.Amount,
+		RelAmount:      record.RelAmount,
+		Status:         record.Status,
+		Coin:           record.Coin,
+		CreatedAt:      record.CreatedAt,
+		UpdatedAt:      record.UpdatedAt,
+		AmountFloat:    record.AmountFloat,
+		RelAmountFloat: record.RelAmountFloat,
 	}, nil
 }
 
