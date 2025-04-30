@@ -5413,6 +5413,7 @@ func (ac *AppUsecase) AdminWithdrawList(ctx context.Context, req *pb.AdminWithdr
 			CreatedAt: v.CreatedAt.Add(8 * time.Hour).Format("2006-01-02 15:04:05"),
 			Amount:    v.Amount,
 			Status:    v.Status,
+			Coin:      v.Coin,
 		})
 	}
 

@@ -1333,7 +1333,7 @@ message AdminUserListReply { // 用户信息
 		double myStakeGetTotal = 26; // 果实放大器质押
 		uint64 lock = 111;
 		uint64 lockReward = 112;
-		uint64 usdtTwo = 113;
+		double usdtTwo = 113;
 	}
 
 	int64 count = 3;
@@ -1468,6 +1468,7 @@ message AdminWithdrawListReply {
 		string address = 5; // 地址
 		uint64 id = 7;
 		string createdAt = 1; // 时间
+		string coin = 6;
 		uint64 amount = 2; // 金额
 		string status = 4; // success成功，rewarded正在处理
 	}

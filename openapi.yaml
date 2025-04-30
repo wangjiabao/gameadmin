@@ -2526,7 +2526,8 @@ components:
                 lockReward:
                     type: string
                 usdtTwo:
-                    type: string
+                    type: number
+                    format: double
         AdminUserRecommendReply:
             type: object
             properties:
@@ -2567,6 +2568,8 @@ components:
                 id:
                     type: string
                 createdAt:
+                    type: string
+                coin:
                     type: string
                 amount:
                     type: string

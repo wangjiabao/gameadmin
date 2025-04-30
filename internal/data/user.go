@@ -681,6 +681,7 @@ func (u *UserRepo) GetWithdrawPage(ctx context.Context, userId uint64, b *biz.Pa
 			RelAmount: v.RelAmount,
 			Status:    v.Status,
 			CreatedAt: v.CreatedAt,
+			Coin:      v.Coin,
 		})
 	}
 	return res, nil
