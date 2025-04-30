@@ -67,6 +67,7 @@ type User struct {
 	VipAdmin         uint64
 	LockUse          uint64
 	LockReward       uint64
+	UsdtTwo          float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
@@ -331,6 +332,7 @@ type Withdraw struct {
 	Amount    uint64
 	RelAmount uint64
 	Status    string
+	Coin      string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -5278,6 +5280,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			AmountUsdt:                v.AmountUsdt,
 			Lock:                      v.LockUse,
 			LockReward:                v.LockReward,
+			UsdtTwo:                   v.UsdtTwo,
 		})
 	}
 
@@ -5894,6 +5897,10 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"recommend",
 		"low_reward_u",
 		"withdraw_rate",
+		"exchange_fee_rate_two",
+		"withdraw_amount_max_two",
+		"withdraw_amount_min_two",
+		"withdraw_rate_two",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{

@@ -1333,6 +1333,7 @@ message AdminUserListReply { // 用户信息
 		double myStakeGetTotal = 26; // 果实放大器质押
 		uint64 lock = 111;
 		uint64 lockReward = 112;
+		uint64 usdtTwo = 113;
 	}
 
 	int64 count = 3;

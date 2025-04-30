@@ -2525,6 +2525,8 @@ components:
                     type: string
                 lockReward:
                     type: string
+                usdtTwo:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

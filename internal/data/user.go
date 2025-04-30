@@ -48,6 +48,7 @@ type User struct {
 	LockUse          uint64    `gorm:"type:int;"`
 	LockReward       uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
+	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
 	CreatedAt        time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
 }
@@ -299,6 +300,7 @@ type Withdraw struct {
 	Amount    uint64    `gorm:"type:bigint(20);not null;comment:金额"`
 	RelAmount uint64    `gorm:"type:bigint(20);not null;comment:实际提现金额"`
 	Status    string    `gorm:"type:varchar(45);not null;default:'default';comment:状态"`
+	Coin      string    `gorm:"type:varchar(45);`
 	CreatedAt time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
@@ -645,6 +647,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			AmountUsdt:       user.AmountUsdt,
 			LockReward:       user.LockReward,
 			LockUse:          user.LockUse,
+			UsdtTwo:          user.UsdtTwo,
 		})
 	}
 	return res, nil
@@ -4329,6 +4332,7 @@ func (u *UserRepo) GetWithdrawPassOrRewardedFirst(ctx context.Context) (*biz.Wit
 		Amount:    record.Amount,
 		RelAmount: record.RelAmount,
 		Status:    record.Status,
+		Coin:      record.Coin,
 		CreatedAt: record.CreatedAt,
 		UpdatedAt: record.UpdatedAt,
 	}, nil
