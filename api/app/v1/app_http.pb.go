@@ -42,6 +42,7 @@ const OperationAppAdminSetBuyLand = "/api.app.v1.App/AdminSetBuyLand"
 const OperationAppAdminSetConfig = "/api.app.v1.App/AdminSetConfig"
 const OperationAppAdminSetGit = "/api.app.v1.App/AdminSetGit"
 const OperationAppAdminSetGiw = "/api.app.v1.App/AdminSetGiw"
+const OperationAppAdminSetGiwTwo = "/api.app.v1.App/AdminSetGiwTwo"
 const OperationAppAdminSetLand = "/api.app.v1.App/AdminSetLand"
 const OperationAppAdminSetLock = "/api.app.v1.App/AdminSetLock"
 const OperationAppAdminSetLockReward = "/api.app.v1.App/AdminSetLockReward"
@@ -146,6 +147,7 @@ type AppHTTPServer interface {
 	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
 	// AdminSetGiw 设置余额
 	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
+	AdminSetGiwTwo(context.Context, *AdminSetGiwTwoRequest) (*AdminSetGiwTwoReply, error)
 	// AdminSetLand 发土地
 	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
 	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
@@ -321,6 +323,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/prop_config_list", _App_AdminPropConfigList0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_prop_config", _App_AdminPropConfigSet0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_biw", _App_AdminSetGiw0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_biw_Two", _App_AdminSetGiwTwo0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_giw", _App_AdminSetGit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_usdt", _App_AdminSetUsdt0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_vip", _App_AdminSetVip0_HTTP_Handler(srv))
@@ -1665,6 +1668,25 @@ func _App_AdminSetGiw0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) er
 	}
 }
 
+func _App_AdminSetGiwTwo0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetGiwTwoRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetGiwTwo)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetGiwTwo(ctx, req.(*AdminSetGiwTwoRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetGiwTwoReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminSetGit0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetGitRequest
@@ -1954,6 +1976,7 @@ type AppHTTPClient interface {
 	AdminSetConfig(ctx context.Context, req *AdminSetConfigRequest, opts ...http.CallOption) (rsp *AdminSetConfigReply, err error)
 	AdminSetGit(ctx context.Context, req *AdminSetGitRequest, opts ...http.CallOption) (rsp *AdminSetGitReply, err error)
 	AdminSetGiw(ctx context.Context, req *AdminSetGiwRequest, opts ...http.CallOption) (rsp *AdminSetGiwReply, err error)
+	AdminSetGiwTwo(ctx context.Context, req *AdminSetGiwTwoRequest, opts ...http.CallOption) (rsp *AdminSetGiwTwoReply, err error)
 	AdminSetLand(ctx context.Context, req *AdminSetLandRequest, opts ...http.CallOption) (rsp *AdminSetLandReply, err error)
 	AdminSetLock(ctx context.Context, req *AdminSetLockRequest, opts ...http.CallOption) (rsp *AdminSetLockReply, err error)
 	AdminSetLockReward(ctx context.Context, req *AdminSetLockRewardRequest, opts ...http.CallOption) (rsp *AdminSetLockRewardReply, err error)
@@ -2311,6 +2334,19 @@ func (c *AppHTTPClientImpl) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequ
 	pattern := "/api/admin_dhb/set_biw"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetGiw))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetGiwTwo(ctx context.Context, in *AdminSetGiwTwoRequest, opts ...http.CallOption) (*AdminSetGiwTwoReply, error) {
+	var out AdminSetGiwTwoReply
+	pattern := "/api/admin_dhb/set_biw_Two"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetGiwTwo))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

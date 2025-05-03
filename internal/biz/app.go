@@ -36,6 +36,7 @@ type User struct {
 	Address          string
 	Level            uint64
 	Giw              float64
+	GiwTwo           float64
 	GiwAdd           float64
 	Git              float64
 	Total            float64
@@ -521,6 +522,7 @@ type UserRepo interface {
 	GetLandInfoByLevels(ctx context.Context) (map[uint64]*LandInfo, error)
 	GetLandInfo(ctx context.Context) ([]*LandInfo, error)
 	SetGiw(ctx context.Context, address string, giw uint64) error
+	SetGiwTwo(ctx context.Context, address string, giw uint64) error
 	SetGit(ctx context.Context, address string, git uint64) error
 	SetUsdt(ctx context.Context, address string, usdt uint64) error
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
@@ -4925,6 +4927,10 @@ func (ac *AppUsecase) AdminSetGiw(ctx context.Context, req *pb.AdminSetGiwReques
 	return &pb.AdminSetGiwReply{Status: "ok"}, ac.userRepo.SetGiw(ctx, req.Address, req.Biw)
 }
 
+func (ac *AppUsecase) AdminSetGiwTwo(ctx context.Context, req *pb.AdminSetGiwTwoRequest) (*pb.AdminSetGiwTwoReply, error) {
+	return &pb.AdminSetGiwTwoReply{Status: "ok"}, ac.userRepo.SetGiwTwo(ctx, req.Address, req.Biw)
+}
+
 func (ac *AppUsecase) AdminSetGit(ctx context.Context, req *pb.AdminSetGitRequest) (*pb.AdminSetGitReply, error) {
 	return &pb.AdminSetGitReply{Status: "ok"}, ac.userRepo.SetGit(ctx, req.Address, req.Giw)
 }
@@ -5267,6 +5273,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			Address:                   v.Address,
 			Level:                     v.Level,
 			Giw:                       v.Giw,
+			GiwTwo:                    v.GiwTwo,
 			Git:                       v.Git,
 			RecommendTotal:            uint64(len(myUserRecommend)),
 			RecommendTotalBiw:         v.Total,

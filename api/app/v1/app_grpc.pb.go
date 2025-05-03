@@ -85,6 +85,7 @@ const (
 	App_AdminPropConfigList_FullMethodName    = "/api.app.v1.App/AdminPropConfigList"
 	App_AdminPropConfigSet_FullMethodName     = "/api.app.v1.App/AdminPropConfigSet"
 	App_AdminSetGiw_FullMethodName            = "/api.app.v1.App/AdminSetGiw"
+	App_AdminSetGiwTwo_FullMethodName         = "/api.app.v1.App/AdminSetGiwTwo"
 	App_AdminSetGit_FullMethodName            = "/api.app.v1.App/AdminSetGit"
 	App_AdminSetUsdt_FullMethodName           = "/api.app.v1.App/AdminSetUsdt"
 	App_AdminSetVip_FullMethodName            = "/api.app.v1.App/AdminSetVip"
@@ -231,6 +232,7 @@ type AppClient interface {
 	AdminPropConfigSet(ctx context.Context, in *AdminPropConfigSetRequest, opts ...grpc.CallOption) (*AdminPropConfigSetReply, error)
 	// 设置余额
 	AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opts ...grpc.CallOption) (*AdminSetGiwReply, error)
+	AdminSetGiwTwo(ctx context.Context, in *AdminSetGiwTwoRequest, opts ...grpc.CallOption) (*AdminSetGiwTwoReply, error)
 	// 设置余额
 	AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error)
 	// 设置余额
@@ -859,6 +861,15 @@ func (c *appClient) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequest, opt
 	return out, nil
 }
 
+func (c *appClient) AdminSetGiwTwo(ctx context.Context, in *AdminSetGiwTwoRequest, opts ...grpc.CallOption) (*AdminSetGiwTwoReply, error) {
+	out := new(AdminSetGiwTwoReply)
+	err := c.cc.Invoke(ctx, App_AdminSetGiwTwo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetGit(ctx context.Context, in *AdminSetGitRequest, opts ...grpc.CallOption) (*AdminSetGitReply, error) {
 	out := new(AdminSetGitReply)
 	err := c.cc.Invoke(ctx, App_AdminSetGit_FullMethodName, in, out, opts...)
@@ -1107,6 +1118,7 @@ type AppServer interface {
 	AdminPropConfigSet(context.Context, *AdminPropConfigSetRequest) (*AdminPropConfigSetReply, error)
 	// 设置余额
 	AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error)
+	AdminSetGiwTwo(context.Context, *AdminSetGiwTwoRequest) (*AdminSetGiwTwoReply, error)
 	// 设置余额
 	AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error)
 	// 设置余额
@@ -1335,6 +1347,9 @@ func (UnimplementedAppServer) AdminPropConfigSet(context.Context, *AdminPropConf
 }
 func (UnimplementedAppServer) AdminSetGiw(context.Context, *AdminSetGiwRequest) (*AdminSetGiwReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGiw not implemented")
+}
+func (UnimplementedAppServer) AdminSetGiwTwo(context.Context, *AdminSetGiwTwoRequest) (*AdminSetGiwTwoReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGiwTwo not implemented")
 }
 func (UnimplementedAppServer) AdminSetGit(context.Context, *AdminSetGitRequest) (*AdminSetGitReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetGit not implemented")
@@ -2576,6 +2591,24 @@ func _App_AdminSetGiw_Handler(srv interface{}, ctx context.Context, dec func(int
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetGiwTwo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetGiwTwoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetGiwTwo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetGiwTwo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetGiwTwo(ctx, req.(*AdminSetGiwTwoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetGit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetGitRequest)
 	if err := dec(in); err != nil {
@@ -3080,6 +3113,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetGiw",
 			Handler:    _App_AdminSetGiw_Handler,
+		},
+		{
+			MethodName: "AdminSetGiwTwo",
+			Handler:    _App_AdminSetGiwTwo_Handler,
 		},
 		{
 			MethodName: "AdminSetGit",

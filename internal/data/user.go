@@ -49,6 +49,7 @@ type User struct {
 	LockReward       uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
+	GiwTwo           float64   `gorm:"type:decimal(65,20);"`
 	CreatedAt        time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
 }
@@ -629,6 +630,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			Address:          user.Address,
 			Level:            user.Level,
 			Giw:              user.Giw,
+			GiwTwo:           user.GiwTwo,
 			GiwAdd:           user.GiwAdd,
 			Git:              user.Git,
 			Total:            user.Total,
@@ -3507,6 +3509,17 @@ func (u *UserRepo) SetGiw(ctx context.Context, address string, giw uint64) error
 	return nil
 }
 
+// SetGiwTwo .
+func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"giw_two": float64(giw), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
 // SetGit .
 func (u *UserRepo) SetGit(ctx context.Context, address string, git uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
@@ -3985,7 +3998,7 @@ func (u *UserRepo) AddUserTotalThree(ctx context.Context, userId, num uint64, gi
 func (u *UserRepo) AddGiw(ctx context.Context, address string, giw uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{
-			"giw":        gorm.Expr("giw + ?", float64(giw)),
+			"giw_two":    gorm.Expr("giw_two + ?", float64(giw)),
 			"giw_add":    gorm.Expr("giw_add + ?", float64(giw)),
 			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
 		})
@@ -4000,7 +4013,7 @@ func (u *UserRepo) AddGiw(ctx context.Context, address string, giw uint64) error
 func (u *UserRepo) AddGiwThree(ctx context.Context, address string, giw float64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{
-			"giw":        gorm.Expr("giw + ?", giw),
+			"giw_two":    gorm.Expr("giw_two + ?", giw),
 			"giw_add":    gorm.Expr("giw_add + ?", giw),
 			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
 		})

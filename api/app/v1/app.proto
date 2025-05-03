@@ -491,6 +491,12 @@ service App {
 		};
 	};
 
+	rpc AdminSetGiwTwo (AdminSetGiwTwoRequest) returns (AdminSetGiwTwoReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_biw_Two"
+		};
+	};
+
 	// 设置余额
 	rpc AdminSetGit (AdminSetGitRequest) returns (AdminSetGitReply) {
 		option (google.api.http) = {
@@ -1318,6 +1324,7 @@ message AdminUserListReply { // 用户信息
 		string address = 2; // 当前用户的 游戏id，钱包地址
 		uint64 level = 3; // 级别，系统里所有我的级别展示
 		double giw = 4; // git余额，系统里所有git的余额展示
+		double giwTwo = 141; // git余额，系统里所有git的余额展示
 		double git = 5; // giw余额，系统里所有giw的余额展示
 		double amountUsdt = 25; // giw余额，系统里所有giw的余额展示
 		uint64 recommendTotal = 6; // 邻居数
@@ -1659,6 +1666,16 @@ message AdminSetGiwRequest {
 message AdminSetGiwReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
+
+message AdminSetGiwTwoRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 biw = 2;
+}
+
+message AdminSetGiwTwoReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
 
 message AdminSetGitRequest {
 	string address = 1; // index列表里的landUseId，种植记录

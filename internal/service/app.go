@@ -1783,6 +1783,10 @@ func (a *AppService) AdminSetGiw(ctx context.Context, req *pb.AdminSetGiwRequest
 	return a.ac.AdminSetGiw(ctx, req)
 }
 
+func (a *AppService) AdminSetGiwTwo(ctx context.Context, req *pb.AdminSetGiwTwoRequest) (*pb.AdminSetGiwTwoReply, error) {
+	return a.ac.AdminSetGiwTwo(ctx, req)
+}
+
 func (a *AppService) AdminSetGit(ctx context.Context, req *pb.AdminSetGitRequest) (*pb.AdminSetGitReply, error) {
 	return a.ac.AdminSetGit(ctx, req)
 }
