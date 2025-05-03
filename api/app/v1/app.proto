@@ -493,7 +493,7 @@ service App {
 
 	rpc AdminSetGiwTwo (AdminSetGiwTwoRequest) returns (AdminSetGiwTwoReply) {
 		option (google.api.http) = {
-			get: "/api/admin_dhb/set_biw_Two"
+			get: "/api/admin_dhb/set_biw_two"
 		};
 	};
 

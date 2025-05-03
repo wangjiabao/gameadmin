@@ -323,7 +323,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/prop_config_list", _App_AdminPropConfigList0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_prop_config", _App_AdminPropConfigSet0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_biw", _App_AdminSetGiw0_HTTP_Handler(srv))
-	r.GET("/api/admin_dhb/set_biw_Two", _App_AdminSetGiwTwo0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_biw_two", _App_AdminSetGiwTwo0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_giw", _App_AdminSetGit0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_usdt", _App_AdminSetUsdt0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_vip", _App_AdminSetVip0_HTTP_Handler(srv))
@@ -2344,7 +2344,7 @@ func (c *AppHTTPClientImpl) AdminSetGiw(ctx context.Context, in *AdminSetGiwRequ
 
 func (c *AppHTTPClientImpl) AdminSetGiwTwo(ctx context.Context, in *AdminSetGiwTwoRequest, opts ...http.CallOption) (*AdminSetGiwTwoReply, error) {
 	var out AdminSetGiwTwoReply
-	pattern := "/api/admin_dhb/set_biw_Two"
+	pattern := "/api/admin_dhb/set_biw_two"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetGiwTwo))
 	opts = append(opts, http.PathTemplate(pattern))
