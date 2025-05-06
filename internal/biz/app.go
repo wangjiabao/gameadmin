@@ -5908,6 +5908,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"low_reward_u",
 		"withdraw_rate",
 		"exchange_fee_rate_two",
+		"exchange_fee_rate_three",
 		"withdraw_amount_max_two",
 		"withdraw_amount_min_two",
 		"withdraw_rate_two",
