@@ -6551,6 +6551,7 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 		lastLevelNum := float64(0)
 		lastKey := len(tmpRecommendUserIds) - 1
 		tmpI := uint64(0)
+		tmpLevelSame := uint64(0)
 		for i := lastKey; i >= 0; i-- {
 			currentLevel := 0
 			tmpI++
@@ -6731,6 +6732,11 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 			tmpLevel := false
 			if currentLevel == lastLevel {
 				tmpLevel = true
+				if 5 == tmpLevelSame {
+					fmt.Println("5次平级", tmpRecommendUser)
+					continue
+				}
+				tmpLevelSame++
 			}
 
 			tmpMaxB := tmpRecommendUser.Amount * 2.5 / uPrice
