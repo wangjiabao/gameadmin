@@ -5891,24 +5891,24 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 	configs, err = ac.userRepo.GetConfigByKeys(ctx,
 		"withdraw_amount_min",
 		"withdraw_amount_max",
-		"exchange_fee_rate",
+		//"exchange_fee_rate",
 		"reward_stake_rate",
 		"stake_over_rate",
 		"sell_fee_rate",
 		"one_rate",
 		"two_rate",
 		"three_rate",
-		"buy_one", "buy_two", "buy_three", "buy_four", "buy_five", "buy_six", "buy_seven", "buy_eight",
-		"recommend_two", "recommend_two_sub",
-		"area_one", "area_two", "area_three", "area_four", "area_five", "area_zero",
-		"all_each",
-		"u_price",
+		//"buy_one", "buy_two", "buy_three", "buy_four", "buy_five", "buy_six", "buy_seven", "buy_eight",
+		//"recommend_two", "recommend_two_sub",
+		//"area_one", "area_two", "area_three", "area_four", "area_five", "area_zero",
+		//"all_each",
+		//"u_price",
 		"b_price",
-		"recommend",
-		"low_reward_u",
+		//"recommend",
+		//"low_reward_u",
 		"withdraw_rate",
 		"exchange_fee_rate_two",
-		"exchange_fee_rate_three",
+		//"exchange_fee_rate_three",
 		"withdraw_amount_max_two",
 		"withdraw_amount_min_two",
 		"withdraw_rate_two",
@@ -7530,9 +7530,9 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		twoRate         float64
 		threeRate       float64
 		rewardStakeRate float64
-		uPrice          float64
-		lowRewardU      float64
-		err             error
+		//uPrice          float64
+		//lowRewardU      float64
+		err error
 	)
 	stakeGitRecord, err = ac.userRepo.GetStakeGitRecords(ctx)
 	if nil != err {
@@ -7566,19 +7566,19 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 			rewardStakeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
 		}
 
-		if "u_price" == vConfig.KeyName {
-			uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
+		//if "u_price" == vConfig.KeyName {
+		//	uPrice, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
 
-		if "low_reward_u" == vConfig.KeyName {
-			lowRewardU, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
+		//if "low_reward_u" == vConfig.KeyName {
+		//	lowRewardU, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
 	}
 
-	if 0 >= uPrice {
-		fmt.Println("错误粮仓分红，u和biw价格，配置", uPrice, err)
-		return &pb.AdminDailyReply{}, nil
-	}
+	//if 0 >= uPrice {
+	//	fmt.Println("错误粮仓分红，u和biw价格，配置", uPrice, err)
+	//	return &pb.AdminDailyReply{}, nil
+	//}
 
 	// 推荐人
 	var (
@@ -7684,9 +7684,9 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 						continue
 					}
 
-					if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
-						continue
-					}
+					//if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
+					//	continue
+					//}
 
 					tmpReward := float64(0)
 
