@@ -5289,7 +5289,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			AmountUsdt:                v.AmountUsdt,
 			Lock:                      v.LockUse,
 			LockReward:                v.LockReward,
-			UsdtTwo:                   v.UsdtTwo,
+			UsdtTwo:                   v.AmountUsdt,
 		})
 	}
 
