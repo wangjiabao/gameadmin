@@ -4031,7 +4031,7 @@ func (u *UserRepo) AddUsdt(ctx context.Context, address string, usdt uint64) err
 			"amount_usdt": gorm.Expr("amount_usdt + ?", usdt),
 			"updated_at":  time.Now().Format("2006-01-02 15:04:05"),
 		})
-	if res.Error != nil {
+	if res.Error != nil || 1 != res.RowsAffected {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}
 
