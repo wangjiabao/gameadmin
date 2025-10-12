@@ -4240,19 +4240,19 @@ func (u *UserRepo) DailyRewardL(ctx context.Context, id, userId, lowUserId, num 
 		if 6 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
 				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_three": gorm.Expr("reward_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
-			if res.Error != nil {
+			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
 		} else if 9 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
 				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_two_three": gorm.Expr("reward_two_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
-			if res.Error != nil {
+			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
 		} else if 12 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
 				Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "reward_three_three": gorm.Expr("reward_three_three + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
-			if res.Error != nil {
+			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
 		}
