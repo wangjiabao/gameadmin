@@ -1839,6 +1839,7 @@ message AdminSetLandRequest {
 		string one = 3; // 允许出售
 		string two = 4; // 允许出租
 		string three = 5; // 允许合成
+		string four = 7; // 允许动静态收益
 		uint64 limit = 6; // 使用时间  秒级时间
 	}
 

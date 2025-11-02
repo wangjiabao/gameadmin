@@ -110,6 +110,7 @@ type Seed struct {
 	SellAmount   float64   `gorm:"type:decimal(65,20);not null;default:0.00000000000000000000;"`
 	CreatedAt    time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt    time.Time `gorm:"type:datetime;not null"`
+	AdminAdd     uint64    `gorm:"type:int;"`
 }
 
 type Land struct {
@@ -129,6 +130,8 @@ type Land struct {
 	SellAmount     float64   `gorm:"type:decimal(65,20);not null;default:0.00000000000000000000;"`
 	CreatedAt      time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt      time.Time `gorm:"type:datetime;not null"`
+	AdminAdd       uint64    `gorm:"type:int;"`
+	CanReward      uint64    `gorm:"type:int;"`
 }
 
 type LandUserUse struct {
@@ -239,6 +242,7 @@ type Prop struct {
 	SellAmount float64   `gorm:"type:decimal(65,20);not null;default:0.00000000000000000000;"`
 	CreatedAt  time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt  time.Time `gorm:"type:datetime;not null"`
+	AdminAdd   uint64    `gorm:"type:int;"`
 }
 
 type StakeGet struct {
@@ -3421,6 +3425,8 @@ func (u *UserRepo) CreateLand(ctx context.Context, lc *biz.Land) (*biz.Land, err
 	land.Two = lc.Two
 	land.Three = lc.Three
 	land.SellAmount = lc.SellAmount
+	land.CanReward = lc.CanReward
+	land.AdminAdd = lc.AdminAdd
 
 	res := u.data.DB(ctx).Table("land").Create(&land)
 	if res.Error != nil {
@@ -4332,6 +4338,7 @@ func (u *UserRepo) SetSeed(ctx context.Context, seedInfo *biz.Seed) (uint64, err
 	seed.UserId = seedInfo.UserId
 	seed.OutMaxAmount = seedInfo.OutMaxAmount
 	seed.OutOverTime = seedInfo.OutOverTime
+	seed.AdminAdd = 1
 	res := u.data.DB(ctx).Table("seed").Create(&seed)
 	if res.Error != nil {
 		return 0, errors.New(500, "SetSeed", "创建失败")
@@ -4351,6 +4358,7 @@ func (u *UserRepo) SetProp(ctx context.Context, propInfo *biz.Prop) (uint64, err
 	prop.ThreeOne = propInfo.ThreeOne
 	prop.FourOne = propInfo.FourOne
 	prop.FiveOne = propInfo.FiveOne
+	prop.AdminAdd = 1
 	res := u.data.DB(ctx).Table("prop").Create(&prop)
 	if res.Error != nil {
 		return 0, errors.New(500, "SetProp", "创建失败")

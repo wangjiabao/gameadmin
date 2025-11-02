@@ -2413,6 +2413,8 @@ components:
                     type: string
                 three:
                     type: string
+                four:
+                    type: string
                 limit:
                     type: string
         AdminSetLockReply:

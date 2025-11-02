@@ -193,6 +193,8 @@ type Land struct {
 	One            uint64
 	Two            uint64
 	Three          uint64
+	AdminAdd       uint64
+	CanReward      uint64
 	SellAmount     float64
 }
 
@@ -5945,6 +5947,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"buy_land_two",
 		"buy_land_three",
 		"self_sub",
+		"reward_land",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
@@ -7801,13 +7804,15 @@ func (ac *AppUsecase) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequ
 	}
 
 	var (
-		tmpOne   uint64
-		tmpTwo   uint64
-		tmpThree uint64
+		tmpOne   uint64 // 出售
+		tmpTwo   uint64 // 允许出租
+		tmpThree uint64 // 允许合成
+		tmpFour  uint64 // 允许合成
 	)
 	tmpOne, _ = strconv.ParseUint(req.SendBody.One, 10, 64)
 	tmpTwo, _ = strconv.ParseUint(req.SendBody.Two, 10, 64)
-	tmpThree, _ = strconv.ParseUint(req.SendBody.Three, 10, 64)
+	//tmpThree, _ = strconv.ParseUint(req.SendBody.Three, 10, 64)
+	tmpFour, _ = strconv.ParseUint(req.SendBody.Four, 10, 64)
 
 	for _, v := range partsAddress {
 		if 20 >= len(v) {
@@ -7853,6 +7858,8 @@ func (ac *AppUsecase) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequ
 				One:        tmpOne,
 				Two:        tmpTwo,
 				Three:      tmpThree,
+				CanReward:  tmpFour,
+				AdminAdd:   1,
 			})
 			if nil != err {
 				return err
