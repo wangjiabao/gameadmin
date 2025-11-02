@@ -97,6 +97,7 @@ const (
 	App_AdminGetBox_FullMethodName            = "/api.app.v1.App/AdminGetBox"
 	App_AdminSetBox_FullMethodName            = "/api.app.v1.App/AdminSetBox"
 	App_AdminGetConfig_FullMethodName         = "/api.app.v1.App/AdminGetConfig"
+	App_AdminLandReward_FullMethodName        = "/api.app.v1.App/AdminLandReward"
 	App_AdminSetConfig_FullMethodName         = "/api.app.v1.App/AdminSetConfig"
 	App_AdminSetLand_FullMethodName           = "/api.app.v1.App/AdminSetLand"
 	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
@@ -256,6 +257,8 @@ type AppClient interface {
 	AdminSetBox(ctx context.Context, in *AdminSetBoxRequest, opts ...grpc.CallOption) (*AdminSetBoxReply, error)
 	// 获取配置
 	AdminGetConfig(ctx context.Context, in *AdminGetConfigRequest, opts ...grpc.CallOption) (*AdminGetConfigReply, error)
+	// 全网分红
+	AdminLandReward(ctx context.Context, in *AdminLandRewardRequest, opts ...grpc.CallOption) (*AdminLandRewardReply, error)
 	// 修改配置
 	AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...grpc.CallOption) (*AdminSetConfigReply, error)
 	// 发土地
@@ -1056,6 +1059,16 @@ func (c *appClient) AdminGetConfig(ctx context.Context, in *AdminGetConfigReques
 	return out, nil
 }
 
+func (c *appClient) AdminLandReward(ctx context.Context, in *AdminLandRewardRequest, opts ...grpc.CallOption) (*AdminLandRewardReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminLandRewardReply)
+	err := c.cc.Invoke(ctx, App_AdminLandReward_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...grpc.CallOption) (*AdminSetConfigReply, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(AdminSetConfigReply)
@@ -1258,6 +1271,8 @@ type AppServer interface {
 	AdminSetBox(context.Context, *AdminSetBoxRequest) (*AdminSetBoxReply, error)
 	// 获取配置
 	AdminGetConfig(context.Context, *AdminGetConfigRequest) (*AdminGetConfigReply, error)
+	// 全网分红
+	AdminLandReward(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error)
 	// 修改配置
 	AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error)
 	// 发土地
@@ -1511,6 +1526,9 @@ func (UnimplementedAppServer) AdminSetBox(context.Context, *AdminSetBoxRequest) 
 }
 func (UnimplementedAppServer) AdminGetConfig(context.Context, *AdminGetConfigRequest) (*AdminGetConfigReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminGetConfig not implemented")
+}
+func (UnimplementedAppServer) AdminLandReward(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminLandReward not implemented")
 }
 func (UnimplementedAppServer) AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetConfig not implemented")
@@ -2952,6 +2970,24 @@ func _App_AdminGetConfig_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminLandReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminLandRewardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminLandReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminLandReward_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminLandReward(ctx, req.(*AdminLandRewardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetConfigRequest)
 	if err := dec(in); err != nil {
@@ -3360,6 +3396,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminGetConfig",
 			Handler:    _App_AdminGetConfig_Handler,
+		},
+		{
+			MethodName: "AdminLandReward",
+			Handler:    _App_AdminLandReward_Handler,
 		},
 		{
 			MethodName: "AdminSetConfig",

@@ -574,6 +574,13 @@ service App {
 		};
 	};
 
+	// 全网分红
+	rpc AdminLandReward (AdminLandRewardRequest) returns (AdminLandRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/land_reward"
+		};
+	};
+
 	// 修改配置
 	rpc AdminSetConfig (AdminSetConfigRequest) returns (AdminSetConfigReply) {
 		option (google.api.http) = {
@@ -1816,6 +1823,12 @@ message AdminGetConfigReply {
 		string name = 2; // 名称
 		uint64 id = 5;
 	}
+}
+
+message AdminLandRewardRequest {
+}
+
+message AdminLandRewardReply {
 }
 
 message AdminSetConfigRequest {

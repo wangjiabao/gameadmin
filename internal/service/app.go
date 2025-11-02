@@ -1775,6 +1775,10 @@ func (a *AppService) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfigR
 	return a.ac.AdminGetConfig(ctx, req)
 }
 
+func (a *AppService) AdminLandReward(ctx context.Context, req *pb.AdminLandRewardRequest) (*pb.AdminLandRewardReply, error) {
+	return a.ac.AdminLandReward(ctx, req)
+}
+
 func (a *AppService) AdminSetConfig(ctx context.Context, req *pb.AdminSetConfigRequest) (*pb.AdminSetConfigReply, error) {
 	return a.ac.AdminSetConfig(ctx, req)
 }

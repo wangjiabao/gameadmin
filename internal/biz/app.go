@@ -5904,6 +5904,36 @@ func (ac *AppUsecase) AdminSetBox(ctx context.Context, req *pb.AdminSetBoxReques
 	}, nil
 }
 
+func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewardRequest) (*pb.AdminLandRewardReply, error) {
+	var (
+		configs    []*Config
+		rewardLand float64
+		err        error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx, "reward_land")
+	if nil != err || nil == configs {
+		fmt.Println(err, "admin land reward")
+		return nil, nil
+	}
+
+	for _, vConfig := range configs {
+		if "reward_land" == vConfig.KeyName {
+			rewardLand, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+
+	if 0 >= rewardLand {
+		fmt.Println(rewardLand, "admin land reward zero")
+		return nil, nil
+	}
+
+	//ac.userRepo.GetLandUserUseByUserIDUseing()
+
+	return nil, nil
+}
+
 func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfigRequest) (*pb.AdminGetConfigReply, error) {
 	var (
 		configs []*Config

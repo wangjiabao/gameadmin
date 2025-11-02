@@ -158,6 +158,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/land_reward:
+        get:
+            tags:
+                - App
+            description: 全网分红
+            operationId: App_AdminLandReward
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminLandRewardReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/login:
         post:
             tags:
@@ -2157,6 +2176,9 @@ components:
                     type: string
                 perHealth:
                     type: string
+        AdminLandRewardReply:
+            type: object
+            properties: {}
         AdminLoginReply:
             type: object
             properties:

@@ -1803,6 +1803,51 @@ func (u *UserRepo) GetLandUserUseByUserIDUseing(ctx context.Context, userID uint
 	return res, nil
 }
 
+// GetLandReward getLandReward
+func (u *UserRepo) GetLandReward(ctx context.Context) ([]*biz.Land, error) {
+	var (
+		lands []*Land
+	)
+
+	res := make([]*biz.Land, 0)
+	instance := u.data.DB(ctx).Table("land").
+		Where("limit_date>=?", time.Now().Unix()).
+		Where("status in (?)", status).
+		Where("location_num >?", 0).
+		Order("id asc")
+
+	if err := instance.Find(&lands).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "LAND ERROR", err.Error())
+	}
+
+	for _, land := range lands {
+		res = append(res, &biz.Land{
+			ID:             land.ID,
+			UserId:         land.UserId,
+			Level:          land.Level,
+			OutPutRate:     land.OutPutRate,
+			RentOutPutRate: land.RentOutPutRate,
+			MaxHealth:      land.MaxHealth,
+			PerHealth:      land.PerHealth,
+			LimitDate:      land.LimitDate,
+			Status:         land.Status,
+			LocationNum:    land.LocationNum,
+			CreatedAt:      land.CreatedAt,
+			UpdatedAt:      land.UpdatedAt,
+			One:            land.One,
+			Two:            land.Two,
+			Three:          land.Three,
+			SellAmount:     land.SellAmount,
+		})
+	}
+
+	return res, nil
+}
+
 func (u *UserRepo) GetExchangeRecordsByUserID(ctx context.Context, userID uint64, b *biz.Pagination) ([]*biz.ExchangeRecord, error) {
 	var (
 		exchangeRecords []*ExchangeRecord
