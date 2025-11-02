@@ -4073,7 +4073,7 @@ func (u *UserRepo) AddGiwThree(ctx context.Context, address string, giw float64)
 func (u *UserRepo) AddUsdt(ctx context.Context, address string, usdt uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{
-			"amount_usdt": gorm.Expr("amount_usdt + ?", usdt),
+			"amount_usdt": gorm.Expr("amount_usdt + ?", float64(usdt)),
 			"updated_at":  time.Now().Format("2006-01-02 15:04:05"),
 		})
 	if res.Error != nil || 1 != res.RowsAffected {
