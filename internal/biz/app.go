@@ -5916,6 +5916,13 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"sell_land",
 		"play_one_rate",
 		"play_two_rate",
+		"prop_two_two",
+		"rent_rate_one",
+		"rent_rate_two",
+		"rent_rate_three",
+		"buy_land_one",
+		"buy_land_two",
+		"buy_land_three",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
