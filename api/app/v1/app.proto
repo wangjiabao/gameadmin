@@ -518,6 +518,28 @@ service App {
 		};
 	};
 
+	// 允许上架土地
+	rpc AdminSetCanSell (AdminSetCanSellRequest) returns (AdminSetCanSellReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_can_sell"
+		};
+	};
+
+	// 允许出租土地
+	rpc AdminSetCanRent (AdminSetCanRentRequest) returns (AdminSetCanRentReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_can_rent"
+		};
+	};
+
+	// 允许全网布置土地
+	rpc AdminSetCanLand (AdminSetCanLandRequest) returns (AdminSetCanLandReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_can_land"
+		};
+	};
+
+
 	rpc AdminSetLock (AdminSetLockRequest) returns (AdminSetLockReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/set_lock"
@@ -1341,6 +1363,10 @@ message AdminUserListReply { // 用户信息
 		uint64 lock = 111;
 		uint64 lockReward = 112;
 		double usdtTwo = 113;
+
+		uint64 canSell = 114;
+		uint64 canRent = 115;
+		uint64 canLand = 116;
 	}
 
 	int64 count = 3;
@@ -1702,6 +1728,33 @@ message AdminSetVipRequest {
 }
 
 message AdminSetVipReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetCanSellRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 num = 2;
+}
+
+message AdminSetCanSellReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetCanRentRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 num = 2;
+}
+
+message AdminSetCanRentReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetCanLandRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 num = 2;
+}
+
+message AdminSetCanLandReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 

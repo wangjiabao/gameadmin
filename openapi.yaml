@@ -441,6 +441,90 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_can_land:
+        get:
+            tags:
+                - App
+            description: 允许全网布置土地
+            operationId: App_AdminSetCanLand
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetCanLandReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_can_rent:
+        get:
+            tags:
+                - App
+            description: 允许出租土地
+            operationId: App_AdminSetCanRent
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetCanRentReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_can_sell:
+        get:
+            tags:
+                - App
+            description: 允许上架土地
+            operationId: App_AdminSetCanSell
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetCanSellReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/set_config:
         post:
             tags:
@@ -2269,6 +2353,21 @@ components:
                     type: string
                 limit:
                     type: string
+        AdminSetCanLandReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetCanRentReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetCanSellReply:
+            type: object
+            properties:
+                status:
+                    type: string
         AdminSetConfigReply:
             type: object
             properties:
@@ -2563,6 +2662,12 @@ components:
                 usdtTwo:
                     type: number
                     format: double
+                canSell:
+                    type: string
+                canRent:
+                    type: string
+                canLand:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

@@ -1795,6 +1795,18 @@ func (a *AppService) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtReque
 	return a.ac.AdminSetUsdt(ctx, req)
 }
 
+func (a *AppService) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSellRequest) (*pb.AdminSetCanSellReply, error) {
+	return a.ac.AdminSetCanSell(ctx, req)
+}
+
+func (a *AppService) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRentRequest) (*pb.AdminSetCanRentReply, error) {
+	return a.ac.AdminSetCanRent(ctx, req)
+}
+
+func (a *AppService) AdminSetCanLand(ctx context.Context, req *pb.AdminSetCanLandRequest) (*pb.AdminSetCanLandReply, error) {
+	return a.ac.AdminSetCanLand(ctx, req)
+}
+
 func (a *AppService) AdminSetLock(ctx context.Context, req *pb.AdminSetLockRequest) (*pb.AdminSetLockReply, error) {
 	return a.ac.AdminSetLockUse(ctx, req)
 }
@@ -1976,7 +1988,7 @@ func getUserInfo(start int64, end int64, address string) ([]*userDeposit, error)
 
 func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositRequest) (*pb.AdminDepositReply, error) {
 	end := time.Now().UTC().Add(50 * time.Second)
-
+	return nil, nil
 	for i := 1; i <= 10; i++ {
 		var (
 			depositUsdtResult []*userDeposit
@@ -2072,6 +2084,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 	return nil, nil
 }
 
+// AdminDepositUsdt 目前唯一充值
 func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositUsdtRequest) (*pb.AdminDepositUsdtReply, error) {
 	end := time.Now().UTC().Add(50 * time.Second)
 
@@ -2173,6 +2186,7 @@ func (a *AppService) AdminDepositUsdt(ctx context.Context, req *pb.AdminDepositU
 func (a *AppService) AdminDepositUsdtTwo(ctx context.Context, req *pb.AdminDepositUsdtTwoRequest) (*pb.AdminDepositUsdtTwoReply, error) {
 	end := time.Now().UTC().Add(50 * time.Second)
 
+	return nil, nil
 	for i := 1; i <= 10; i++ {
 		var (
 			depositUsdtResult []*userDeposit

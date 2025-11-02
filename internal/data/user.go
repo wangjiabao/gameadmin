@@ -47,6 +47,9 @@ type User struct {
 	VipAdmin         uint64    `gorm:"type:int;"`
 	LockUse          uint64    `gorm:"type:int;"`
 	LockReward       uint64    `gorm:"type:int;"`
+	CanRent          uint64    `gorm:"type:int;"`
+	CanLand          uint64    `gorm:"type:int;"`
+	CanSell          uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
 	GiwTwo           float64   `gorm:"type:decimal(65,20);"`
@@ -652,6 +655,9 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			LockReward:       user.LockReward,
 			LockUse:          user.LockUse,
 			UsdtTwo:          user.UsdtTwo,
+			CanLand:          user.CanLand,
+			CanSell:          user.CanSell,
+			CanRent:          user.CanRent,
 		})
 	}
 	return res, nil
@@ -3546,6 +3552,39 @@ func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) err
 func (u *UserRepo) SetVip(ctx context.Context, address string, vip uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"vip": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetCanSell .
+func (u *UserRepo) SetCanSell(ctx context.Context, address string, num uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_sell": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetCanRent .
+func (u *UserRepo) SetCanRent(ctx context.Context, address string, vip uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_rent": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetCanLand .
+func (u *UserRepo) SetCanLand(ctx context.Context, address string, vip uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_land": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}

@@ -68,6 +68,9 @@ type User struct {
 	VipAdmin         uint64
 	LockUse          uint64
 	LockReward       uint64
+	CanRent          uint64
+	CanLand          uint64
+	CanSell          uint64
 	UsdtTwo          float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
@@ -528,6 +531,9 @@ type UserRepo interface {
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
 	SetLockReward(ctx context.Context, address string, lock uint64) error
 	SetVip(ctx context.Context, address string, vip uint64) error
+	SetCanSell(ctx context.Context, address string, num uint64) error
+	SetCanRent(ctx context.Context, address string, vip uint64) error
+	SetCanLand(ctx context.Context, address string, vip uint64) error
 	SetStakeGetTotal(ctx context.Context, amount, balance float64) error
 	SetStakeGetTotalSub(ctx context.Context, amount, balance float64) error
 	SetStakeGet(ctx context.Context, userId uint64, git, amount float64) error
@@ -4939,6 +4945,18 @@ func (ac *AppUsecase) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtRequ
 	return &pb.AdminSetUsdtReply{Status: "ok"}, ac.userRepo.SetUsdt(ctx, req.Address, req.Usdt)
 }
 
+func (ac *AppUsecase) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSellRequest) (*pb.AdminSetCanSellReply, error) {
+	return &pb.AdminSetCanSellReply{Status: "ok"}, ac.userRepo.SetCanSell(ctx, req.Address, req.Num)
+}
+
+func (ac *AppUsecase) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRentRequest) (*pb.AdminSetCanRentReply, error) {
+	return &pb.AdminSetCanRentReply{Status: "ok"}, ac.userRepo.SetCanRent(ctx, req.Address, req.Num)
+}
+
+func (ac *AppUsecase) AdminSetCanLand(ctx context.Context, req *pb.AdminSetCanLandRequest) (*pb.AdminSetCanLandReply, error) {
+	return &pb.AdminSetCanLandReply{Status: "ok"}, ac.userRepo.SetCanLand(ctx, req.Address, req.Num)
+}
+
 func (ac *AppUsecase) AdminSetVip(ctx context.Context, req *pb.AdminSetVipRequest) (*pb.AdminSetVipReply, error) {
 	return &pb.AdminSetVipReply{Status: "ok"}, ac.userRepo.SetVip(ctx, req.Address, req.Vip)
 }
@@ -5290,6 +5308,9 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			Lock:                      v.LockUse,
 			LockReward:                v.LockReward,
 			UsdtTwo:                   v.AmountUsdt,
+			CanRent:                   v.CanRent,
+			CanSell:                   v.CanSell,
+			CanLand:                   v.CanLand,
 		})
 	}
 
@@ -5923,6 +5944,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"buy_land_one",
 		"buy_land_two",
 		"buy_land_three",
+		"self_sub",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
