@@ -1697,6 +1697,7 @@ func (u *UserRepo) GetLandByUserIDAndAdmin(ctx context.Context, userID uint64, s
 			Two:            land.Two,
 			Three:          land.Three,
 			SellAmount:     land.SellAmount,
+			CanReward:      land.CanReward,
 		})
 	}
 

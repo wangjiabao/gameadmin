@@ -9155,6 +9155,11 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 			statusTmp = 3
 		}
 
+		tmpFive := uint64(0)
+		if int64(v.LimitDate) <= time.Now().Unix() {
+			tmpFive = 1
+		}
+
 		res = append(res, &pb.AdminSendLandListReply_List{
 			Id:         v.ID,
 			Level:      v.Level,
@@ -9166,6 +9171,8 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 			One:        v.One,
 			Two:        v.Two,
 			Three:      v.Three,
+			Four:       v.CanReward,
+			Five:       tmpFive,
 		})
 	}
 
