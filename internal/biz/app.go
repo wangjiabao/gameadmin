@@ -465,6 +465,7 @@ type UserRepo interface {
 	GetSeedByExUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
 	GetLandUserUseByUserIDUseing(ctx context.Context, userID uint64, status uint64, b *Pagination) ([]*LandUserUse, error)
 	GetExchangeRecordsByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*ExchangeRecord, error)
+	GetLandReward(ctx context.Context) ([]*Land, error)
 	GetLandUserUseByID(ctx context.Context, id uint64) (*LandUserUse, error)
 	GetMarketRecordsByUserID(ctx context.Context, userID uint64, status uint64, b *Pagination) ([]*Market, error)
 	GetNoticesByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*Notice, error)
@@ -577,6 +578,7 @@ type UserRepo interface {
 	UpdateWithdraw(ctx context.Context, id uint64, status string) error
 	UpdateUserRewardOut(ctx context.Context, userId uint64, amountGet, amountOrigin float64) error
 	UpdateUserRewardNew(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, stop bool) error
+	UpdateUserLandReward(ctx context.Context, userId, num, landId uint64, amount float64) error
 	UpdateUserMyTotalAmountSub(ctx context.Context, userId int64, amount float64) error
 	UpdateUserRewardArea(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, stop bool, level bool, currentLevel, i uint64, address string) error
 	UpdateUserRewardAreaTwo(ctx context.Context, userId uint64, giw, usdt2, usdt float64, amountOrigin float64, stop bool, i uint64, address string) error
@@ -5929,7 +5931,28 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 		return nil, nil
 	}
 
-	//ac.userRepo.GetLandUserUseByUserIDUseing()
+	var (
+		lands []*Land
+	)
+	lands, err = ac.userRepo.GetLandReward(ctx)
+	if nil != err {
+		fmt.Println(err, "admin land reward")
+		return nil, nil
+	}
+
+	for _, v := range lands {
+		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			err = ac.userRepo.UpdateUserLandReward(ctx, v.UserId, 51, v.ID, rewardLand)
+			if err != nil {
+				fmt.Println("错误土地分红静态：", err, v)
+			}
+
+			return nil
+		}); nil != err {
+			fmt.Println("err reward daily", err, v)
+			continue
+		}
+	}
 
 	return nil, nil
 }
@@ -8638,8 +8661,10 @@ func (ac *AppUsecase) AdminRewardList(ctx context.Context, req *pb.AdminRewardLi
 		address := ""
 		userAddress := ""
 		if 0 < v.One {
-			if _, ok := usersMap[v.One]; ok {
-				address = usersMap[v.One].Address
+			if 21 != v.Reason && 22 != v.Reason && 51 != v.Reason {
+				if _, ok := usersMap[v.One]; ok {
+					address = usersMap[v.One].Address
+				}
 			}
 		}
 

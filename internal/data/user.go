@@ -1811,9 +1811,8 @@ func (u *UserRepo) GetLandReward(ctx context.Context) ([]*biz.Land, error) {
 
 	res := make([]*biz.Land, 0)
 	instance := u.data.DB(ctx).Table("land").
-		Where("limit_date>=?", time.Now().Unix()).
-		Where("status in (?)", status).
-		Where("location_num >?", 0).
+		Where("limit_date>?", time.Now().Unix()).
+		Where("can_reward=?", 1).
 		Order("id asc")
 
 	if err := instance.Find(&lands).Error; err != nil {
@@ -1842,6 +1841,7 @@ func (u *UserRepo) GetLandReward(ctx context.Context) ([]*biz.Land, error) {
 			Two:            land.Two,
 			Three:          land.Three,
 			SellAmount:     land.SellAmount,
+			CanReward:      land.CanReward,
 		})
 	}
 
@@ -4492,6 +4492,29 @@ func (u *UserRepo) UpdateUserRewardOut(ctx context.Context, userId uint64, amoun
 	err = u.data.DB(ctx).Table("reward_two").Create(&rewardStop).Error
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (u *UserRepo) UpdateUserLandReward(ctx context.Context, userId, num, landId uint64, amount float64) error {
+	if amount > 0 {
+		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
+			Updates(map[string]interface{}{"amount_usdt": gorm.Expr("amount_usdt + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil || 1 != res.RowsAffected {
+			return errors.New(500, "UpdateUserLandReward", "用户信息修改失败")
+		}
+
+		var reward Reward
+
+		reward.Reason = num
+		reward.UserId = userId
+		reward.Amount = amount
+		reward.One = landId
+		resTwo := u.data.DB(ctx).Table("reward").Create(&reward)
+		if resTwo.Error != nil {
+			return errors.New(500, "UpdateUserLandReward", "用户信息修改失败")
+		}
 	}
 
 	return nil
