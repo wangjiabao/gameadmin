@@ -1730,6 +1730,14 @@ func (a *AppService) AdminUserBackList(ctx context.Context, req *pb.AdminUserBac
 	return a.ac.AdminUserBackList(ctx, req)
 }
 
+func (a *AppService) AdminUserSendList(ctx context.Context, req *pb.AdminSendListRequest) (*pb.AdminSendListReply, error) {
+	return a.ac.AdminUserSendList(ctx, req)
+}
+
+func (a *AppService) AdminUserSendLandList(ctx context.Context, req *pb.AdminSendLandListRequest) (*pb.AdminSendLandListReply, error) {
+	return a.ac.AdminUserSendLandList(ctx, req)
+}
+
 // AdminUserBuy userBuy.
 func (a *AppService) AdminUserBuy(ctx context.Context, req *pb.AdminUserBuyRequest) (*pb.AdminUserBuyReply, error) {
 	return a.ac.AdminUserBuy(ctx, req)

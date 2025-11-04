@@ -462,6 +462,7 @@ type UserRepo interface {
 	GetUserRewardPage(ctx context.Context, userId uint64, reason []uint64, b *Pagination) ([]*Reward, error)
 	GetUserRewardPageCount(ctx context.Context, userId uint64, reason []uint64) (int64, error)
 	GetSeedByUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
+	GetSeedByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
 	GetSeedByExUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
 	GetLandUserUseByUserIDUseing(ctx context.Context, userID uint64, status uint64, b *Pagination) ([]*LandUserUse, error)
 	GetExchangeRecordsByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*ExchangeRecord, error)
@@ -471,6 +472,7 @@ type UserRepo interface {
 	GetNoticesByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*Notice, error)
 	GetNoticesCountByUserID(ctx context.Context, userID uint64) (int64, error)
 	GetPropsByUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
+	GetPropsByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
 	GetPropsByUserIDPropType(ctx context.Context, userID uint64, propType []uint64) ([]*Prop, error)
 	GetPropsByExUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
 	GetStakeGetsByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*StakeGet, error)
@@ -492,6 +494,7 @@ type UserRepo interface {
 	GetAllPropInfo(ctx context.Context) ([]*PropInfo, error)
 	GetAllRandomSeeds(ctx context.Context) ([]*RandomSeed, error)
 	UpdateSeedValue(ctx context.Context, scene uint64, newSeed uint64) error
+	GetLandByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Land, error)
 	GetSeedByID(ctx context.Context, seedID, userId, status uint64) (*Seed, error)
 	GetLandByID(ctx context.Context, landID uint64) (*Land, error)
 	GetLandByIDTwo(ctx context.Context, landID uint64) (*Land, error)
@@ -9035,6 +9038,140 @@ func (ac *AppUsecase) AdminUserBackList(ctx context.Context, req *pb.AdminUserBa
 	return &pb.AdminUserBackListReply{
 		Status: "ok",
 		Count:  0,
+		List:   res,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendListRequest) (*pb.AdminSendListReply, error) {
+	res := make([]*pb.AdminSendListReply_List, 0)
+	var (
+		err error
+	)
+
+	if 1 == req.ReqType {
+		var (
+			seed []*Seed
+		)
+		seedStatus := []uint64{0, 4}
+		seed, err = ac.userRepo.GetSeedByUserIDAndAdmin(ctx, 0, seedStatus, &Pagination{
+			PageNum:  int(req.Page),
+			PageSize: 20,
+		})
+		if nil != err {
+			return &pb.AdminSendListReply{
+				Status: "查询种子错误",
+			}, nil
+		}
+
+		for _, vSeed := range seed {
+			tmpStatus := uint64(1)
+			if 4 == vSeed.Status {
+				tmpStatus = 4
+			}
+
+			res = append(res, &pb.AdminSendListReply_List{
+				Id:     vSeed.ID,
+				Type:   1,
+				Num:    vSeed.SeedId,
+				UseNum: 0,
+				Status: tmpStatus,
+				OutMax: vSeed.OutMaxAmount,
+				Time:   vSeed.OutOverTime,
+				Amount: vSeed.SellAmount,
+			})
+		}
+	}
+
+	if 2 == req.ReqType {
+		var (
+			prop []*Prop
+		)
+		// 11化肥，12水，13手套，14除虫剂，15铲子，16盲盒，17地契
+		propStatus := []uint64{1, 2, 4}
+		prop, err = ac.userRepo.GetPropsByUserIDAndAdmin(ctx, 0, propStatus, &Pagination{
+			PageNum:  int(req.Page),
+			PageSize: 20,
+		})
+		if nil != err {
+			return &pb.AdminSendListReply{
+				Status: "道具错误",
+			}, nil
+		}
+
+		for _, vProp := range prop {
+			useNum := uint64(0)
+			if 12 == vProp.PropType {
+				useNum = uint64(vProp.ThreeOne) // 水
+			} else if 13 == vProp.PropType {
+				useNum = uint64(vProp.FiveOne) // 手套
+			} else if 14 == vProp.PropType {
+				useNum = uint64(vProp.FourOne) // 除虫剂
+			} else if 15 == vProp.PropType {
+				useNum = uint64(vProp.TwoOne) // 铲子
+			} else if 11 == vProp.PropType {
+				useNum = 1
+			}
+
+			res = append(res, &pb.AdminSendListReply_List{
+				Id:     vProp.ID,
+				Type:   2,
+				Num:    uint64(vProp.PropType),
+				UseNum: useNum,
+				Status: uint64(vProp.Status),
+				OutMax: 0,
+				Amount: vProp.SellAmount,
+			})
+		}
+	}
+
+	return &pb.AdminSendListReply{
+		Status: "ok",
+		Count:  0,
+		List:   res,
+	}, nil
+}
+
+func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSendLandListRequest) (*pb.AdminSendLandListReply, error) {
+	res := make([]*pb.AdminSendLandListReply_List, 0)
+	var (
+		lands []*Land
+		err   error
+	)
+
+	status := []uint64{0, 1, 2, 3, 4, 5, 8}
+	lands, err = ac.userRepo.GetLandByUserIDAndAdmin(ctx, 0, status, &Pagination{
+		PageNum:  int(req.Page),
+		PageSize: 20,
+	})
+	if nil != err {
+		return &pb.AdminSendLandListReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
+	for _, v := range lands {
+		statusTmp := v.Status
+		if 8 == v.Status {
+			statusTmp = 3
+		}
+
+		res = append(res, &pb.AdminSendLandListReply_List{
+			Id:         v.ID,
+			Level:      v.Level,
+			Health:     v.MaxHealth,
+			Status:     statusTmp,
+			OutRate:    v.OutPutRate,
+			PerHealth:  v.PerHealth,
+			RentAmount: v.RentOutPutRate,
+			One:        v.One,
+			Two:        v.Two,
+			Three:      v.Three,
+		})
+	}
+
+	return &pb.AdminSendLandListReply{
+		Status: "ok",
+		Count:  uint64(len(res)),
 		List:   res,
 	}, nil
 }

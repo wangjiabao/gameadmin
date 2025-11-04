@@ -6,6 +6,58 @@ info:
     title: App API
     version: 0.0.1
 paths:
+    /api/admin_dhb/admin_send_land_list:
+        get:
+            tags:
+                - App
+            description: 管理员发放道具
+            operationId: App_AdminUserSendLandList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSendLandListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/admin_send_list:
+        get:
+            tags:
+                - App
+            description: 管理员发放道具
+            operationId: App_AdminUserSendList
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: string
+                - name: reqType
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSendListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/daily:
         get:
             tags:
@@ -2338,6 +2390,74 @@ components:
                 outOverTime:
                     type: string
                 rate:
+                    type: number
+                    format: double
+        AdminSendLandListReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminSendLandListReply_List'
+        AdminSendLandListReply_List:
+            type: object
+            properties:
+                id:
+                    type: string
+                level:
+                    type: string
+                health:
+                    type: string
+                status:
+                    type: string
+                outRate:
+                    type: number
+                    format: double
+                perHealth:
+                    type: string
+                rentAmount:
+                    type: number
+                    format: double
+                one:
+                    type: string
+                two:
+                    type: string
+                three:
+                    type: string
+        AdminSendListReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                count:
+                    type: string
+                list:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminSendListReply_List'
+        AdminSendListReply_List:
+            type: object
+            properties:
+                id:
+                    type: string
+                type:
+                    type: string
+                num:
+                    type: string
+                useNum:
+                    type: string
+                status:
+                    type: string
+                outMax:
+                    type: number
+                    format: double
+                time:
+                    type: string
+                amount:
                     type: number
                     format: double
         AdminSetBoxReply:

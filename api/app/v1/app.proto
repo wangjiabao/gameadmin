@@ -369,6 +369,20 @@ service App {
 		};
 	};
 
+	// 管理员发放道具
+	rpc AdminUserSendList (AdminSendListRequest) returns (AdminSendListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/admin_send_list"
+		};
+	};
+
+	// 管理员发放道具
+	rpc AdminUserSendLandList (AdminSendLandListRequest) returns (AdminSendLandListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/admin_send_land_list"
+		};
+	};
+
 	// 用户下级
 	rpc AdminUserRecommend (AdminUserRecommendRequest) returns (AdminUserRecommendReply) {
 		option (google.api.http) = {
@@ -1433,12 +1447,57 @@ message AdminUserLandReply {
 	}
 }
 
+message AdminSendLandListRequest {
+	uint64 page = 1; // 页数
+}
+
+message AdminSendLandListReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页20个
+	repeated List list = 3;
+	message List {
+		uint64 id = 1; // id，一共6个整数位
+		uint64 level = 2; // 等级
+		uint64 health = 3; // 肥沃度
+		uint64 status = 4; // 状态：0默认，布置1,种植2, 出租中3，出售中4，拍卖中5
+		double outRate = 5; // 增产率
+		uint64 perHealth = 6; // 种植消耗
+		double rentAmount = 10;
+		uint64 one = 7; // 可出租
+		uint64 two = 8; // 可合成
+		uint64 three = 9; // 可出售
+	}
+}
+
 message AdminUserBackListRequest {
 	uint64 page = 1; // 页数
 	string address = 2;
 }
 
 message AdminUserBackListReply {
+	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
+
+	uint64 count = 2; // 总个数，每页1000个
+	repeated List list = 3;
+	message List {
+		uint64 id = 1; // id 操作时需要使用的参数，显示时#000001，一共6个整数位
+		uint64 type = 5; // 1种子，2道具
+		uint64 num = 2; // 对应的内容：对应文档种子和道具那列从上到下，1-14，15铲子，16盲盒，17地契
+		uint64 useNum = 3; // 剩余使用次数
+		uint64 status = 4; // 状态：默认1，2，出售中4，左上角显示对应的英文文案，在资源里找对应的图
+		double outMax = 6; // 如果是种子，需要展示的产出数量
+		uint64 time = 7;
+		double amount = 8;
+	}
+}
+
+message AdminSendListRequest {
+	uint64 page = 1; // 页数
+	uint64 reqType = 2; // 1种子 2道具
+}
+
+message AdminSendListReply {
 	string status = 1; // 状态为字符串"ok"时接口正常，其他情况忽略，弹出显示该字段文案即可
 
 	uint64 count = 2; // 总个数，每页1000个

@@ -1459,6 +1459,55 @@ func (u *UserRepo) GetUserRewardPageCount(ctx context.Context, userId uint64, re
 	return count, nil
 }
 
+// GetSeedByUserIDAndAdmin 查询用户的种子数据
+func (u *UserRepo) GetSeedByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Seed, error) {
+	var (
+		seeds []*Seed
+	)
+
+	res := make([]*biz.Seed, 0)
+	instance := u.data.DB(ctx).Table("seed")
+
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status).Order("id asc")
+
+	if nil != b {
+		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
+	}
+
+	if err := instance.Find(&seeds).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "SEED ERROR", err.Error())
+	}
+
+	for _, seed := range seeds {
+		res = append(res, &biz.Seed{
+			ID:           seed.ID,
+			UserId:       seed.UserId,
+			SeedId:       seed.SeedId,
+			Name:         seed.Name,
+			OutAmount:    seed.OutAmount,
+			OutOverTime:  seed.OutOverTime,
+			OutMaxAmount: seed.OutMaxAmount,
+			OutMinAmount: seed.OutMinAmount,
+			Status:       seed.Status,
+			CreatedAt:    seed.CreatedAt,
+			UpdatedAt:    seed.UpdatedAt,
+			SellAmount:   seed.SellAmount,
+		})
+	}
+
+	return res, nil
+}
+
 // GetSeedByUserID 查询用户的种子数据
 func (u *UserRepo) GetSeedByUserID(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Seed, error) {
 	var (
@@ -1562,6 +1611,60 @@ func (u *UserRepo) GetLandByUserID(ctx context.Context, userID uint64, status []
 
 	instance = instance.Where("limit_date>=?", time.Now().Unix()).
 		Where("status in (?)", status).
+		Order("id asc")
+
+	if nil != b {
+		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
+	}
+
+	if err := instance.Find(&lands).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "LAND ERROR", err.Error())
+	}
+
+	for _, land := range lands {
+		res = append(res, &biz.Land{
+			ID:             land.ID,
+			UserId:         land.UserId,
+			Level:          land.Level,
+			OutPutRate:     land.OutPutRate,
+			RentOutPutRate: land.RentOutPutRate,
+			MaxHealth:      land.MaxHealth,
+			PerHealth:      land.PerHealth,
+			LimitDate:      land.LimitDate,
+			Status:         land.Status,
+			LocationNum:    land.LocationNum,
+			CreatedAt:      land.CreatedAt,
+			UpdatedAt:      land.UpdatedAt,
+			One:            land.One,
+			Two:            land.Two,
+			Three:          land.Three,
+			SellAmount:     land.SellAmount,
+		})
+	}
+
+	return res, nil
+}
+
+// GetLandByUserIDAndAdmin getLandByUserIDAndAdmin
+func (u *UserRepo) GetLandByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Land, error) {
+	var (
+		lands []*Land
+	)
+
+	res := make([]*biz.Land, 0)
+	instance := u.data.DB(ctx).Table("land")
+
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status).
 		Order("id asc")
 
 	if nil != b {
@@ -2009,6 +2112,56 @@ func (u *UserRepo) GetNoticesCountByUserID(ctx context.Context, userID uint64) (
 		return 0, errors.New(500, "NOTICE COUNT ERROR", err.Error())
 	}
 	return count, nil
+}
+
+func (u *UserRepo) GetPropsByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Prop, error) {
+	var (
+		props []*Prop
+	)
+
+	res := make([]*biz.Prop, 0)
+	instance := u.data.DB(ctx).Table("prop")
+
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status).Order("id asc")
+
+	if nil != b {
+		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
+	}
+
+	if err := instance.Find(&props).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "PROP RECORD ERROR", err.Error())
+	}
+
+	for _, prop := range props {
+		res = append(res, &biz.Prop{
+			ID:         prop.ID,
+			UserId:     prop.UserId,
+			Status:     prop.Status,
+			PropType:   prop.PropType,
+			OneOne:     prop.OneOne,
+			OneTwo:     prop.OneTwo,
+			TwoOne:     prop.TwoOne,
+			TwoTwo:     prop.TwoTwo,
+			ThreeOne:   prop.ThreeOne,
+			FourOne:    prop.FourOne,
+			FiveOne:    prop.FiveOne,
+			CreatedAt:  prop.CreatedAt,
+			UpdatedAt:  prop.UpdatedAt,
+			SellAmount: prop.SellAmount,
+		})
+	}
+
+	return res, nil
 }
 
 func (u *UserRepo) GetPropsByUserID(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Prop, error) {
