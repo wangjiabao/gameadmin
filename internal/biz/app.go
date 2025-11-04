@@ -5978,6 +5978,8 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"buy_land_three",
 		"self_sub",
 		"reward_land",
+		"sys_content",
+		"sys_content_e",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
