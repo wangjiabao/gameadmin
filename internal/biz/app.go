@@ -5906,6 +5906,10 @@ func (ac *AppUsecase) AdminSetBox(ctx context.Context, req *pb.AdminSetBoxReques
 	}, nil
 }
 
+func lessThanOrEqualZero(a, b float64, epsilon float64) bool {
+	return a-b < epsilon || math.Abs(a-b) < epsilon
+}
+
 func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewardRequest) (*pb.AdminLandRewardReply, error) {
 	var (
 		configs    []*Config
@@ -5926,7 +5930,7 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 		}
 	}
 
-	if 0 >= rewardLand {
+	if lessThanOrEqualZero(rewardLand, 0, 1e-7) {
 		fmt.Println(rewardLand, "admin land reward zero")
 		return nil, nil
 	}
