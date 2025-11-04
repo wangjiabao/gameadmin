@@ -1459,6 +1459,26 @@ func (u *UserRepo) GetUserRewardPageCount(ctx context.Context, userId uint64, re
 	return count, nil
 }
 
+func (u *UserRepo) GetSeedByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("seed")
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status)
+
+	err := instance.Count(&count).Error
+
+	if err != nil {
+		return 0, errors.New(500, "USER COUNT ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
 // GetSeedByUserIDAndAdmin 查询用户的种子数据
 func (u *UserRepo) GetSeedByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Seed, error) {
 	var (
@@ -1647,6 +1667,26 @@ func (u *UserRepo) GetLandByUserID(ctx context.Context, userID uint64, status []
 	}
 
 	return res, nil
+}
+
+func (u *UserRepo) GetLandByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("land")
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status)
+
+	err := instance.Count(&count).Error
+
+	if err != nil {
+		return 0, errors.New(500, "USER COUNT ERROR", err.Error())
+	}
+
+	return count, nil
 }
 
 // GetLandByUserIDAndAdmin getLandByUserIDAndAdmin
@@ -2112,6 +2152,26 @@ func (u *UserRepo) GetNoticesCountByUserID(ctx context.Context, userID uint64) (
 	if err != nil {
 		return 0, errors.New(500, "NOTICE COUNT ERROR", err.Error())
 	}
+	return count, nil
+}
+
+func (u *UserRepo) GetPropsByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("prop")
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("admin_add = ?", 1)
+
+	instance = instance.Where("status in (?)", status)
+
+	err := instance.Count(&count).Error
+
+	if err != nil {
+		return 0, errors.New(500, "USER COUNT ERROR", err.Error())
+	}
+
 	return count, nil
 }
 

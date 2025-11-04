@@ -463,6 +463,7 @@ type UserRepo interface {
 	GetUserRewardPageCount(ctx context.Context, userId uint64, reason []uint64) (int64, error)
 	GetSeedByUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
 	GetSeedByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
+	GetSeedByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error)
 	GetSeedByExUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Seed, error)
 	GetLandUserUseByUserIDUseing(ctx context.Context, userID uint64, status uint64, b *Pagination) ([]*LandUserUse, error)
 	GetExchangeRecordsByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*ExchangeRecord, error)
@@ -473,6 +474,7 @@ type UserRepo interface {
 	GetNoticesCountByUserID(ctx context.Context, userID uint64) (int64, error)
 	GetPropsByUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
 	GetPropsByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
+	GetPropsByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error)
 	GetPropsByUserIDPropType(ctx context.Context, userID uint64, propType []uint64) ([]*Prop, error)
 	GetPropsByExUserID(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Prop, error)
 	GetStakeGetsByUserID(ctx context.Context, userID uint64, b *Pagination) ([]*StakeGet, error)
@@ -494,6 +496,7 @@ type UserRepo interface {
 	GetAllPropInfo(ctx context.Context) ([]*PropInfo, error)
 	GetAllRandomSeeds(ctx context.Context) ([]*RandomSeed, error)
 	UpdateSeedValue(ctx context.Context, scene uint64, newSeed uint64) error
+	GetLandByUserIDAndAdminCount(ctx context.Context, userID uint64, status []uint64) (int64, error)
 	GetLandByUserIDAndAdmin(ctx context.Context, userID uint64, status []uint64, b *Pagination) ([]*Land, error)
 	GetSeedByID(ctx context.Context, seedID, userId, status uint64) (*Seed, error)
 	GetLandByID(ctx context.Context, landID uint64) (*Land, error)
@@ -9045,7 +9048,8 @@ func (ac *AppUsecase) AdminUserBackList(ctx context.Context, req *pb.AdminUserBa
 func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendListRequest) (*pb.AdminSendListReply, error) {
 	res := make([]*pb.AdminSendListReply_List, 0)
 	var (
-		err error
+		count int64
+		err   error
 	)
 
 	if 1 == req.ReqType {
@@ -9053,6 +9057,13 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 			seed []*Seed
 		)
 		seedStatus := []uint64{0, 4}
+		count, err = ac.userRepo.GetSeedByUserIDAndAdminCount(ctx, 0, seedStatus)
+		if nil != err {
+			return &pb.AdminSendListReply{
+				Status: "道具错误",
+			}, nil
+		}
+
 		seed, err = ac.userRepo.GetSeedByUserIDAndAdmin(ctx, 0, seedStatus, &Pagination{
 			PageNum:  int(req.Page),
 			PageSize: 20,
@@ -9088,6 +9099,14 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 		)
 		// 11化肥，12水，13手套，14除虫剂，15铲子，16盲盒，17地契
 		propStatus := []uint64{1, 2, 4}
+
+		count, err = ac.userRepo.GetPropsByUserIDAndAdminCount(ctx, 0, propStatus)
+		if nil != err {
+			return &pb.AdminSendListReply{
+				Status: "道具错误",
+			}, nil
+		}
+
 		prop, err = ac.userRepo.GetPropsByUserIDAndAdmin(ctx, 0, propStatus, &Pagination{
 			PageNum:  int(req.Page),
 			PageSize: 20,
@@ -9126,7 +9145,7 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 
 	return &pb.AdminSendListReply{
 		Status: "ok",
-		Count:  0,
+		Count:  uint64(count),
 		List:   res,
 	}, nil
 }
@@ -9135,10 +9154,19 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 	res := make([]*pb.AdminSendLandListReply_List, 0)
 	var (
 		lands []*Land
+		count int64
 		err   error
 	)
 
 	status := []uint64{0, 1, 2, 3, 4, 5, 8}
+
+	count, err = ac.userRepo.GetLandByUserIDAndAdminCount(ctx, 0, status)
+	if nil != err {
+		return &pb.AdminSendLandListReply{
+			Status: "不存在用户",
+		}, nil
+	}
+
 	lands, err = ac.userRepo.GetLandByUserIDAndAdmin(ctx, 0, status, &Pagination{
 		PageNum:  int(req.Page),
 		PageSize: 20,
@@ -9178,7 +9206,7 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 
 	return &pb.AdminSendLandListReply{
 		Status: "ok",
-		Count:  uint64(len(res)),
+		Count:  uint64(count),
 		List:   res,
 	}, nil
 }
