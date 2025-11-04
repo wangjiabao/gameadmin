@@ -1494,7 +1494,7 @@ func (u *UserRepo) GetSeedByUserIDAndAdmin(ctx context.Context, userID uint64, s
 
 	instance = instance.Where("admin_add = ?", 1)
 
-	instance = instance.Where("status in (?)", status).Order("id asc")
+	instance = instance.Where("status in (?)", status).Order("id desc")
 
 	if nil != b {
 		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
@@ -1705,7 +1705,7 @@ func (u *UserRepo) GetLandByUserIDAndAdmin(ctx context.Context, userID uint64, s
 	instance = instance.Where("admin_add = ?", 1)
 
 	instance = instance.Where("status in (?)", status).
-		Order("id asc")
+		Order("id desc")
 
 	if nil != b {
 		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
@@ -2189,7 +2189,7 @@ func (u *UserRepo) GetPropsByUserIDAndAdmin(ctx context.Context, userID uint64, 
 
 	instance = instance.Where("admin_add = ?", 1)
 
-	instance = instance.Where("status in (?)", status).Order("id asc")
+	instance = instance.Where("status in (?)", status).Order("id desc")
 
 	if nil != b {
 		instance = instance.Scopes(Paginate(b.PageNum, b.PageSize))
