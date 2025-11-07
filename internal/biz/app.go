@@ -6010,6 +6010,12 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"reward_land",
 		"sys_content",
 		"sys_content_e",
+		"two_sub_reward",
+		"max_play",
+		"min_play",
+		"max_stake",
+		"min_stake",
+		"win_rate",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
