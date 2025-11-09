@@ -2378,7 +2378,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 			_, err = toToken("", users[withdraw.UserId].Address, withDrawAmount, coin, tmpUrl1)
 			if err == nil {
 				err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)
-				fmt.Println(err)
+				//fmt.Println(err)
 				break
 			} else {
 				fmt.Println(err)
