@@ -6018,6 +6018,7 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"min_play",
 		"max_stake",
 		"min_stake",
+		"min_stake_two",
 		"win_rate",
 	)
 	if nil != err || nil == configs {
