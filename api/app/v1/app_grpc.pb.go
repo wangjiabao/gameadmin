@@ -93,6 +93,7 @@ const (
 	App_AdminSetVip_FullMethodName            = "/api.app.v1.App/AdminSetVip"
 	App_AdminSetCanSell_FullMethodName        = "/api.app.v1.App/AdminSetCanSell"
 	App_AdminSetCanRent_FullMethodName        = "/api.app.v1.App/AdminSetCanRent"
+	App_AdminSetWithdrawMax_FullMethodName    = "/api.app.v1.App/AdminSetWithdrawMax"
 	App_AdminSetCanLand_FullMethodName        = "/api.app.v1.App/AdminSetCanLand"
 	App_AdminSetLock_FullMethodName           = "/api.app.v1.App/AdminSetLock"
 	App_AdminSetLockReward_FullMethodName     = "/api.app.v1.App/AdminSetLockReward"
@@ -253,6 +254,8 @@ type AppClient interface {
 	AdminSetCanSell(ctx context.Context, in *AdminSetCanSellRequest, opts ...grpc.CallOption) (*AdminSetCanSellReply, error)
 	// 允许出租土地
 	AdminSetCanRent(ctx context.Context, in *AdminSetCanRentRequest, opts ...grpc.CallOption) (*AdminSetCanRentReply, error)
+	// 允许出租土地
+	AdminSetWithdrawMax(ctx context.Context, in *AdminSetWithdrawMaxRequest, opts ...grpc.CallOption) (*AdminSetWithdrawMaxReply, error)
 	// 允许全网布置土地
 	AdminSetCanLand(ctx context.Context, in *AdminSetCanLandRequest, opts ...grpc.CallOption) (*AdminSetCanLandReply, error)
 	AdminSetLock(ctx context.Context, in *AdminSetLockRequest, opts ...grpc.CallOption) (*AdminSetLockReply, error)
@@ -951,6 +954,15 @@ func (c *appClient) AdminSetCanRent(ctx context.Context, in *AdminSetCanRentRequ
 	return out, nil
 }
 
+func (c *appClient) AdminSetWithdrawMax(ctx context.Context, in *AdminSetWithdrawMaxRequest, opts ...grpc.CallOption) (*AdminSetWithdrawMaxReply, error) {
+	out := new(AdminSetWithdrawMaxReply)
+	err := c.cc.Invoke(ctx, App_AdminSetWithdrawMax_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetCanLand(ctx context.Context, in *AdminSetCanLandRequest, opts ...grpc.CallOption) (*AdminSetCanLandReply, error) {
 	out := new(AdminSetCanLandReply)
 	err := c.cc.Invoke(ctx, App_AdminSetCanLand_FullMethodName, in, out, opts...)
@@ -1205,6 +1217,8 @@ type AppServer interface {
 	AdminSetCanSell(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error)
 	// 允许出租土地
 	AdminSetCanRent(context.Context, *AdminSetCanRentRequest) (*AdminSetCanRentReply, error)
+	// 允许出租土地
+	AdminSetWithdrawMax(context.Context, *AdminSetWithdrawMaxRequest) (*AdminSetWithdrawMaxReply, error)
 	// 允许全网布置土地
 	AdminSetCanLand(context.Context, *AdminSetCanLandRequest) (*AdminSetCanLandReply, error)
 	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
@@ -1455,6 +1469,9 @@ func (UnimplementedAppServer) AdminSetCanSell(context.Context, *AdminSetCanSellR
 }
 func (UnimplementedAppServer) AdminSetCanRent(context.Context, *AdminSetCanRentRequest) (*AdminSetCanRentReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanRent not implemented")
+}
+func (UnimplementedAppServer) AdminSetWithdrawMax(context.Context, *AdminSetWithdrawMaxRequest) (*AdminSetWithdrawMaxReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetWithdrawMax not implemented")
 }
 func (UnimplementedAppServer) AdminSetCanLand(context.Context, *AdminSetCanLandRequest) (*AdminSetCanLandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanLand not implemented")
@@ -2837,6 +2854,24 @@ func _App_AdminSetCanRent_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetWithdrawMax_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetWithdrawMaxRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetWithdrawMax(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetWithdrawMax_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetWithdrawMax(ctx, req.(*AdminSetWithdrawMaxRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetCanLand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetCanLandRequest)
 	if err := dec(in); err != nil {
@@ -3355,6 +3390,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetCanRent",
 			Handler:    _App_AdminSetCanRent_Handler,
+		},
+		{
+			MethodName: "AdminSetWithdrawMax",
+			Handler:    _App_AdminSetWithdrawMax_Handler,
 		},
 		{
 			MethodName: "AdminSetCanLand",

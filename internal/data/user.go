@@ -65,6 +65,15 @@ type UserRecommend struct {
 	UpdatedAt     time.Time `gorm:"type:datetime;not null"`
 }
 
+type AdminSetBalance struct {
+	ID        uint64    `gorm:"primarykey;type:int"`
+	Address   string    `gorm:"type:varchar(100);not null"`
+	Coin      uint64    `gorm:"type:int;not null"`
+	Amount    uint64    `gorm:"type:bigint(20);not null;comment:金额"`
+	CreatedAt time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt time.Time `gorm:"type:datetime;not null"`
+}
+
 type Config struct {
 	ID        int64     `gorm:"primarykey;type:int"`
 	Name      string    `gorm:"type:varchar(45);not null"`
@@ -3777,6 +3786,17 @@ func (u *UserRepo) SetGiw(ctx context.Context, address string, giw uint64) error
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}
 
+	var adminSetBalance AdminSetBalance
+
+	adminSetBalance.Amount = giw
+	adminSetBalance.Address = address
+	adminSetBalance.Coin = uint64(4)
+
+	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+	if res.Error != nil {
+		return errors.New(500, "admin_set_balance", "修改余额记录失败")
+	}
+
 	return nil
 }
 
@@ -3786,6 +3806,17 @@ func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw uint64) er
 		Updates(map[string]interface{}{"giw_two": float64(giw), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	var adminSetBalance AdminSetBalance
+
+	adminSetBalance.Amount = giw
+	adminSetBalance.Address = address
+	adminSetBalance.Coin = uint64(3)
+
+	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+	if res.Error != nil {
+		return errors.New(500, "admin_set_balance", "修改余额记录失败")
 	}
 
 	return nil
@@ -3799,6 +3830,17 @@ func (u *UserRepo) SetGit(ctx context.Context, address string, git uint64) error
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}
 
+	var adminSetBalance AdminSetBalance
+
+	adminSetBalance.Amount = git
+	adminSetBalance.Address = address
+	adminSetBalance.Coin = uint64(2)
+
+	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+	if res.Error != nil {
+		return errors.New(500, "admin_set_balance", "修改余额记录失败")
+	}
+
 	return nil
 }
 
@@ -3808,6 +3850,17 @@ func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) err
 		Updates(map[string]interface{}{"amount_usdt": usdt, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	var adminSetBalance AdminSetBalance
+
+	adminSetBalance.Amount = usdt
+	adminSetBalance.Address = address
+	adminSetBalance.Coin = uint64(1)
+
+	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+	if res.Error != nil {
+		return errors.New(500, "admin_set_balance", "修改余额记录失败")
 	}
 
 	return nil
@@ -3839,6 +3892,17 @@ func (u *UserRepo) SetCanSell(ctx context.Context, address string, num uint64) e
 func (u *UserRepo) SetCanRent(ctx context.Context, address string, vip uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"can_rent": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetWithdrawMax .
+func (u *UserRepo) SetWithdrawMax(ctx context.Context, address string, vip uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"withdraw_max": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}

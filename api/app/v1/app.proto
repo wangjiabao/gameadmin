@@ -546,6 +546,13 @@ service App {
 		};
 	};
 
+	// 允许出租土地
+	rpc AdminSetWithdrawMax (AdminSetWithdrawMaxRequest) returns (AdminSetWithdrawMaxReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_withdraw_max"
+		};
+	};
+
 	// 允许全网布置土地
 	rpc AdminSetCanLand (AdminSetCanLandRequest) returns (AdminSetCanLandReply) {
 		option (google.api.http) = {
@@ -1469,6 +1476,7 @@ message AdminSendLandListReply {
 		uint64 three = 9; // 可合成
 		uint64 four = 11; // 可动静态
 		uint64 five = 12; // 1过期，0未过期
+		string address = 13;
 	}
 }
 
@@ -1506,6 +1514,7 @@ message AdminSendListReply {
 	repeated List list = 3;
 	message List {
 		uint64 id = 1; // id 操作时需要使用的参数，显示时#000001，一共6个整数位
+		string address = 9;
 		uint64 type = 5; // 1种子，2道具
 		uint64 num = 2; // 对应的内容：对应文档种子和道具那列从上到下，1-14，15铲子，16盲盒，17地契
 		uint64 useNum = 3; // 剩余使用次数
@@ -1814,6 +1823,15 @@ message AdminSetCanRentRequest {
 }
 
 message AdminSetCanRentReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetWithdrawMaxRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 num = 2;
+}
+
+message AdminSetWithdrawMaxReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 

@@ -1815,6 +1815,10 @@ func (a *AppService) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRen
 	return a.ac.AdminSetCanRent(ctx, req)
 }
 
+func (a *AppService) AdminSetWithdrawMax(ctx context.Context, req *pb.AdminSetWithdrawMaxRequest) (*pb.AdminSetWithdrawMaxReply, error) {
+	return a.ac.AdminSetWithdrawMax(ctx, req)
+}
+
 func (a *AppService) AdminSetCanLand(ctx context.Context, req *pb.AdminSetCanLandRequest) (*pb.AdminSetCanLandReply, error) {
 	return a.ac.AdminSetCanLand(ctx, req)
 }

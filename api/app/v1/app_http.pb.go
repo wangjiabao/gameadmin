@@ -54,6 +54,7 @@ const OperationAppAdminSetProp = "/api.app.v1.App/AdminSetProp"
 const OperationAppAdminSetSeed = "/api.app.v1.App/AdminSetSeed"
 const OperationAppAdminSetUsdt = "/api.app.v1.App/AdminSetUsdt"
 const OperationAppAdminSetVip = "/api.app.v1.App/AdminSetVip"
+const OperationAppAdminSetWithdrawMax = "/api.app.v1.App/AdminSetWithdrawMax"
 const OperationAppAdminUserBackList = "/api.app.v1.App/AdminUserBackList"
 const OperationAppAdminUserBuy = "/api.app.v1.App/AdminUserBuy"
 const OperationAppAdminUserLand = "/api.app.v1.App/AdminUserLand"
@@ -174,6 +175,8 @@ type AppHTTPServer interface {
 	AdminSetUsdt(context.Context, *AdminSetUsdtRequest) (*AdminSetUsdtReply, error)
 	// AdminSetVip 设置余额
 	AdminSetVip(context.Context, *AdminSetVipRequest) (*AdminSetVipReply, error)
+	// AdminSetWithdrawMax 允许出租土地
+	AdminSetWithdrawMax(context.Context, *AdminSetWithdrawMaxRequest) (*AdminSetWithdrawMaxReply, error)
 	// AdminUserBackList 管理仓库
 	AdminUserBackList(context.Context, *AdminUserBackListRequest) (*AdminUserBackListReply, error)
 	// AdminUserBuy 管理认购信息
@@ -349,6 +352,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/set_vip", _App_AdminSetVip0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_sell", _App_AdminSetCanSell0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_rent", _App_AdminSetCanRent0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_withdraw_max", _App_AdminSetWithdrawMax0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_land", _App_AdminSetCanLand0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_lock", _App_AdminSetLock0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_lock_reward", _App_AdminSetLockReward0_HTTP_Handler(srv))
@@ -1844,6 +1848,25 @@ func _App_AdminSetCanRent0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context
 	}
 }
 
+func _App_AdminSetWithdrawMax0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetWithdrawMaxRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetWithdrawMax)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetWithdrawMax(ctx, req.(*AdminSetWithdrawMaxRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetWithdrawMaxReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminSetCanLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetCanLandRequest
@@ -2126,6 +2149,7 @@ type AppHTTPClient interface {
 	AdminSetSeed(ctx context.Context, req *AdminSetSeedRequest, opts ...http.CallOption) (rsp *AdminSetSeedReply, err error)
 	AdminSetUsdt(ctx context.Context, req *AdminSetUsdtRequest, opts ...http.CallOption) (rsp *AdminSetUsdtReply, err error)
 	AdminSetVip(ctx context.Context, req *AdminSetVipRequest, opts ...http.CallOption) (rsp *AdminSetVipReply, err error)
+	AdminSetWithdrawMax(ctx context.Context, req *AdminSetWithdrawMaxRequest, opts ...http.CallOption) (rsp *AdminSetWithdrawMaxReply, err error)
 	AdminUserBackList(ctx context.Context, req *AdminUserBackListRequest, opts ...http.CallOption) (rsp *AdminUserBackListReply, err error)
 	AdminUserBuy(ctx context.Context, req *AdminUserBuyRequest, opts ...http.CallOption) (rsp *AdminUserBuyReply, err error)
 	AdminUserLand(ctx context.Context, req *AdminUserLandRequest, opts ...http.CallOption) (rsp *AdminUserLandReply, err error)
@@ -2634,6 +2658,19 @@ func (c *AppHTTPClientImpl) AdminSetVip(ctx context.Context, in *AdminSetVipRequ
 	pattern := "/api/admin_dhb/set_vip"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetVip))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetWithdrawMax(ctx context.Context, in *AdminSetWithdrawMaxRequest, opts ...http.CallOption) (*AdminSetWithdrawMaxReply, error) {
+	var out AdminSetWithdrawMaxReply
+	pattern := "/api/admin_dhb/set_withdraw_max"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetWithdrawMax))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

@@ -542,6 +542,7 @@ type UserRepo interface {
 	SetVip(ctx context.Context, address string, vip uint64) error
 	SetCanSell(ctx context.Context, address string, num uint64) error
 	SetCanRent(ctx context.Context, address string, vip uint64) error
+	SetWithdrawMax(ctx context.Context, address string, vip uint64) error
 	SetCanLand(ctx context.Context, address string, vip uint64) error
 	SetStakeGetTotal(ctx context.Context, amount, balance float64) error
 	SetStakeGetTotalSub(ctx context.Context, amount, balance float64) error
@@ -4963,6 +4964,10 @@ func (ac *AppUsecase) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRe
 	return &pb.AdminSetCanRentReply{Status: "ok"}, ac.userRepo.SetCanRent(ctx, req.Address, req.Num)
 }
 
+func (ac *AppUsecase) AdminSetWithdrawMax(ctx context.Context, req *pb.AdminSetWithdrawMaxRequest) (*pb.AdminSetWithdrawMaxReply, error) {
+	return &pb.AdminSetWithdrawMaxReply{Status: "ok"}, ac.userRepo.SetWithdrawMax(ctx, req.Address, req.Num)
+}
+
 func (ac *AppUsecase) AdminSetCanLand(ctx context.Context, req *pb.AdminSetCanLandRequest) (*pb.AdminSetCanLandReply, error) {
 	return &pb.AdminSetCanLandReply{Status: "ok"}, ac.userRepo.SetCanLand(ctx, req.Address, req.Num)
 }
@@ -9061,7 +9066,9 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 
 	if 1 == req.ReqType {
 		var (
-			seed []*Seed
+			seed    []*Seed
+			userIds []uint64
+			users   map[uint64]*User
 		)
 		seedStatus := []uint64{0, 4}
 		count, err = ac.userRepo.GetSeedByUserIDAndAdminCount(ctx, 0, seedStatus)
@@ -9077,32 +9084,52 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 		})
 		if nil != err {
 			return &pb.AdminSendListReply{
+				Status: "查询错误",
+			}, nil
+		}
+
+		userIds = make([]uint64, 0)
+		for _, vSeed := range seed {
+			userIds = append(userIds, vSeed.UserId)
+		}
+
+		users, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+		if nil != err {
+			return &pb.AdminSendListReply{
 				Status: "查询种子错误",
 			}, nil
 		}
 
 		for _, vSeed := range seed {
+			address := ""
+			if _, ok := users[vSeed.UserId]; ok {
+				address = users[vSeed.UserId].Address
+			}
+
 			tmpStatus := uint64(1)
 			if 4 == vSeed.Status {
 				tmpStatus = 4
 			}
 
 			res = append(res, &pb.AdminSendListReply_List{
-				Id:     vSeed.ID,
-				Type:   1,
-				Num:    vSeed.SeedId,
-				UseNum: 0,
-				Status: tmpStatus,
-				OutMax: vSeed.OutMaxAmount,
-				Time:   vSeed.OutOverTime,
-				Amount: vSeed.SellAmount,
+				Id:      vSeed.ID,
+				Type:    1,
+				Num:     vSeed.SeedId,
+				UseNum:  0,
+				Status:  tmpStatus,
+				OutMax:  vSeed.OutMaxAmount,
+				Time:    vSeed.OutOverTime,
+				Amount:  vSeed.SellAmount,
+				Address: address,
 			})
 		}
 	}
 
 	if 2 == req.ReqType {
 		var (
-			prop []*Prop
+			prop    []*Prop
+			userIds []uint64
+			users   map[uint64]*User
 		)
 		// 11化肥，12水，13手套，14除虫剂，15铲子，16盲盒，17地契
 		propStatus := []uint64{1, 2, 4}
@@ -9124,7 +9151,24 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 			}, nil
 		}
 
+		userIds = make([]uint64, 0)
 		for _, vProp := range prop {
+			userIds = append(userIds, vProp.UserId)
+		}
+
+		users, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+		if nil != err {
+			return &pb.AdminSendListReply{
+				Status: "查询错误",
+			}, nil
+		}
+
+		for _, vProp := range prop {
+			address := ""
+			if _, ok := users[vProp.UserId]; ok {
+				address = users[vProp.UserId].Address
+			}
+
 			useNum := uint64(0)
 			if 12 == vProp.PropType {
 				useNum = uint64(vProp.ThreeOne) // 水
@@ -9139,13 +9183,14 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 			}
 
 			res = append(res, &pb.AdminSendListReply_List{
-				Id:     vProp.ID,
-				Type:   2,
-				Num:    uint64(vProp.PropType),
-				UseNum: useNum,
-				Status: uint64(vProp.Status),
-				OutMax: 0,
-				Amount: vProp.SellAmount,
+				Id:      vProp.ID,
+				Type:    2,
+				Num:     uint64(vProp.PropType),
+				UseNum:  useNum,
+				Status:  uint64(vProp.Status),
+				OutMax:  0,
+				Amount:  vProp.SellAmount,
+				Address: address,
 			})
 		}
 	}
@@ -9160,9 +9205,11 @@ func (ac *AppUsecase) AdminUserSendList(ctx context.Context, req *pb.AdminSendLi
 func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSendLandListRequest) (*pb.AdminSendLandListReply, error) {
 	res := make([]*pb.AdminSendLandListReply_List, 0)
 	var (
-		lands []*Land
-		count int64
-		err   error
+		lands   []*Land
+		count   int64
+		err     error
+		userIds []uint64
+		users   map[uint64]*User
 	)
 
 	status := []uint64{0, 1, 2, 3, 4, 5, 8}
@@ -9184,7 +9231,24 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 		}, nil
 	}
 
+	userIds = make([]uint64, 0)
+	for _, vProp := range lands {
+		userIds = append(userIds, vProp.UserId)
+	}
+
+	users, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+	if nil != err {
+		return &pb.AdminSendLandListReply{
+			Status: "查询错误",
+		}, nil
+	}
+
 	for _, v := range lands {
+		address := ""
+		if _, ok := users[v.UserId]; ok {
+			address = users[v.UserId].Address
+		}
+
 		statusTmp := v.Status
 		if 8 == v.Status {
 			statusTmp = 3
@@ -9208,6 +9272,7 @@ func (ac *AppUsecase) AdminUserSendLandList(ctx context.Context, req *pb.AdminSe
 			Three:      v.Three,
 			Four:       v.CanReward,
 			Five:       tmpFive,
+			Address:    address,
 		})
 	}
 
