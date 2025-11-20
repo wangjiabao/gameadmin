@@ -4966,7 +4966,7 @@ func (ac *AppUsecase) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRe
 }
 
 func (ac *AppUsecase) AdminSetWithdrawMax(ctx context.Context, req *pb.AdminSetWithdrawMaxRequest) (*pb.AdminSetWithdrawMaxReply, error) {
-	return &pb.AdminSetWithdrawMaxReply{Status: "ok"}, ac.userRepo.SetWithdrawMax(ctx, req.Address, req.Num)
+	return &pb.AdminSetWithdrawMaxReply{Status: "ok"}, ac.userRepo.SetWithdrawMax(ctx, req.Address, req.MaxWithdraw)
 }
 
 func (ac *AppUsecase) AdminSetCanLand(ctx context.Context, req *pb.AdminSetCanLandRequest) (*pb.AdminSetCanLandReply, error) {

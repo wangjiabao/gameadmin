@@ -1396,7 +1396,7 @@ message AdminUserListReply { // 用户信息
 		uint64 canRent = 115;
 		uint64 canLand = 116;
 
-		uint64 max_withdraw = 117;
+		uint64 maxWithdraw = 117;
 	}
 
 	int64 count = 3;
@@ -1830,7 +1830,7 @@ message AdminSetCanRentReply {
 
 message AdminSetWithdrawMaxRequest {
 	string address = 1; // index列表里的landUseId，种植记录
-	uint64 num = 2;
+	uint64 maxWithdraw = 2;
 }
 
 message AdminSetWithdrawMaxReply {

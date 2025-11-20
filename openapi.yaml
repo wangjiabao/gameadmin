@@ -920,7 +920,7 @@ paths:
                   in: query
                   schema:
                     type: string
-                - name: num
+                - name: maxWithdraw
                   in: query
                   schema:
                     type: string
