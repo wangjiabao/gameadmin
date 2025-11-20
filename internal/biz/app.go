@@ -71,6 +71,7 @@ type User struct {
 	CanRent          uint64
 	CanLand          uint64
 	CanSell          uint64
+	WithdrawMax      uint64
 	UsdtTwo          float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
@@ -5326,6 +5327,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			CanRent:                   v.CanRent,
 			CanSell:                   v.CanSell,
 			CanLand:                   v.CanLand,
+			MaxWithdraw:               v.WithdrawMax,
 		})
 	}
 

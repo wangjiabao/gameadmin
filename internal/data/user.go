@@ -50,6 +50,7 @@ type User struct {
 	CanRent          uint64    `gorm:"type:int;"`
 	CanLand          uint64    `gorm:"type:int;"`
 	CanSell          uint64    `gorm:"type:int;"`
+	WithdrawMax      uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
 	GiwTwo           float64   `gorm:"type:decimal(65,20);"`
@@ -671,6 +672,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			CanLand:          user.CanLand,
 			CanSell:          user.CanSell,
 			CanRent:          user.CanRent,
+			WithdrawMax:      user.WithdrawMax,
 		})
 	}
 	return res, nil

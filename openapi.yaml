@@ -2853,6 +2853,8 @@ components:
                     type: string
                 canLand:
                     type: string
+                maxWithdraw:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

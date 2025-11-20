@@ -1395,6 +1395,8 @@ message AdminUserListReply { // 用户信息
 		uint64 canSell = 114;
 		uint64 canRent = 115;
 		uint64 canLand = 116;
+
+		uint64 maxWithdraw = 117;
 	}
 
 	int64 count = 3;
