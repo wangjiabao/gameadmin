@@ -7887,6 +7887,11 @@ func (ac *AppUsecase) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequ
 		}, nil
 	}
 
+	total := uint64(1)
+	if 1 < req.SendBody.Total {
+		total = req.SendBody.Total
+	}
+
 	var (
 		tmpOne   uint64 // 出售
 		tmpTwo   uint64 // 允许出租
@@ -7916,43 +7921,45 @@ func (ac *AppUsecase) AdminSetLand(ctx context.Context, req *pb.AdminSetLandRequ
 			continue
 		}
 
-		rngTmp := rand2.New(rand2.NewSource(time.Now().UnixNano()))
-		outMin := int64(landInfos[tmpLevel].OutPutRateMin)
-		outMax := int64(landInfos[tmpLevel].OutPutRateMax)
+		for i := total; i > 0; i-- {
+			rngTmp := rand2.New(rand2.NewSource(time.Now().UnixNano()))
+			outMin := int64(landInfos[tmpLevel].OutPutRateMin)
+			outMax := int64(landInfos[tmpLevel].OutPutRateMax)
 
-		// 计算随机范围
-		tmpNum := outMax - outMin
-		if tmpNum <= 0 {
-			tmpNum = 1 // 避免 Int63n(0) panic
-		}
-
-		// 生成随机数
-		randomNumber := outMin + rngTmp.Int63n(tmpNum)
-
-		now := time.Now().Unix()
-		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-			_, err = ac.userRepo.CreateLand(ctx, &Land{
-				UserId:     user.ID,
-				Level:      landInfos[tmpLevel].Level,
-				OutPutRate: float64(randomNumber),
-				MaxHealth:  landInfos[tmpLevel].MaxHealth,
-				PerHealth:  landInfos[tmpLevel].PerHealth,
-				LimitDate:  uint64(now) + req.SendBody.Limit,
-				Status:     0,
-				One:        tmpOne,
-				Two:        tmpTwo,
-				Three:      tmpThree,
-				CanReward:  tmpFour,
-				AdminAdd:   1,
-			})
-			if nil != err {
-				return err
+			// 计算随机范围
+			tmpNum := outMax - outMin
+			if tmpNum <= 0 {
+				tmpNum = 1 // 避免 Int63n(0) panic
 			}
 
-			return nil
-		}); nil != err {
-			fmt.Println(err, "setLand", user)
-			continue
+			// 生成随机数
+			randomNumber := outMin + rngTmp.Int63n(tmpNum)
+
+			now := time.Now().Unix()
+			if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				_, err = ac.userRepo.CreateLand(ctx, &Land{
+					UserId:     user.ID,
+					Level:      landInfos[tmpLevel].Level,
+					OutPutRate: float64(randomNumber),
+					MaxHealth:  landInfos[tmpLevel].MaxHealth,
+					PerHealth:  landInfos[tmpLevel].PerHealth,
+					LimitDate:  uint64(now) + req.SendBody.Limit,
+					Status:     0,
+					One:        tmpOne,
+					Two:        tmpTwo,
+					Three:      tmpThree,
+					CanReward:  tmpFour,
+					AdminAdd:   1,
+				})
+				if nil != err {
+					return err
+				}
+
+				return nil
+			}); nil != err {
+				fmt.Println(err, "setLand", user)
+				continue
+			}
 		}
 	}
 
@@ -8001,6 +8008,11 @@ func (ac *AppUsecase) AdminSetProp(ctx context.Context, req *pb.AdminSetPropRequ
 		}, nil
 	}
 
+	total := uint64(1)
+	if 1 < req.SendBody.Total {
+		total = req.SendBody.Total
+	}
+
 	for _, v := range partsAddress {
 		if 20 >= len(v) {
 			continue
@@ -8019,38 +8031,40 @@ func (ac *AppUsecase) AdminSetProp(ctx context.Context, req *pb.AdminSetPropRequ
 			continue
 		}
 
-		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-			if 17 == req.SendBody.PropType {
-				_, err = ac.userRepo.SetProp(ctx, &Prop{
-					UserId:   user.ID,
-					PropType: int(req.SendBody.PropType),
-				})
-				if nil != err {
-					return err
+		for i := total; i > 0; i-- {
+			if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				if 17 == req.SendBody.PropType {
+					_, err = ac.userRepo.SetProp(ctx, &Prop{
+						UserId:   user.ID,
+						PropType: int(req.SendBody.PropType),
+					})
+					if nil != err {
+						return err
+					}
+				} else if 16 == req.SendBody.PropType {
+					return nil
+				} else {
+					_, err = ac.userRepo.SetProp(ctx, &Prop{
+						UserId:   user.ID,
+						PropType: int(req.SendBody.PropType),
+						OneOne:   int(propInfosMap[req.SendBody.PropType].OneOne),
+						OneTwo:   int(propInfosMap[req.SendBody.PropType].OneTwo),
+						TwoOne:   int(propInfosMap[req.SendBody.PropType].TwoOne),
+						TwoTwo:   propInfosMap[req.SendBody.PropType].TwoTwo,
+						ThreeOne: int(propInfosMap[req.SendBody.PropType].ThreeOne),
+						FourOne:  int(propInfosMap[req.SendBody.PropType].FourOne),
+						FiveOne:  int(propInfosMap[req.SendBody.PropType].FiveOne),
+					})
+					if nil != err {
+						return err
+					}
 				}
-			} else if 16 == req.SendBody.PropType {
-				return nil
-			} else {
-				_, err = ac.userRepo.SetProp(ctx, &Prop{
-					UserId:   user.ID,
-					PropType: int(req.SendBody.PropType),
-					OneOne:   int(propInfosMap[req.SendBody.PropType].OneOne),
-					OneTwo:   int(propInfosMap[req.SendBody.PropType].OneTwo),
-					TwoOne:   int(propInfosMap[req.SendBody.PropType].TwoOne),
-					TwoTwo:   propInfosMap[req.SendBody.PropType].TwoTwo,
-					ThreeOne: int(propInfosMap[req.SendBody.PropType].ThreeOne),
-					FourOne:  int(propInfosMap[req.SendBody.PropType].FourOne),
-					FiveOne:  int(propInfosMap[req.SendBody.PropType].FiveOne),
-				})
-				if nil != err {
-					return err
-				}
-			}
 
-			return nil
-		}); nil != err {
-			fmt.Println(err, "set prop", user)
-			continue
+				return nil
+			}); nil != err {
+				fmt.Println(err, "set prop", user)
+				continue
+			}
 		}
 
 	}
@@ -8091,6 +8105,11 @@ func (ac *AppUsecase) AdminSetSeed(ctx context.Context, req *pb.AdminSetSeedRequ
 		}, nil
 	}
 
+	total := uint64(1)
+	if 1 < req.SendBody.Total {
+		total = req.SendBody.Total
+	}
+
 	for _, v := range partsAddress {
 		if 20 >= len(v) {
 			continue
@@ -8109,37 +8128,39 @@ func (ac *AppUsecase) AdminSetSeed(ctx context.Context, req *pb.AdminSetSeedRequ
 			continue
 		}
 
-		rngTmp := rand2.New(rand2.NewSource(time.Now().UnixNano()))
+		for i := total; i > 0; i-- {
+			rngTmp := rand2.New(rand2.NewSource(time.Now().UnixNano()))
 
-		outMin := int64(seedInfosMap[req.SendBody.SeedId].OutMinAmount)
-		outMax := int64(seedInfosMap[req.SendBody.SeedId].OutMaxAmount)
+			outMin := int64(seedInfosMap[req.SendBody.SeedId].OutMinAmount)
+			outMax := int64(seedInfosMap[req.SendBody.SeedId].OutMaxAmount)
 
-		// 计算随机范围
-		tmpNum := outMax - outMin
-		if tmpNum <= 0 {
-			tmpNum = 1 // 避免 Int63n(0) panic
-		}
-
-		// 生成随机数
-		randomNumber := outMin + rngTmp.Int63n(tmpNum)
-
-		// 种子
-		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
-			_, err = ac.userRepo.SetSeed(ctx, &Seed{
-				UserId:       user.ID,
-				SeedId:       req.SendBody.SeedId,
-				Name:         seedInfosMap[req.SendBody.SeedId].Name,
-				OutOverTime:  seedInfosMap[req.SendBody.SeedId].OutOverTime,
-				OutMaxAmount: float64(randomNumber),
-			})
-			if nil != err {
-				return err
+			// 计算随机范围
+			tmpNum := outMax - outMin
+			if tmpNum <= 0 {
+				tmpNum = 1 // 避免 Int63n(0) panic
 			}
 
-			return nil
-		}); nil != err {
-			fmt.Println(err, "set seed", user)
-			continue
+			// 生成随机数
+			randomNumber := outMin + rngTmp.Int63n(tmpNum)
+
+			// 种子
+			if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+				_, err = ac.userRepo.SetSeed(ctx, &Seed{
+					UserId:       user.ID,
+					SeedId:       req.SendBody.SeedId,
+					Name:         seedInfosMap[req.SendBody.SeedId].Name,
+					OutOverTime:  seedInfosMap[req.SendBody.SeedId].OutOverTime,
+					OutMaxAmount: float64(randomNumber),
+				})
+				if nil != err {
+					return err
+				}
+
+				return nil
+			}); nil != err {
+				fmt.Println(err, "set seed", user)
+				continue
+			}
 		}
 
 	}

@@ -2628,6 +2628,8 @@ components:
                     type: string
                 limit:
                     type: string
+                total:
+                    type: string
         AdminSetLockReply:
             type: object
             properties:
@@ -2650,6 +2652,8 @@ components:
                     type: string
                 propType:
                     type: string
+                total:
+                    type: string
         AdminSetSeedReply:
             type: object
             properties:
@@ -2661,6 +2665,8 @@ components:
                 address:
                     type: string
                 seedId:
+                    type: string
+                total:
                     type: string
         AdminSetUsdtReply:
             type: object

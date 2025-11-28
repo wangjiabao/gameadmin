@@ -1951,6 +1951,7 @@ message AdminSetLandRequest {
 		string three = 5; // 允许合成
 		string four = 7; // 允许动静态收益
 		uint64 limit = 6; // 使用时间  秒级时间
+		uint64 total = 8;
 	}
 
 	SendBody send_body = 1;
@@ -1964,6 +1965,7 @@ message AdminSetSeedRequest {
 	message SendBody{
 		string address = 1; // 地址
 		uint64 seedId = 2; // 种子类型
+		uint64 total = 8;
 	}
 
 	SendBody send_body = 1;
@@ -1992,6 +1994,7 @@ message AdminSetPropRequest {
 	message SendBody{
 		string address = 1; // 地址
 		uint64 propType = 2; // 道具类型
+		uint64 total = 8;
 	}
 
 	SendBody send_body = 1;
