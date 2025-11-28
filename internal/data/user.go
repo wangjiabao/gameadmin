@@ -3868,6 +3868,27 @@ func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) err
 	return nil
 }
 
+// SetAddress .
+func (u *UserRepo) SetAddress(ctx context.Context, address string, newAddress string) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"address": newAddress, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "admin_set_address", "用户信息修改失败")
+	}
+
+	var adminSetBalance AdminSetBalance
+
+	adminSetBalance.Address = address + newAddress
+	adminSetBalance.Coin = uint64(5)
+
+	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+	if res.Error != nil {
+		return errors.New(500, "admin_set_balance", "修改余额记录失败")
+	}
+
+	return nil
+}
+
 // SetVip .
 func (u *UserRepo) SetVip(ctx context.Context, address string, vip uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).

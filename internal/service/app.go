@@ -1807,6 +1807,10 @@ func (a *AppService) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtReque
 	return a.ac.AdminSetUsdt(ctx, req)
 }
 
+func (a *AppService) AdminSetAddress(ctx context.Context, req *pb.AdminSetAddressRequest) (*pb.AdminSetAddressReply, error) {
+	return a.ac.AdminSetAddress(ctx, req)
+}
+
 func (a *AppService) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSellRequest) (*pb.AdminSetCanSellReply, error) {
 	return a.ac.AdminSetCanSell(ctx, req)
 }

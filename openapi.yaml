@@ -407,6 +407,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_address:
+        get:
+            tags:
+                - App
+            description: 设置余额
+            operationId: App_AdminSetAddress
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: newAddress
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetAddressReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/set_biw:
         get:
             tags:
@@ -2496,6 +2524,11 @@ components:
                 amount:
                     type: number
                     format: double
+        AdminSetAddressReply:
+            type: object
+            properties:
+                status:
+                    type: string
         AdminSetBoxReply:
             type: object
             properties:

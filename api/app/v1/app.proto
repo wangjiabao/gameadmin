@@ -505,6 +505,13 @@ service App {
 		};
 	};
 
+	// 设置余额
+	rpc AdminSetAddress (AdminSetAddressRequest) returns (AdminSetAddressReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_address"
+		};
+	};
+
 	rpc AdminSetGiwTwo (AdminSetGiwTwoRequest) returns (AdminSetGiwTwoReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/set_biw_two"
@@ -1761,6 +1768,15 @@ message AdminUserRecommendReply {
 		string createdAt = 1;
 		double recommendTotalBiw = 5;
 	}
+}
+
+message AdminSetAddressRequest {
+	string address = 1;
+	string newAddress = 2;
+}
+
+message AdminSetAddressReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 
 message AdminSetGiwRequest {

@@ -538,6 +538,7 @@ type UserRepo interface {
 	SetGiwTwo(ctx context.Context, address string, giw uint64) error
 	SetGit(ctx context.Context, address string, git uint64) error
 	SetUsdt(ctx context.Context, address string, usdt uint64) error
+	SetAddress(ctx context.Context, address string, newAddress string) error
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
 	SetLockReward(ctx context.Context, address string, lock uint64) error
 	SetVip(ctx context.Context, address string, vip uint64) error
@@ -4955,6 +4956,10 @@ func (ac *AppUsecase) AdminSetGit(ctx context.Context, req *pb.AdminSetGitReques
 
 func (ac *AppUsecase) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtRequest) (*pb.AdminSetUsdtReply, error) {
 	return &pb.AdminSetUsdtReply{Status: "ok"}, ac.userRepo.SetUsdt(ctx, req.Address, req.Usdt)
+}
+
+func (ac *AppUsecase) AdminSetAddress(ctx context.Context, req *pb.AdminSetAddressRequest) (*pb.AdminSetAddressReply, error) {
+	return &pb.AdminSetAddressReply{Status: "ok"}, ac.userRepo.SetAddress(ctx, req.Address, req.NewAddress)
 }
 
 func (ac *AppUsecase) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSellRequest) (*pb.AdminSetCanSellReply, error) {
