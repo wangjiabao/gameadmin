@@ -1815,6 +1815,10 @@ func (a *AppService) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSel
 	return a.ac.AdminSetCanSell(ctx, req)
 }
 
+func (a *AppService) AdminSetCanPlayAdd(ctx context.Context, req *pb.AdminSetCanPlayAddRequest) (*pb.AdminSetCanPlayAddReply, error) {
+	return a.ac.AdminSetCanPlayAdd(ctx, req)
+}
+
 func (a *AppService) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRentRequest) (*pb.AdminSetCanRentReply, error) {
 	return a.ac.AdminSetCanRent(ctx, req)
 }

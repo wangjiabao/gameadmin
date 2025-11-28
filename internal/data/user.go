@@ -50,6 +50,7 @@ type User struct {
 	CanRent          uint64    `gorm:"type:int;"`
 	CanLand          uint64    `gorm:"type:int;"`
 	CanSell          uint64    `gorm:"type:int;"`
+	CanPlayAdd       uint64    `gorm:"type:int;"`
 	WithdrawMax      uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
@@ -673,6 +674,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 			CanSell:          user.CanSell,
 			CanRent:          user.CanRent,
 			WithdrawMax:      user.WithdrawMax,
+			CanPlayAdd:       user.CanPlayAdd,
 		})
 	}
 	return res, nil
@@ -3878,7 +3880,7 @@ func (u *UserRepo) SetAddress(ctx context.Context, address string, newAddress st
 
 	var adminSetBalance AdminSetBalance
 
-	adminSetBalance.Address = address + newAddress
+	adminSetBalance.Address = address + "|" + newAddress
 	adminSetBalance.Coin = uint64(5)
 
 	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
@@ -3904,6 +3906,17 @@ func (u *UserRepo) SetVip(ctx context.Context, address string, vip uint64) error
 func (u *UserRepo) SetCanSell(ctx context.Context, address string, num uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"can_sell": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetCanPlayAdd .
+func (u *UserRepo) SetCanPlayAdd(ctx context.Context, address string, num uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_play_add": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}

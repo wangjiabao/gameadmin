@@ -71,6 +71,7 @@ type User struct {
 	CanRent          uint64
 	CanLand          uint64
 	CanSell          uint64
+	CanPlayAdd       uint64
 	WithdrawMax      uint64
 	UsdtTwo          float64
 	CreatedAt        time.Time
@@ -543,6 +544,7 @@ type UserRepo interface {
 	SetLockReward(ctx context.Context, address string, lock uint64) error
 	SetVip(ctx context.Context, address string, vip uint64) error
 	SetCanSell(ctx context.Context, address string, num uint64) error
+	SetCanPlayAdd(ctx context.Context, address string, num uint64) error
 	SetCanRent(ctx context.Context, address string, vip uint64) error
 	SetWithdrawMax(ctx context.Context, address string, vip uint64) error
 	SetCanLand(ctx context.Context, address string, vip uint64) error
@@ -4966,6 +4968,10 @@ func (ac *AppUsecase) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSe
 	return &pb.AdminSetCanSellReply{Status: "ok"}, ac.userRepo.SetCanSell(ctx, req.Address, req.Num)
 }
 
+func (ac *AppUsecase) AdminSetCanPlayAdd(ctx context.Context, req *pb.AdminSetCanPlayAddRequest) (*pb.AdminSetCanPlayAddReply, error) {
+	return &pb.AdminSetCanPlayAddReply{Status: "ok"}, ac.userRepo.SetCanPlayAdd(ctx, req.Address, req.Num)
+}
+
 func (ac *AppUsecase) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRentRequest) (*pb.AdminSetCanRentReply, error) {
 	return &pb.AdminSetCanRentReply{Status: "ok"}, ac.userRepo.SetCanRent(ctx, req.Address, req.Num)
 }
@@ -5333,6 +5339,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			CanSell:                   v.CanSell,
 			CanLand:                   v.CanLand,
 			MaxWithdraw:               v.WithdrawMax,
+			CanPlayAdd:                v.CanPlayAdd,
 		})
 	}
 
