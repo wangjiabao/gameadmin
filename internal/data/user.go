@@ -1629,6 +1629,26 @@ func (u *UserRepo) GetSeedByExUserID(ctx context.Context, userID uint64, status 
 	return res, nil
 }
 
+func (u *UserRepo) GetLandByUserIDCount(ctx context.Context, userID uint64, status []uint64) (int64, error) {
+	var count int64
+	instance := u.data.DB(ctx).Table("land")
+
+	if 0 < userID {
+		instance = instance.Where("user_id = ?", userID)
+	}
+
+	instance = instance.Where("limit_date>=?", time.Now().Unix()).
+		Where("status in (?)", status)
+
+	err := instance.Count(&count).Error
+
+	if err != nil {
+		return 0, errors.New(500, "USER COUNT ERROR", err.Error())
+	}
+
+	return count, nil
+}
+
 // GetLandByUserID getLandByUserID
 func (u *UserRepo) GetLandByUserID(ctx context.Context, userID uint64, status []uint64, b *biz.Pagination) ([]*biz.Land, error) {
 	var (
