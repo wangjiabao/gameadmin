@@ -5977,6 +5977,16 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 				fmt.Println("错误土地分红静态：", err, v)
 			}
 
+			err = ac.userRepo.CreateNotice(
+				ctx,
+				v.UserId,
+				"土地静态分红"+fmt.Sprintf("%.2f", rewardLand)+"USDT",
+				"land daily reward "+fmt.Sprintf("%.2f", rewardLand)+" USDT",
+			)
+			if nil != err {
+				return err
+			}
+
 			return nil
 		}); nil != err {
 			fmt.Println("err reward daily", err, v)
