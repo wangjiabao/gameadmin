@@ -6,6 +6,24 @@ info:
     title: App API
     version: 0.0.1
 paths:
+    /api/admin_dhb/admin_messages_list:
+        get:
+            tags:
+                - App
+            operationId: App_AdminMessagesList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminMessagesListReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/admin_send_land_list:
         get:
             tags:
@@ -90,6 +108,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminDailyRewardReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/delete_admin_messages:
+        post:
+            tags:
+                - App
+            operationId: App_DeleteAdminMessages
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/DeleteAdminMessagesRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeleteAdminMessagesReply'
                 default:
                     description: Default error response
                     content:
@@ -429,6 +471,30 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/AdminSetAddressReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_admin_messages:
+        post:
+            tags:
+                - App
+            operationId: App_SetAdminMessages
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/SetAdminMessagesRequest_SendBody'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SetAdminMessagesReply'
                 default:
                     description: Default error response
                     content:
@@ -2329,6 +2395,28 @@ components:
                     type: string
                 password:
                     type: string
+        AdminMessagesListReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                recordList:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/AdminMessagesListReply_List'
+                count:
+                    type: string
+        AdminMessagesListReply_List:
+            type: object
+            properties:
+                id:
+                    type: string
+                status:
+                    type: string
+                content:
+                    type: string
+                contentTwo:
+                    type: string
         AdminPriceChangeReply:
             type: object
             properties: {}
@@ -3008,6 +3096,16 @@ components:
                     type: string
                 sign:
                     type: string
+        DeleteAdminMessagesReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        DeleteAdminMessagesRequest_SendBody:
+            type: object
+            properties:
+                id:
+                    type: string
         EthAuthorizeReply:
             type: object
             properties:
@@ -3274,6 +3372,18 @@ components:
                 amount:
                     type: string
                 sign:
+                    type: string
+        SetAdminMessagesReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        SetAdminMessagesRequest_SendBody:
+            type: object
+            properties:
+                content:
+                    type: string
+                contentTwo:
                     type: string
         SetGitReply:
             type: object

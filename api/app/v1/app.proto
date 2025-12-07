@@ -655,6 +655,26 @@ service App {
 			body: "send_body"
 		};
 	};
+
+	rpc SetAdminMessages (SetAdminMessagesRequest) returns (SetAdminMessagesReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/set_admin_messages"
+			body: "send_body"
+		};
+	};
+
+	rpc DeleteAdminMessages (DeleteAdminMessagesRequest) returns (DeleteAdminMessagesReply) {
+		option (google.api.http) = {
+			post: "/api/admin_dhb/delete_admin_messages"
+			body: "send_body"
+		};
+	};
+
+	rpc AdminMessagesList (AdminMessagesListRequest) returns (AdminMessagesListReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/admin_messages_list"
+		};
+	};
 }
 
 message TestSignRequest {
@@ -1717,6 +1737,23 @@ message AdminSeedConfigReply {
 	int64 count = 2;
 }
 
+
+message AdminMessagesListRequest {
+}
+
+message AdminMessagesListReply {
+	string status = 3;
+	repeated List recordList = 1;
+	message List {
+		uint64 id = 1; // 时间
+		uint64 status = 2; // 0展示 1删除
+		string content = 4; // 中文
+		string contentTwo = 3; // 英文
+	}
+
+	int64 count = 2;
+}
+
 message AdminSeedConfigSetRequest {
 	message SendBody{
 		uint64 seedId = 1;
@@ -2004,6 +2041,31 @@ message AdminSetBuyLandRequest {
 }
 
 message AdminSetBuyLandReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message SetAdminMessagesRequest {
+	message SendBody{
+		string content = 1; // 土地级别1-10
+		string contentTwo = 2; // 土地级别1-10
+	}
+
+	SendBody send_body = 1;
+}
+
+message SetAdminMessagesReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message DeleteAdminMessagesRequest {
+	message SendBody{
+		uint64 id = 1; //
+	}
+
+	SendBody send_body = 1;
+}
+
+message DeleteAdminMessagesReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 

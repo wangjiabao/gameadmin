@@ -108,6 +108,9 @@ const (
 	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
 	App_AdminSetSeed_FullMethodName           = "/api.app.v1.App/AdminSetSeed"
 	App_AdminSetBuyLand_FullMethodName        = "/api.app.v1.App/AdminSetBuyLand"
+	App_SetAdminMessages_FullMethodName       = "/api.app.v1.App/SetAdminMessages"
+	App_DeleteAdminMessages_FullMethodName    = "/api.app.v1.App/DeleteAdminMessages"
+	App_AdminMessagesList_FullMethodName      = "/api.app.v1.App/AdminMessagesList"
 )
 
 // AppClient is the client API for App service.
@@ -284,6 +287,9 @@ type AppClient interface {
 	AdminSetSeed(ctx context.Context, in *AdminSetSeedRequest, opts ...grpc.CallOption) (*AdminSetSeedReply, error)
 	// 上级拍卖行
 	AdminSetBuyLand(ctx context.Context, in *AdminSetBuyLandRequest, opts ...grpc.CallOption) (*AdminSetBuyLandReply, error)
+	SetAdminMessages(ctx context.Context, in *SetAdminMessagesRequest, opts ...grpc.CallOption) (*SetAdminMessagesReply, error)
+	DeleteAdminMessages(ctx context.Context, in *DeleteAdminMessagesRequest, opts ...grpc.CallOption) (*DeleteAdminMessagesReply, error)
+	AdminMessagesList(ctx context.Context, in *AdminMessagesListRequest, opts ...grpc.CallOption) (*AdminMessagesListReply, error)
 }
 
 type appClient struct {
@@ -1184,6 +1190,36 @@ func (c *appClient) AdminSetBuyLand(ctx context.Context, in *AdminSetBuyLandRequ
 	return out, nil
 }
 
+func (c *appClient) SetAdminMessages(ctx context.Context, in *SetAdminMessagesRequest, opts ...grpc.CallOption) (*SetAdminMessagesReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SetAdminMessagesReply)
+	err := c.cc.Invoke(ctx, App_SetAdminMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) DeleteAdminMessages(ctx context.Context, in *DeleteAdminMessagesRequest, opts ...grpc.CallOption) (*DeleteAdminMessagesReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteAdminMessagesReply)
+	err := c.cc.Invoke(ctx, App_DeleteAdminMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminMessagesList(ctx context.Context, in *AdminMessagesListRequest, opts ...grpc.CallOption) (*AdminMessagesListReply, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(AdminMessagesListReply)
+	err := c.cc.Invoke(ctx, App_AdminMessagesList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AppServer is the server API for App service.
 // All implementations must embed UnimplementedAppServer
 // for forward compatibility.
@@ -1358,6 +1394,9 @@ type AppServer interface {
 	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
 	// 上级拍卖行
 	AdminSetBuyLand(context.Context, *AdminSetBuyLandRequest) (*AdminSetBuyLandReply, error)
+	SetAdminMessages(context.Context, *SetAdminMessagesRequest) (*SetAdminMessagesReply, error)
+	DeleteAdminMessages(context.Context, *DeleteAdminMessagesRequest) (*DeleteAdminMessagesReply, error)
+	AdminMessagesList(context.Context, *AdminMessagesListRequest) (*AdminMessagesListReply, error)
 	mustEmbedUnimplementedAppServer()
 }
 
@@ -1634,6 +1673,15 @@ func (UnimplementedAppServer) AdminSetSeed(context.Context, *AdminSetSeedRequest
 }
 func (UnimplementedAppServer) AdminSetBuyLand(context.Context, *AdminSetBuyLandRequest) (*AdminSetBuyLandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetBuyLand not implemented")
+}
+func (UnimplementedAppServer) SetAdminMessages(context.Context, *SetAdminMessagesRequest) (*SetAdminMessagesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetAdminMessages not implemented")
+}
+func (UnimplementedAppServer) DeleteAdminMessages(context.Context, *DeleteAdminMessagesRequest) (*DeleteAdminMessagesReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdminMessages not implemented")
+}
+func (UnimplementedAppServer) AdminMessagesList(context.Context, *AdminMessagesListRequest) (*AdminMessagesListReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminMessagesList not implemented")
 }
 func (UnimplementedAppServer) mustEmbedUnimplementedAppServer() {}
 func (UnimplementedAppServer) testEmbeddedByValue()             {}
@@ -3258,6 +3306,60 @@ func _App_AdminSetBuyLand_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_SetAdminMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetAdminMessagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).SetAdminMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_SetAdminMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).SetAdminMessages(ctx, req.(*SetAdminMessagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_DeleteAdminMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteAdminMessagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).DeleteAdminMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_DeleteAdminMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).DeleteAdminMessages(ctx, req.(*DeleteAdminMessagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminMessagesList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminMessagesListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminMessagesList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminMessagesList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminMessagesList(ctx, req.(*AdminMessagesListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // App_ServiceDesc is the grpc.ServiceDesc for App service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -3620,6 +3722,18 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetBuyLand",
 			Handler:    _App_AdminSetBuyLand_Handler,
+		},
+		{
+			MethodName: "SetAdminMessages",
+			Handler:    _App_SetAdminMessages_Handler,
+		},
+		{
+			MethodName: "DeleteAdminMessages",
+			Handler:    _App_DeleteAdminMessages_Handler,
+		},
+		{
+			MethodName: "AdminMessagesList",
+			Handler:    _App_AdminMessagesList_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

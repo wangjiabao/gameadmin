@@ -30,6 +30,7 @@ const OperationAppAdminLandConfigList = "/api.app.v1.App/AdminLandConfigList"
 const OperationAppAdminLandConfigSet = "/api.app.v1.App/AdminLandConfigSet"
 const OperationAppAdminLandReward = "/api.app.v1.App/AdminLandReward"
 const OperationAppAdminLogin = "/api.app.v1.App/AdminLogin"
+const OperationAppAdminMessagesList = "/api.app.v1.App/AdminMessagesList"
 const OperationAppAdminPriceChange = "/api.app.v1.App/AdminPriceChange"
 const OperationAppAdminPropConfigList = "/api.app.v1.App/AdminPropConfigList"
 const OperationAppAdminPropConfigSet = "/api.app.v1.App/AdminPropConfigSet"
@@ -68,6 +69,7 @@ const OperationAppAdminWithdraw = "/api.app.v1.App/AdminWithdraw"
 const OperationAppAdminWithdrawList = "/api.app.v1.App/AdminWithdrawList"
 const OperationAppBuy = "/api.app.v1.App/Buy"
 const OperationAppBuyBox = "/api.app.v1.App/BuyBox"
+const OperationAppDeleteAdminMessages = "/api.app.v1.App/DeleteAdminMessages"
 const OperationAppEthAuthorize = "/api.app.v1.App/EthAuthorize"
 const OperationAppExchange = "/api.app.v1.App/Exchange"
 const OperationAppGetLand = "/api.app.v1.App/GetLand"
@@ -83,6 +85,7 @@ const OperationAppLandPlayTwo = "/api.app.v1.App/LandPlayTwo"
 const OperationAppOpenBox = "/api.app.v1.App/OpenBox"
 const OperationAppRentLand = "/api.app.v1.App/RentLand"
 const OperationAppSell = "/api.app.v1.App/Sell"
+const OperationAppSetAdminMessages = "/api.app.v1.App/SetAdminMessages"
 const OperationAppSetGit = "/api.app.v1.App/SetGit"
 const OperationAppSetGiw = "/api.app.v1.App/SetGiw"
 const OperationAppSetLand = "/api.app.v1.App/SetLand"
@@ -132,6 +135,7 @@ type AppHTTPServer interface {
 	AdminLandReward(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error)
 	// AdminLogin 登录
 	AdminLogin(context.Context, *AdminLoginRequest) (*AdminLoginReply, error)
+	AdminMessagesList(context.Context, *AdminMessagesListRequest) (*AdminMessagesListReply, error)
 	// AdminPriceChange 每日粮仓
 	AdminPriceChange(context.Context, *AdminPriceChangeRequest) (*AdminPriceChangeReply, error)
 	// AdminPropConfigList 道具配置
@@ -205,6 +209,7 @@ type AppHTTPServer interface {
 	Buy(context.Context, *BuyRequest) (*BuyReply, error)
 	// BuyBox  购买盲盒
 	BuyBox(context.Context, *BuyBoxRequest) (*BuyBoxReply, error)
+	DeleteAdminMessages(context.Context, *DeleteAdminMessagesRequest) (*DeleteAdminMessagesReply, error)
 	EthAuthorize(context.Context, *EthAuthorizeRequest) (*EthAuthorizeReply, error)
 	// Exchange 兑换
 	Exchange(context.Context, *ExchangeRequest) (*ExchangeReply, error)
@@ -234,6 +239,7 @@ type AppHTTPServer interface {
 	RentLand(context.Context, *RentLandRequest) (*RentLandReply, error)
 	// Sell  出售道具下架道具
 	Sell(context.Context, *SellRequest) (*SellReply, error)
+	SetAdminMessages(context.Context, *SetAdminMessagesRequest) (*SetAdminMessagesReply, error)
 	SetGit(context.Context, *SetGitRequest) (*SetGitReply, error)
 	SetGiw(context.Context, *SetGiwRequest) (*SetGiwReply, error)
 	SetLand(context.Context, *SetLandRequest) (*SetLandReply, error)
@@ -373,6 +379,9 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.POST("/api/admin_dhb/set_prop", _App_AdminSetProp0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_seed", _App_AdminSetSeed0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_buy_land", _App_AdminSetBuyLand0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/set_admin_messages", _App_SetAdminMessages0_HTTP_Handler(srv))
+	r.POST("/api/admin_dhb/delete_admin_messages", _App_DeleteAdminMessages0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/admin_messages_list", _App_AdminMessagesList0_HTTP_Handler(srv))
 }
 
 func _App_TestSign0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
@@ -2159,6 +2168,69 @@ func _App_AdminSetBuyLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context
 	}
 }
 
+func _App_SetAdminMessages0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in SetAdminMessagesRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppSetAdminMessages)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.SetAdminMessages(ctx, req.(*SetAdminMessagesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*SetAdminMessagesReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_DeleteAdminMessages0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in DeleteAdminMessagesRequest
+		if err := ctx.Bind(&in.SendBody); err != nil {
+			return err
+		}
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppDeleteAdminMessages)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.DeleteAdminMessages(ctx, req.(*DeleteAdminMessagesRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*DeleteAdminMessagesReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminMessagesList0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminMessagesListRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminMessagesList)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminMessagesList(ctx, req.(*AdminMessagesListRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminMessagesListReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 type AppHTTPClient interface {
 	AdminDaily(ctx context.Context, req *AdminDailyRequest, opts ...http.CallOption) (rsp *AdminDailyReply, err error)
 	AdminDailyReward(ctx context.Context, req *AdminDailyRewardRequest, opts ...http.CallOption) (rsp *AdminDailyRewardReply, err error)
@@ -2171,6 +2243,7 @@ type AppHTTPClient interface {
 	AdminLandConfigSet(ctx context.Context, req *AdminLandConfigSetRequest, opts ...http.CallOption) (rsp *AdminLandConfigSetReply, err error)
 	AdminLandReward(ctx context.Context, req *AdminLandRewardRequest, opts ...http.CallOption) (rsp *AdminLandRewardReply, err error)
 	AdminLogin(ctx context.Context, req *AdminLoginRequest, opts ...http.CallOption) (rsp *AdminLoginReply, err error)
+	AdminMessagesList(ctx context.Context, req *AdminMessagesListRequest, opts ...http.CallOption) (rsp *AdminMessagesListReply, err error)
 	AdminPriceChange(ctx context.Context, req *AdminPriceChangeRequest, opts ...http.CallOption) (rsp *AdminPriceChangeReply, err error)
 	AdminPropConfigList(ctx context.Context, req *AdminPropConfigRequest, opts ...http.CallOption) (rsp *AdminPropConfigReply, err error)
 	AdminPropConfigSet(ctx context.Context, req *AdminPropConfigSetRequest, opts ...http.CallOption) (rsp *AdminPropConfigSetReply, err error)
@@ -2209,6 +2282,7 @@ type AppHTTPClient interface {
 	AdminWithdrawList(ctx context.Context, req *AdminWithdrawListRequest, opts ...http.CallOption) (rsp *AdminWithdrawListReply, err error)
 	Buy(ctx context.Context, req *BuyRequest, opts ...http.CallOption) (rsp *BuyReply, err error)
 	BuyBox(ctx context.Context, req *BuyBoxRequest, opts ...http.CallOption) (rsp *BuyBoxReply, err error)
+	DeleteAdminMessages(ctx context.Context, req *DeleteAdminMessagesRequest, opts ...http.CallOption) (rsp *DeleteAdminMessagesReply, err error)
 	EthAuthorize(ctx context.Context, req *EthAuthorizeRequest, opts ...http.CallOption) (rsp *EthAuthorizeReply, err error)
 	Exchange(ctx context.Context, req *ExchangeRequest, opts ...http.CallOption) (rsp *ExchangeReply, err error)
 	GetLand(ctx context.Context, req *GetLandRequest, opts ...http.CallOption) (rsp *GetLandReply, err error)
@@ -2224,6 +2298,7 @@ type AppHTTPClient interface {
 	OpenBox(ctx context.Context, req *OpenBoxRequest, opts ...http.CallOption) (rsp *OpenBoxReply, err error)
 	RentLand(ctx context.Context, req *RentLandRequest, opts ...http.CallOption) (rsp *RentLandReply, err error)
 	Sell(ctx context.Context, req *SellRequest, opts ...http.CallOption) (rsp *SellReply, err error)
+	SetAdminMessages(ctx context.Context, req *SetAdminMessagesRequest, opts ...http.CallOption) (rsp *SetAdminMessagesReply, err error)
 	SetGit(ctx context.Context, req *SetGitRequest, opts ...http.CallOption) (rsp *SetGitReply, err error)
 	SetGiw(ctx context.Context, req *SetGiwRequest, opts ...http.CallOption) (rsp *SetGiwReply, err error)
 	SetLand(ctx context.Context, req *SetLandRequest, opts ...http.CallOption) (rsp *SetLandReply, err error)
@@ -2396,6 +2471,19 @@ func (c *AppHTTPClientImpl) AdminLogin(ctx context.Context, in *AdminLoginReques
 	opts = append(opts, http.Operation(OperationAppAdminLogin))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AppHTTPClientImpl) AdminMessagesList(ctx context.Context, in *AdminMessagesListRequest, opts ...http.CallOption) (*AdminMessagesListReply, error) {
+	var out AdminMessagesListReply
+	pattern := "/api/admin_dhb/admin_messages_list"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminMessagesList))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2896,6 +2984,19 @@ func (c *AppHTTPClientImpl) BuyBox(ctx context.Context, in *BuyBoxRequest, opts 
 	return &out, nil
 }
 
+func (c *AppHTTPClientImpl) DeleteAdminMessages(ctx context.Context, in *DeleteAdminMessagesRequest, opts ...http.CallOption) (*DeleteAdminMessagesReply, error) {
+	var out DeleteAdminMessagesReply
+	pattern := "/api/admin_dhb/delete_admin_messages"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppDeleteAdminMessages))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (c *AppHTTPClientImpl) EthAuthorize(ctx context.Context, in *EthAuthorizeRequest, opts ...http.CallOption) (*EthAuthorizeReply, error) {
 	var out EthAuthorizeReply
 	pattern := "/api/app_server/eth_authorize"
@@ -3083,6 +3184,19 @@ func (c *AppHTTPClientImpl) Sell(ctx context.Context, in *SellRequest, opts ...h
 	pattern := "/api/app_server/sell"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationAppSell))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *AppHTTPClientImpl) SetAdminMessages(ctx context.Context, in *SetAdminMessagesRequest, opts ...http.CallOption) (*SetAdminMessagesReply, error) {
+	var out SetAdminMessagesReply
+	pattern := "/api/admin_dhb/set_admin_messages"
+	path := binding.EncodeURL(pattern, in, false)
+	opts = append(opts, http.Operation(OperationAppSetAdminMessages))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
 	if err != nil {

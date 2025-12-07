@@ -424,6 +424,15 @@ type Admin struct {
 	Type     string `gorm:"type:varchar(40);not null"`
 }
 
+type AdminMessage struct {
+	ID         uint64    `gorm:"primarykey;type:int"`
+	Content    string    `gorm:"type:varchar(200);not null;comment:消息内容"`
+	ContentTwo string    `gorm:"type:varchar(200);not null;comment:消息内容"`
+	Status     uint64    `gorm:"type:int;not null;default:0"`
+	CreatedAt  time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt  time.Time `gorm:"type:datetime;not null"`
+}
+
 type UserRepo struct {
 	data *Data
 	log  *log.Helper
@@ -4849,6 +4858,61 @@ func (u *UserRepo) UpdateUserLandReward(ctx context.Context, userId, num, landId
 		if resTwo.Error != nil {
 			return errors.New(500, "UpdateUserLandReward", "用户信息修改失败")
 		}
+	}
+
+	return nil
+}
+
+// GetAdminMessages .
+func (u *UserRepo) GetAdminMessages(ctx context.Context) ([]*biz.AdminMessage, error) {
+	var (
+		m []*AdminMessage
+	)
+
+	res := make([]*biz.AdminMessage, 0)
+	instance := u.data.DB(ctx).Table("admin_message").Order("id desc")
+	if err := instance.Find(&m).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return res, nil
+		}
+
+		return nil, errors.New(500, "message ERROR", err.Error())
+	}
+
+	for _, v := range m {
+		res = append(res, &biz.AdminMessage{
+			ID:         v.ID,
+			Content:    v.Content,
+			ContentTwo: v.ContentTwo,
+			Status:     v.Status,
+			CreatedAt:  v.CreatedAt,
+		})
+	}
+
+	return res, nil
+}
+
+func (u *UserRepo) DeleteMessages(ctx context.Context, id uint64) error {
+
+	res := u.data.DB(ctx).Table("admin_message").Where("id=?", id).
+		Updates(map[string]interface{}{"status": 1})
+	if res.Error != nil || 1 != res.RowsAffected {
+		return errors.New(500, "DeleteMessages", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+func (u *UserRepo) CreateMessages(ctx context.Context, contentTwo, content string) error {
+	var m AdminMessage
+
+	m.Content = content
+	m.ContentTwo = contentTwo
+	m.Status = 0
+
+	res := u.data.DB(ctx).Table("admin_message").Create(&m)
+	if res.Error != nil {
+		return errors.New(500, "message c", "用户信息修改失败")
 	}
 
 	return nil

@@ -1871,6 +1871,18 @@ func (a *AppService) AdminSetBuyLand(ctx context.Context, req *pb.AdminSetBuyLan
 	return a.ac.AdminSetBuyLand(ctx, req)
 }
 
+func (a *AppService) SetAdminMessages(ctx context.Context, req *pb.SetAdminMessagesRequest) (*pb.SetAdminMessagesReply, error) {
+	return a.ac.SetAdminMessages(ctx, req)
+}
+
+func (a *AppService) DeleteAdminMessages(ctx context.Context, req *pb.DeleteAdminMessagesRequest) (*pb.DeleteAdminMessagesReply, error) {
+	return a.ac.DeleteAdminMessages(ctx, req)
+}
+
+func (a *AppService) AdminMessagesList(ctx context.Context, req *pb.AdminMessagesListRequest) (*pb.AdminMessagesListReply, error) {
+	return a.ac.AdminMessagesList(ctx, req)
+}
+
 func getUserLength(address string) (int64, error) {
 	url1 := "https://bsc-dataseed4.binance.org/"
 

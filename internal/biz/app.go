@@ -31,6 +31,15 @@ type PriceChange struct {
 	UpdatedAt time.Time
 }
 
+type AdminMessage struct {
+	ID         uint64
+	Content    string
+	ContentTwo string
+	Status     uint64
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
 type User struct {
 	ID               uint64
 	Address          string
@@ -601,6 +610,9 @@ type UserRepo interface {
 	GetUserRewardAdminPageCount(ctx context.Context, userId uint64, reason uint64) (int64, error)
 	GetUserRewardAdminPage(ctx context.Context, userId uint64, reason uint64, b *Pagination) ([]*Reward, error)
 	GetUserRecommendLikeCode(ctx context.Context, code string) ([]*UserRecommend, error)
+	GetAdminMessages(ctx context.Context) ([]*AdminMessage, error)
+	CreateMessages(ctx context.Context, contentTwo, content string) error
+	DeleteMessages(ctx context.Context, id uint64) error
 }
 
 // AppUsecase is an app usecase.
@@ -8185,6 +8197,43 @@ func (ac *AppUsecase) AdminSetSeed(ctx context.Context, req *pb.AdminSetSeedRequ
 
 	return &pb.AdminSetSeedReply{
 		Status: "ok",
+	}, nil
+}
+
+func (ac *AppUsecase) SetAdminMessages(ctx context.Context, req *pb.SetAdminMessagesRequest) (*pb.SetAdminMessagesReply, error) {
+	return &pb.SetAdminMessagesReply{Status: "ok"}, ac.userRepo.CreateMessages(ctx, req.SendBody.ContentTwo, req.SendBody.Content)
+}
+
+func (ac *AppUsecase) DeleteAdminMessages(ctx context.Context, req *pb.DeleteAdminMessagesRequest) (*pb.DeleteAdminMessagesReply, error) {
+	return &pb.DeleteAdminMessagesReply{Status: "ok"}, ac.userRepo.DeleteMessages(ctx, req.SendBody.Id)
+}
+
+func (ac *AppUsecase) AdminMessagesList(ctx context.Context, req *pb.AdminMessagesListRequest) (*pb.AdminMessagesListReply, error) {
+	var (
+		adminMessages []*AdminMessage
+		err           error
+	)
+
+	adminMessages, err = ac.userRepo.GetAdminMessages(ctx)
+	if nil != err {
+		return &pb.AdminMessagesListReply{
+			Status: "消息查询失败",
+		}, nil
+	}
+	resMessageAdmin := make([]*pb.AdminMessagesListReply_List, 0)
+	for _, m := range adminMessages {
+		resMessageAdmin = append(resMessageAdmin, &pb.AdminMessagesListReply_List{
+			Content:    m.Content,
+			ContentTwo: m.ContentTwo,
+			Id:         m.ID,
+			Status:     m.Status,
+		})
+	}
+
+	return &pb.AdminMessagesListReply{
+		Status:     "ok",
+		RecordList: resMessageAdmin,
+		Count:      100,
 	}, nil
 }
 
