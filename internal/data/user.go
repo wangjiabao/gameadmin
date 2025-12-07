@@ -426,8 +426,8 @@ type Admin struct {
 
 type AdminMessage struct {
 	ID         uint64    `gorm:"primarykey;type:int"`
-	Content    string    `gorm:"type:varchar(200);not null;comment:消息内容"`
-	ContentTwo string    `gorm:"type:varchar(200);not null;comment:消息内容"`
+	Content    string    `gorm:"type:varchar(2000);not null;comment:消息内容"`
+	ContentTwo string    `gorm:"type:varchar(2000);not null;comment:消息内容"`
 	Status     uint64    `gorm:"type:int;not null;default:0"`
 	CreatedAt  time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt  time.Time `gorm:"type:datetime;not null"`
