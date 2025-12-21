@@ -632,7 +632,7 @@ func (u *UserRepo) GetRecordPageCountThree(ctx context.Context, address string) 
 }
 
 // GetUserPage .
-func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagination) ([]*biz.User, error) {
+func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU uint64, b *biz.Pagination) ([]*biz.User, error) {
 	var users []*User
 
 	res := make([]*biz.User, 0)
@@ -643,7 +643,13 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, b *biz.Pagin
 		instance = instance.Where("address=?", address)
 	}
 
-	if err := instance.Order("id desc").Scopes(Paginate(b.PageNum, b.PageSize)).Find(&users).Error; err != nil {
+	if 0 < orderU {
+		instance = instance.Order("amount_usdt desc")
+	} else {
+		instance = instance.Order("id desc")
+	}
+
+	if err := instance.Scopes(Paginate(b.PageNum, b.PageSize)).Find(&users).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return res, nil
 		}
@@ -3856,22 +3862,41 @@ func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw uint64) er
 }
 
 // SetGit .
-func (u *UserRepo) SetGit(ctx context.Context, address string, git uint64) error {
-	res := u.data.DB(ctx).Table("user").Where("address=?", address).
-		Updates(map[string]interface{}{"git": float64(git), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
-	if res.Error != nil {
-		return errors.New(500, "BuyBox", "用户信息修改失败")
-	}
+func (u *UserRepo) SetGit(ctx context.Context, address string, git, coinType uint64) error {
+	if 1 == coinType {
+		res := u.data.DB(ctx).Table("user").Where("address=?", address).
+			Updates(map[string]interface{}{"git_new": float64(git), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "BuyBox", "用户信息修改失败")
+		}
 
-	var adminSetBalance AdminSetBalance
+		var adminSetBalance AdminSetBalance
 
-	adminSetBalance.Amount = git
-	adminSetBalance.Address = address
-	adminSetBalance.Coin = uint64(2)
+		adminSetBalance.Amount = git
+		adminSetBalance.Address = address
+		adminSetBalance.Coin = uint64(6)
 
-	res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
-	if res.Error != nil {
-		return errors.New(500, "admin_set_balance", "修改余额记录失败")
+		res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+		if res.Error != nil {
+			return errors.New(500, "admin_set_balance", "修改余额记录失败")
+		}
+	} else {
+		res := u.data.DB(ctx).Table("user").Where("address=?", address).
+			Updates(map[string]interface{}{"git": float64(git), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "BuyBox", "用户信息修改失败")
+		}
+
+		var adminSetBalance AdminSetBalance
+
+		adminSetBalance.Amount = git
+		adminSetBalance.Address = address
+		adminSetBalance.Coin = uint64(2)
+
+		res = u.data.DB(ctx).Table("admin_set_balance").Create(&adminSetBalance)
+		if res.Error != nil {
+			return errors.New(500, "admin_set_balance", "修改余额记录失败")
+		}
 	}
 
 	return nil

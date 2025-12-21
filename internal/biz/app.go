@@ -439,7 +439,7 @@ type UserRepo interface {
 	GetWithdrawPageCount(ctx context.Context, userId uint64) (int64, error)
 	GetRecordPageCount(ctx context.Context, address string) (int64, error)
 	GetRecordPageCountTwo(ctx context.Context, address string) (int64, error)
-	GetUserPage(ctx context.Context, userId string, b *Pagination) ([]*User, error)
+	GetUserPage(ctx context.Context, userId string, orderU uint64, b *Pagination) ([]*User, error)
 	GetWithdrawPage(ctx context.Context, userId uint64, b *Pagination) ([]*Withdraw, error)
 	GetEthUserRecordLast(ctx context.Context) (int64, error)
 	GetEthUserRecordLastTwo(ctx context.Context) (int64, error)
@@ -547,7 +547,7 @@ type UserRepo interface {
 	GetLandInfo(ctx context.Context) ([]*LandInfo, error)
 	SetGiw(ctx context.Context, address string, giw uint64) error
 	SetGiwTwo(ctx context.Context, address string, giw uint64) error
-	SetGit(ctx context.Context, address string, git uint64) error
+	SetGit(ctx context.Context, address string, git, coinType uint64) error
 	SetUsdt(ctx context.Context, address string, usdt uint64) error
 	SetAddress(ctx context.Context, address string, newAddress string) error
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
@@ -4954,7 +4954,7 @@ func (ac *AppUsecase) SetGiw(ctx context.Context, req *pb.SetGiwRequest) (*pb.Se
 }
 
 func (ac *AppUsecase) SetGit(ctx context.Context, req *pb.SetGitRequest) (*pb.SetGitReply, error) {
-	return &pb.SetGitReply{Status: "ok"}, ac.userRepo.SetGit(ctx, req.Address, req.Git)
+	return &pb.SetGitReply{Status: "ok"}, ac.userRepo.SetGit(ctx, req.Address, req.Git, 0)
 }
 
 func (ac *AppUsecase) AdminSetGiw(ctx context.Context, req *pb.AdminSetGiwRequest) (*pb.AdminSetGiwReply, error) {
@@ -4966,7 +4966,7 @@ func (ac *AppUsecase) AdminSetGiwTwo(ctx context.Context, req *pb.AdminSetGiwTwo
 }
 
 func (ac *AppUsecase) AdminSetGit(ctx context.Context, req *pb.AdminSetGitRequest) (*pb.AdminSetGitReply, error) {
-	return &pb.AdminSetGitReply{Status: "ok"}, ac.userRepo.SetGit(ctx, req.Address, req.Giw)
+	return &pb.AdminSetGitReply{Status: "ok"}, ac.userRepo.SetGit(ctx, req.Address, req.Giw, req.SetType)
 }
 
 func (ac *AppUsecase) AdminSetUsdt(ctx context.Context, req *pb.AdminSetUsdtRequest) (*pb.AdminSetUsdtReply, error) {
@@ -5258,7 +5258,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 		}, nil
 	}
 
-	users, err = ac.userRepo.GetUserPage(ctx, req.Address, &Pagination{
+	users, err = ac.userRepo.GetUserPage(ctx, req.Address, uint64(req.OrderType), &Pagination{
 		PageNum:  int(req.Page),
 		PageSize: 20,
 	})

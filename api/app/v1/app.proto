@@ -1364,7 +1364,7 @@ message SetGiwReply {
 
 message SetGitRequest {
 	string address = 1; // index列表里的landUseId，种植记录
-	uint64 git = 2; // 手套id
+	uint64 git = 2; // 手套i
 }
 
 message SetGitReply {
@@ -1398,6 +1398,7 @@ message AdminLoginReply {
 message AdminUserListRequest {
 	int64 page = 1;
 	string address = 2;
+	int64 orderType = 3;
 }
 
 message AdminUserListReply { // 用户信息
@@ -1846,6 +1847,7 @@ message AdminSetGiwTwoReply {
 message AdminSetGitRequest {
 	string address = 1; // index列表里的landUseId，种植记录
 	uint64 giw = 2;
+	uint64 setType = 3;
 }
 
 message AdminSetGitReply {
