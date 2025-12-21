@@ -6063,6 +6063,13 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"min_stake_two",
 		"win_rate",
 		"can_withdraw",
+		"withdraw_amount_min_three",
+		"withdraw_amount_max_three",
+		"withdraw_rate_three",
+		"exchange_three",
+		"exchange_max_three",
+		"exchange_min_three",
+		"exchange_three_rate",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
