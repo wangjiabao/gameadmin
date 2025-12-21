@@ -43,6 +43,7 @@ type User struct {
 	AmountUsdt       float64   `gorm:"type:decimal(65,20);default:0.00000000000000000000;"`
 	MyTotalAmount    float64   `gorm:"type:decimal(65,20);default:0.00000000000000000000;"`
 	OutNum           uint64    `gorm:"type:int;"`
+	GitNew           float64   `gorm:"type:decimal(65,20);default:0.00000000000000000000;"`
 	Vip              uint64    `gorm:"type:int;"`
 	VipAdmin         uint64    `gorm:"type:int;"`
 	LockUse          uint64    `gorm:"type:int;"`
@@ -690,6 +691,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU uint6
 			CanRent:          user.CanRent,
 			WithdrawMax:      user.WithdrawMax,
 			CanPlayAdd:       user.CanPlayAdd,
+			GitNew:           user.GitNew,
 		})
 	}
 	return res, nil

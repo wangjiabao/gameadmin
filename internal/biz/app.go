@@ -83,6 +83,7 @@ type User struct {
 	CanPlayAdd       uint64
 	WithdrawMax      uint64
 	UsdtTwo          float64
+	GitNew           float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
@@ -5353,6 +5354,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			CanLand:                   v.CanLand,
 			MaxWithdraw:               v.WithdrawMax,
 			CanPlayAdd:                v.CanPlayAdd,
+			GitNew:                    v.GitNew,
 		})
 	}
 

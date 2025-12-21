@@ -2967,6 +2967,9 @@ components:
                 giw:
                     type: number
                     format: double
+                gitNew:
+                    type: number
+                    format: double
                 giwTwo:
                     type: number
                     format: double
