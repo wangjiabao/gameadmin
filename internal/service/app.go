@@ -2393,9 +2393,11 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 			continue
 		}
 
-		coin := "0x74545c882f857B557200d564A81F70Eda6E3bD27"
-		if "usdt" == withdraw.Coin {
-			coin = "0x55d398326f99059fF775485246999027B3197955"
+		coin := "0xDac444181Aa59086b2bD5FE8d99647FDf3E33333"
+		if "ispay_new" == withdraw.Coin {
+
+		} else {
+			continue
 		}
 
 		for i := 0; i <= 5; i++ {
