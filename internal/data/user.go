@@ -53,9 +53,11 @@ type User struct {
 	CanSell          uint64    `gorm:"type:int;"`
 	CanPlayAdd       uint64    `gorm:"type:int;"`
 	WithdrawMax      uint64    `gorm:"type:int;"`
+	LandCount        uint64    `gorm:"type:int;"`
 	LastRewardTotal  float64   `gorm:"type:decimal(65,20);not null"`
 	UsdtTwo          float64   `gorm:"type:decimal(65,20);"`
 	GiwTwo           float64   `gorm:"type:decimal(65,20);"`
+	LandReward       float64   `gorm:"type:decimal(65,20);"`
 	CreatedAt        time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
 }
@@ -551,6 +553,7 @@ func (u *UserRepo) GetAllUsers(ctx context.Context) ([]*biz.User, error) {
 			Vip:              user.Vip,
 			VipAdmin:         user.VipAdmin,
 			LockReward:       user.LockReward,
+			LandReward:       user.LandReward,
 		})
 	}
 
@@ -633,7 +636,7 @@ func (u *UserRepo) GetRecordPageCountThree(ctx context.Context, address string) 
 }
 
 // GetUserPage .
-func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU uint64, b *biz.Pagination) ([]*biz.User, error) {
+func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU, orderLand uint64, b *biz.Pagination) ([]*biz.User, error) {
 	var users []*User
 
 	res := make([]*biz.User, 0)
@@ -646,6 +649,8 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU uint6
 
 	if 0 < orderU {
 		instance = instance.Order("amount_usdt desc")
+	} else if 0 < orderLand {
+		instance = instance.Order("land_count desc")
 	} else {
 		instance = instance.Order("id desc")
 	}
@@ -692,6 +697,7 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU uint6
 			WithdrawMax:      user.WithdrawMax,
 			CanPlayAdd:       user.CanPlayAdd,
 			GitNew:           user.GitNew,
+			LandCount:        user.LandCount,
 		})
 	}
 	return res, nil

@@ -1162,6 +1162,10 @@ paths:
                   in: query
                   schema:
                     type: string
+                - name: orderTypeTwo
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -2970,6 +2974,8 @@ components:
                 gitNew:
                     type: number
                     format: double
+                landCount:
+                    type: string
                 giwTwo:
                     type: number
                     format: double

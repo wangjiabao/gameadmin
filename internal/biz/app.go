@@ -73,6 +73,7 @@ type User struct {
 	AmountUsdt       float64
 	MyTotalAmount    float64
 	OutNum           uint64
+	LandReward       float64
 	Vip              uint64
 	VipAdmin         uint64
 	LockUse          uint64
@@ -82,6 +83,7 @@ type User struct {
 	CanSell          uint64
 	CanPlayAdd       uint64
 	WithdrawMax      uint64
+	LandCount        uint64
 	UsdtTwo          float64
 	GitNew           float64
 	CreatedAt        time.Time
@@ -440,7 +442,7 @@ type UserRepo interface {
 	GetWithdrawPageCount(ctx context.Context, userId uint64) (int64, error)
 	GetRecordPageCount(ctx context.Context, address string) (int64, error)
 	GetRecordPageCountTwo(ctx context.Context, address string) (int64, error)
-	GetUserPage(ctx context.Context, userId string, orderU uint64, b *Pagination) ([]*User, error)
+	GetUserPage(ctx context.Context, userId string, orderU, orderLand uint64, b *Pagination) ([]*User, error)
 	GetWithdrawPage(ctx context.Context, userId uint64, b *Pagination) ([]*Withdraw, error)
 	GetEthUserRecordLast(ctx context.Context) (int64, error)
 	GetEthUserRecordLastTwo(ctx context.Context) (int64, error)
@@ -4933,7 +4935,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else { // 输：下注金额加入池子
+	} else {                                                         // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -5259,7 +5261,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 		}, nil
 	}
 
-	users, err = ac.userRepo.GetUserPage(ctx, req.Address, uint64(req.OrderType), &Pagination{
+	users, err = ac.userRepo.GetUserPage(ctx, req.Address, uint64(req.OrderType), uint64(req.OrderTypeTwo), &Pagination{
 		PageNum:  int(req.Page),
 		PageSize: 20,
 	})
@@ -5355,6 +5357,7 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			MaxWithdraw:               v.WithdrawMax,
 			CanPlayAdd:                v.CanPlayAdd,
 			GitNew:                    v.GitNew,
+			LandCount:                 v.LandCount,
 		})
 	}
 
@@ -5976,6 +5979,7 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 	}
 
 	var (
+		users []*User
 		lands []*Land
 	)
 	lands, err = ac.userRepo.GetLandReward(ctx)
@@ -5984,7 +5988,22 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 		return nil, nil
 	}
 
+	users, err = ac.userRepo.GetAllUsers(ctx)
+	if nil != err {
+		fmt.Println(err, "admin land reward")
+		return nil, nil
+	}
+
+	usersMap := make(map[uint64]*User, 0)
+	for _, vUser := range users {
+		usersMap[vUser.ID] = vUser
+	}
+
 	for _, v := range lands {
+		if _, ok := usersMap[v.UserId]; ok {
+			rewardLand = usersMap[v.UserId].LandReward
+		}
+
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.UpdateUserLandReward(ctx, v.UserId, 51, v.ID, rewardLand)
 			if err != nil {

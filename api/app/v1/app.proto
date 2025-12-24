@@ -1399,6 +1399,7 @@ message AdminUserListRequest {
 	int64 page = 1;
 	string address = 2;
 	int64 orderType = 3;
+	int64 orderTypeTwo = 4;
 }
 
 message AdminUserListReply { // 用户信息
@@ -1410,6 +1411,7 @@ message AdminUserListReply { // 用户信息
 		uint64 level = 3; // 级别，系统里所有我的级别展示
 		double giw = 4; // git余额，系统里所有git的余额展示
 		double gitNew = 144; // git余额，系统里所有git的余额展示
+		uint64 landCount = 145;
 		double giwTwo = 141; // git余额，系统里所有git的余额展示
 		double git = 5; // giw余额，系统里所有giw的余额展示
 		double amountUsdt = 25; // giw余额，系统里所有giw的余额展示
