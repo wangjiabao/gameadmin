@@ -2367,7 +2367,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 			break
 		}
 
-		if 0 >= withdraw.RelAmount {
+		if 0 >= withdraw.RelAmountFloat {
 			continue
 		}
 
@@ -2390,7 +2390,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 
 		tmpUrl1 := "https://bsc-dataseed4.binance.org/"
 		withDrawAmount := FloatTo18DecimalsString(withdraw.RelAmountFloat)
-		if len(withDrawAmount) <= 15 {
+		if len(withDrawAmount) <= 10 {
 			fmt.Println(withDrawAmount, withdraw)
 			err = a.ac.UpdateWithdrawSuccess(ctx, withdraw.ID)
 			fmt.Println(err)
