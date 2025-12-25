@@ -2341,6 +2341,10 @@ func FloatTo18DecimalsString(f float64) string {
 		decimalPart += strings.Repeat("0", padZeros)
 	}
 
+	if "0" == integerPart {
+		return decimalPart
+	}
+
 	return integerPart + decimalPart
 }
 
