@@ -4030,6 +4030,17 @@ func (u *UserRepo) SetLockUse(ctx context.Context, address string, lockUse uint6
 	return nil
 }
 
+// SetLockUseTwo .
+func (u *UserRepo) SetLockUseTwo(ctx context.Context, id, lockUse uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("id=?", id).
+		Updates(map[string]interface{}{"lock_use": lockUse, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
 // SetLockReward .
 func (u *UserRepo) SetLockReward(ctx context.Context, address string, lock uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).

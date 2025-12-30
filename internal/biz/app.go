@@ -554,6 +554,7 @@ type UserRepo interface {
 	SetUsdt(ctx context.Context, address string, usdt uint64) error
 	SetAddress(ctx context.Context, address string, newAddress string) error
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
+	SetLockUseTwo(ctx context.Context, id, lockUse uint64) error
 	SetLockReward(ctx context.Context, address string, lock uint64) error
 	SetVip(ctx context.Context, address string, vip uint64) error
 	SetCanSell(ctx context.Context, address string, num uint64) error
@@ -5005,7 +5006,41 @@ func (ac *AppUsecase) AdminSetVip(ctx context.Context, req *pb.AdminSetVipReques
 }
 
 func (ac *AppUsecase) AdminSetLockUse(ctx context.Context, req *pb.AdminSetLockRequest) (*pb.AdminSetLockReply, error) {
-	return &pb.AdminSetLockReply{Status: "ok"}, ac.userRepo.SetLockUse(ctx, req.Address, req.Lock)
+	var (
+		err  error
+		user *User
+	)
+
+	user, err = ac.userRepo.GetUserByAddress(ctx, req.Address)
+	if nil != err {
+		return &pb.AdminSetLockReply{Status: "错误"}, err
+	}
+
+	// 推荐
+	var (
+		userRecommend *UserRecommend
+		team          []*UserRecommend
+	)
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, user.ID)
+	if nil == userRecommend || nil != err {
+		return &pb.AdminSetLockReply{
+			Status: "推荐错误查询",
+		}, nil
+	}
+
+	team, err = ac.userRepo.GetUserRecommendLikeCode(ctx, userRecommend.RecommendCode+"D"+strconv.FormatUint(user.ID, 10))
+	if nil != err {
+		return &pb.AdminSetLockReply{
+			Status: "推荐错误查询",
+		}, nil
+	}
+
+	for _, v := range team {
+		err = ac.userRepo.SetLockUseTwo(ctx, v.UserId, req.Lock)
+		fmt.Println("AdminSetLock err", v, err)
+	}
+
+	return &pb.AdminSetLockReply{Status: "ok"}, nil
 }
 
 func (ac *AppUsecase) AdminSetLockReward(ctx context.Context, req *pb.AdminSetLockRewardRequest) (*pb.AdminSetLockRewardReply, error) {
