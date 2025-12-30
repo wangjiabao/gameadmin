@@ -86,6 +86,9 @@ type User struct {
 	LandCount        uint64
 	UsdtTwo          float64
 	GitNew           float64
+	One              float64
+	Two              float64
+	Three            float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }
@@ -557,6 +560,7 @@ type UserRepo interface {
 	SetLockUseTwo(ctx context.Context, id, lockUse uint64) error
 	SetLockReward(ctx context.Context, address string, lock uint64) error
 	SetVip(ctx context.Context, address string, vip uint64) error
+	SetOneTwoThree(ctx context.Context, address string, setType uint64, v float64) error
 	SetCanSell(ctx context.Context, address string, num uint64) error
 	SetCanPlayAdd(ctx context.Context, address string, num uint64) error
 	SetCanRent(ctx context.Context, address string, vip uint64) error
@@ -5005,6 +5009,10 @@ func (ac *AppUsecase) AdminSetVip(ctx context.Context, req *pb.AdminSetVipReques
 	return &pb.AdminSetVipReply{Status: "ok"}, ac.userRepo.SetVip(ctx, req.Address, req.Vip)
 }
 
+func (ac *AppUsecase) AdminSetOneTwoThree(ctx context.Context, req *pb.AdminSetOneTwoThreeRequest) (*pb.AdminSetOneTwoThreeReply, error) {
+	return &pb.AdminSetOneTwoThreeReply{Status: "ok"}, ac.userRepo.SetOneTwoThree(ctx, req.Address, req.SetType, req.Amount)
+}
+
 func (ac *AppUsecase) AdminSetLockUse(ctx context.Context, req *pb.AdminSetLockRequest) (*pb.AdminSetLockReply, error) {
 	var (
 		err  error
@@ -5400,6 +5408,9 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			CanPlayAdd:                v.CanPlayAdd,
 			GitNew:                    v.GitNew,
 			LandCount:                 v.LandCount,
+			One:                       v.One,
+			Two:                       v.Two,
+			Three:                     v.Three,
 		})
 	}
 

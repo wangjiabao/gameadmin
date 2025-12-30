@@ -98,6 +98,7 @@ const (
 	App_AdminSetWithdrawMax_FullMethodName    = "/api.app.v1.App/AdminSetWithdrawMax"
 	App_AdminSetCanLand_FullMethodName        = "/api.app.v1.App/AdminSetCanLand"
 	App_AdminSetLock_FullMethodName           = "/api.app.v1.App/AdminSetLock"
+	App_AdminSetOneTwoThree_FullMethodName    = "/api.app.v1.App/AdminSetOneTwoThree"
 	App_AdminSetLockReward_FullMethodName     = "/api.app.v1.App/AdminSetLockReward"
 	App_AdminGetBox_FullMethodName            = "/api.app.v1.App/AdminGetBox"
 	App_AdminSetBox_FullMethodName            = "/api.app.v1.App/AdminSetBox"
@@ -268,6 +269,7 @@ type AppClient interface {
 	// 允许全网布置土地
 	AdminSetCanLand(ctx context.Context, in *AdminSetCanLandRequest, opts ...grpc.CallOption) (*AdminSetCanLandReply, error)
 	AdminSetLock(ctx context.Context, in *AdminSetLockRequest, opts ...grpc.CallOption) (*AdminSetLockReply, error)
+	AdminSetOneTwoThree(ctx context.Context, in *AdminSetOneTwoThreeRequest, opts ...grpc.CallOption) (*AdminSetOneTwoThreeReply, error)
 	AdminSetLockReward(ctx context.Context, in *AdminSetLockRewardRequest, opts ...grpc.CallOption) (*AdminSetLockRewardReply, error)
 	// 当前盲盒信息
 	AdminGetBox(ctx context.Context, in *AdminGetBoxRequest, opts ...grpc.CallOption) (*AdminGetBoxReply, error)
@@ -1011,6 +1013,15 @@ func (c *appClient) AdminSetLock(ctx context.Context, in *AdminSetLockRequest, o
 	return out, nil
 }
 
+func (c *appClient) AdminSetOneTwoThree(ctx context.Context, in *AdminSetOneTwoThreeRequest, opts ...grpc.CallOption) (*AdminSetOneTwoThreeReply, error) {
+	out := new(AdminSetOneTwoThreeReply)
+	err := c.cc.Invoke(ctx, App_AdminSetOneTwoThree_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetLockReward(ctx context.Context, in *AdminSetLockRewardRequest, opts ...grpc.CallOption) (*AdminSetLockRewardReply, error) {
 	out := new(AdminSetLockRewardReply)
 	err := c.cc.Invoke(ctx, App_AdminSetLockReward_FullMethodName, in, out, opts...)
@@ -1283,6 +1294,7 @@ type AppServer interface {
 	// 允许全网布置土地
 	AdminSetCanLand(context.Context, *AdminSetCanLandRequest) (*AdminSetCanLandReply, error)
 	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
+	AdminSetOneTwoThree(context.Context, *AdminSetOneTwoThreeRequest) (*AdminSetOneTwoThreeReply, error)
 	AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error)
 	// 当前盲盒信息
 	AdminGetBox(context.Context, *AdminGetBoxRequest) (*AdminGetBoxReply, error)
@@ -1548,6 +1560,9 @@ func (UnimplementedAppServer) AdminSetCanLand(context.Context, *AdminSetCanLandR
 }
 func (UnimplementedAppServer) AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLock not implemented")
+}
+func (UnimplementedAppServer) AdminSetOneTwoThree(context.Context, *AdminSetOneTwoThreeRequest) (*AdminSetOneTwoThreeReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetOneTwoThree not implemented")
 }
 func (UnimplementedAppServer) AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLockReward not implemented")
@@ -3023,6 +3038,24 @@ func _App_AdminSetLock_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetOneTwoThree_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetOneTwoThreeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetOneTwoThree(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetOneTwoThree_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetOneTwoThree(ctx, req.(*AdminSetOneTwoThreeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetLockReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetLockRewardRequest)
 	if err := dec(in); err != nil {
@@ -3579,6 +3612,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetLock",
 			Handler:    _App_AdminSetLock_Handler,
+		},
+		{
+			MethodName: "AdminSetOneTwoThree",
+			Handler:    _App_AdminSetOneTwoThree_Handler,
 		},
 		{
 			MethodName: "AdminSetLockReward",

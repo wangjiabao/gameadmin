@@ -581,6 +581,12 @@ service App {
 		};
 	};
 
+	rpc AdminSetOneTwoThree (AdminSetOneTwoThreeRequest) returns (AdminSetOneTwoThreeReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_one_two_three"
+		};
+	};
+
 	rpc AdminSetLockReward (AdminSetLockRewardRequest) returns (AdminSetLockRewardReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/set_lock_reward"
@@ -1436,6 +1442,10 @@ message AdminUserListReply { // 用户信息
 		uint64 canPlayAdd = 118;
 
 		uint64 maxWithdraw = 117;
+
+		double one = 119;
+		double two = 120;
+		double three = 121;
 	}
 
 	int64 count = 3;
@@ -1927,6 +1937,16 @@ message AdminSetLockRequest {
 }
 
 message AdminSetLockReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetOneTwoThreeRequest {
+	string address = 1;
+	uint64 setType = 2;
+	double amount = 3;
+}
+
+message AdminSetOneTwoThreeReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 

@@ -53,6 +53,7 @@ const OperationAppAdminSetGiwTwo = "/api.app.v1.App/AdminSetGiwTwo"
 const OperationAppAdminSetLand = "/api.app.v1.App/AdminSetLand"
 const OperationAppAdminSetLock = "/api.app.v1.App/AdminSetLock"
 const OperationAppAdminSetLockReward = "/api.app.v1.App/AdminSetLockReward"
+const OperationAppAdminSetOneTwoThree = "/api.app.v1.App/AdminSetOneTwoThree"
 const OperationAppAdminSetProp = "/api.app.v1.App/AdminSetProp"
 const OperationAppAdminSetSeed = "/api.app.v1.App/AdminSetSeed"
 const OperationAppAdminSetUsdt = "/api.app.v1.App/AdminSetUsdt"
@@ -177,6 +178,7 @@ type AppHTTPServer interface {
 	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
 	AdminSetLock(context.Context, *AdminSetLockRequest) (*AdminSetLockReply, error)
 	AdminSetLockReward(context.Context, *AdminSetLockRewardRequest) (*AdminSetLockRewardReply, error)
+	AdminSetOneTwoThree(context.Context, *AdminSetOneTwoThreeRequest) (*AdminSetOneTwoThreeReply, error)
 	// AdminSetProp 发道具
 	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
 	// AdminSetSeed 发种子
@@ -369,6 +371,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/set_withdraw_max", _App_AdminSetWithdrawMax0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_land", _App_AdminSetCanLand0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_lock", _App_AdminSetLock0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_one_two_three", _App_AdminSetOneTwoThree0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_lock_reward", _App_AdminSetLockReward0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/get_box", _App_AdminGetBox0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_box", _App_AdminSetBox0_HTTP_Handler(srv))
@@ -1960,6 +1963,25 @@ func _App_AdminSetLock0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) e
 	}
 }
 
+func _App_AdminSetOneTwoThree0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetOneTwoThreeRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetOneTwoThree)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetOneTwoThree(ctx, req.(*AdminSetOneTwoThreeRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetOneTwoThreeReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminSetLockReward0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetLockRewardRequest
@@ -2266,6 +2288,7 @@ type AppHTTPClient interface {
 	AdminSetLand(ctx context.Context, req *AdminSetLandRequest, opts ...http.CallOption) (rsp *AdminSetLandReply, err error)
 	AdminSetLock(ctx context.Context, req *AdminSetLockRequest, opts ...http.CallOption) (rsp *AdminSetLockReply, err error)
 	AdminSetLockReward(ctx context.Context, req *AdminSetLockRewardRequest, opts ...http.CallOption) (rsp *AdminSetLockRewardReply, err error)
+	AdminSetOneTwoThree(ctx context.Context, req *AdminSetOneTwoThreeRequest, opts ...http.CallOption) (rsp *AdminSetOneTwoThreeReply, err error)
 	AdminSetProp(ctx context.Context, req *AdminSetPropRequest, opts ...http.CallOption) (rsp *AdminSetPropReply, err error)
 	AdminSetSeed(ctx context.Context, req *AdminSetSeedRequest, opts ...http.CallOption) (rsp *AdminSetSeedReply, err error)
 	AdminSetUsdt(ctx context.Context, req *AdminSetUsdtRequest, opts ...http.CallOption) (rsp *AdminSetUsdtReply, err error)
@@ -2768,6 +2791,19 @@ func (c *AppHTTPClientImpl) AdminSetLockReward(ctx context.Context, in *AdminSet
 	pattern := "/api/admin_dhb/set_lock_reward"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetLockReward))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetOneTwoThree(ctx context.Context, in *AdminSetOneTwoThreeRequest, opts ...http.CallOption) (*AdminSetOneTwoThreeReply, error) {
+	var out AdminSetOneTwoThreeReply
+	pattern := "/api/admin_dhb/set_one_two_three"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetOneTwoThree))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

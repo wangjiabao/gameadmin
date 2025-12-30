@@ -879,6 +879,38 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_one_two_three:
+        get:
+            tags:
+                - App
+            operationId: App_AdminSetOneTwoThree
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: setType
+                  in: query
+                  schema:
+                    type: string
+                - name: amount
+                  in: query
+                  schema:
+                    type: number
+                    format: double
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetOneTwoThreeReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/set_prop:
         post:
             tags:
@@ -2773,6 +2805,11 @@ components:
             properties:
                 status:
                     type: string
+        AdminSetOneTwoThreeReply:
+            type: object
+            properties:
+                status:
+                    type: string
         AdminSetPropReply:
             type: object
             properties:
@@ -3034,6 +3071,15 @@ components:
                     type: string
                 maxWithdraw:
                     type: string
+                one:
+                    type: number
+                    format: double
+                two:
+                    type: number
+                    format: double
+                three:
+                    type: number
+                    format: double
         AdminUserRecommendReply:
             type: object
             properties:

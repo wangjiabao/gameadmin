@@ -60,6 +60,9 @@ type User struct {
 	LandReward       float64   `gorm:"type:decimal(65,20);"`
 	CreatedAt        time.Time `gorm:"type:datetime;not null"`
 	UpdatedAt        time.Time `gorm:"type:datetime;not null"`
+	One              float64   `gorm:"type:decimal(65,20);not null"`
+	Two              float64   `gorm:"type:decimal(65,20);not null"`
+	Three            float64   `gorm:"type:decimal(65,20);not null"`
 }
 
 type UserRecommend struct {
@@ -698,6 +701,9 @@ func (u *UserRepo) GetUserPage(ctx context.Context, address string, orderU, orde
 			CanPlayAdd:       user.CanPlayAdd,
 			GitNew:           user.GitNew,
 			LandCount:        user.LandCount,
+			One:              user.One,
+			Two:              user.Two,
+			Three:            user.Three,
 		})
 	}
 	return res, nil
@@ -3959,6 +3965,31 @@ func (u *UserRepo) SetVip(ctx context.Context, address string, vip uint64) error
 		Updates(map[string]interface{}{"vip": vip, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetOneTwoThree .
+func (u *UserRepo) SetOneTwoThree(ctx context.Context, address string, setType uint64, v float64) error {
+	if 1 == setType {
+		res := u.data.DB(ctx).Table("user").Where("address=?", address).
+			Updates(map[string]interface{}{"one": v, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "SetOneTwoThree", "用户信息修改失败")
+		}
+	} else if 2 == setType {
+		res := u.data.DB(ctx).Table("user").Where("address=?", address).
+			Updates(map[string]interface{}{"two": v, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "SetOneTwoThree", "用户信息修改失败")
+		}
+	} else if 3 == setType {
+		res := u.data.DB(ctx).Table("user").Where("address=?", address).
+			Updates(map[string]interface{}{"three": v, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		if res.Error != nil {
+			return errors.New(500, "SetOneTwoThree", "用户信息修改失败")
+		}
 	}
 
 	return nil

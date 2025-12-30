@@ -1835,6 +1835,10 @@ func (a *AppService) AdminSetLock(ctx context.Context, req *pb.AdminSetLockReque
 	return a.ac.AdminSetLockUse(ctx, req)
 }
 
+func (a *AppService) AdminSetOneTwoThree(ctx context.Context, req *pb.AdminSetOneTwoThreeRequest) (*pb.AdminSetOneTwoThreeReply, error) {
+	return a.ac.AdminSetOneTwoThree(ctx, req)
+}
+
 func (a *AppService) AdminSetLockReward(ctx context.Context, req *pb.AdminSetLockRewardRequest) (*pb.AdminSetLockRewardReply, error) {
 	return a.ac.AdminSetLockReward(ctx, req)
 }
