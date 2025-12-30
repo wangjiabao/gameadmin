@@ -5016,6 +5016,13 @@ func (ac *AppUsecase) AdminSetLockUse(ctx context.Context, req *pb.AdminSetLockR
 		return &pb.AdminSetLockReply{Status: "错误"}, err
 	}
 
+	err = ac.userRepo.SetLockUseTwo(ctx, user.ID, req.Lock)
+	if nil != err {
+		return &pb.AdminSetLockReply{
+			Status: "锁定错误",
+		}, nil
+	}
+
 	// 推荐
 	var (
 		userRecommend *UserRecommend
