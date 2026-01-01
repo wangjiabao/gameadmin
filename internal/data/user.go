@@ -4722,7 +4722,7 @@ func (u *UserRepo) GetStakeGitRecords(ctx context.Context) ([]*biz.StakeGitRecor
 func (u *UserRepo) DailyReward(ctx context.Context, id, userId uint64, amount float64) error {
 	if amount > 0 {
 		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-			Updates(map[string]interface{}{"git": gorm.Expr("git + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			Updates(map[string]interface{}{"amount_usdt": gorm.Expr("amount_usdt + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 		if res.Error != nil {
 			return errors.New(500, "BuyBox", "用户信息修改失败")
 		}

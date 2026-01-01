@@ -7758,11 +7758,11 @@ func (ac *AppUsecase) AdminDailyReward(ctx context.Context, req *pb.AdminDailyRe
 
 func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest) (*pb.AdminDailyReply, error) {
 	var (
-		stakeGitRecord  []*StakeGitRecord
-		configs         []*Config
-		oneRate         float64
-		twoRate         float64
-		threeRate       float64
+		stakeGitRecord []*StakeGitRecord
+		configs        []*Config
+		//oneRate         float64
+		//twoRate         float64
+		//threeRate       float64
 		rewardStakeRate float64
 		//uPrice          float64
 		//lowRewardU      float64
@@ -7784,17 +7784,17 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 	}
 
 	for _, vConfig := range configs {
-		if "one_rate" == vConfig.KeyName {
-			oneRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
-
-		if "two_rate" == vConfig.KeyName {
-			twoRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
-
-		if "three_rate" == vConfig.KeyName {
-			threeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
+		//if "one_rate" == vConfig.KeyName {
+		//	oneRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
+		//
+		//if "two_rate" == vConfig.KeyName {
+		//	twoRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
+		//
+		//if "three_rate" == vConfig.KeyName {
+		//	threeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
 
 		if "reward_stake_rate" == vConfig.KeyName {
 			rewardStakeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
@@ -7815,22 +7815,22 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 	//}
 
 	// 推荐人
-	var (
-		userRecommends    []*UserRecommend
-		userRecommendsMap map[uint64]*UserRecommend
-	)
-
-	userRecommendsMap = make(map[uint64]*UserRecommend, 0)
-
-	userRecommends, err = ac.userRepo.GetUserRecommends(ctx)
-	if nil != err {
-		fmt.Println("今日分红错误用户获取失败2")
-		return nil, err
-	}
-
-	for _, vUr := range userRecommends {
-		userRecommendsMap[vUr.UserId] = vUr
-	}
+	//var (
+	//	userRecommends    []*UserRecommend
+	//	userRecommendsMap map[uint64]*UserRecommend
+	//)
+	//
+	//userRecommendsMap = make(map[uint64]*UserRecommend, 0)
+	//
+	//userRecommends, err = ac.userRepo.GetUserRecommends(ctx)
+	//if nil != err {
+	//	fmt.Println("今日分红错误用户获取失败2")
+	//	return nil, err
+	//}
+	//
+	//for _, vUr := range userRecommends {
+	//	userRecommendsMap[vUr.UserId] = vUr
+	//}
 
 	// 美区时间16点以后执行的
 	lastDay := time.Now().UTC().AddDate(0, 0, -1)
@@ -7841,45 +7841,45 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 			continue
 		}
 
-		if _, ok := userRecommendsMap[v.UserId]; !ok {
-			continue
-		}
+		//if _, ok := userRecommendsMap[v.UserId]; !ok {
+		//	continue
+		//}
+		//
+		//if nil == userRecommendsMap[v.UserId] {
+		//	continue
+		//}
+		//
+		//vUr := userRecommendsMap[v.UserId]
+		//// 我的直推
+		//var (
+		//	tmpRecommendUserIds []string
+		//)
+		//tmpRecommendUserIds = strings.Split(vUr.RecommendCode, "D")
+		//
+		//userIds := make([]uint64, 0)
+		//tmpIi := 0
+		//for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+		//	if 3 <= tmpIi {
+		//		break
+		//	}
+		//	tmpIi++
+		//
+		//	tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+		//	if 0 >= tmpUserId {
+		//		continue
+		//	}
+		//
+		//	userIds = append(userIds, tmpUserId)
+		//}
 
-		if nil == userRecommendsMap[v.UserId] {
-			continue
-		}
-
-		vUr := userRecommendsMap[v.UserId]
-		// 我的直推
-		var (
-			tmpRecommendUserIds []string
-		)
-		tmpRecommendUserIds = strings.Split(vUr.RecommendCode, "D")
-
-		userIds := make([]uint64, 0)
-		tmpIi := 0
-		for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
-			if 3 <= tmpIi {
-				break
-			}
-			tmpIi++
-
-			tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
-			if 0 >= tmpUserId {
-				continue
-			}
-
-			userIds = append(userIds, tmpUserId)
-		}
-
-		usersMap := make(map[uint64]*User, 0)
-		if 0 < len(userIds) {
-			usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
-			if nil != err {
-				fmt.Println(err, "每日粮仓，上级查询")
-				continue
-			}
-		}
+		//usersMap := make(map[uint64]*User, 0)
+		//if 0 < len(userIds) {
+		//	usersMap, err = ac.userRepo.GetUserByUserIds(ctx, userIds)
+		//	if nil != err {
+		//		fmt.Println(err, "每日粮仓，上级查询")
+		//		continue
+		//	}
+		//}
 
 		tmpAmount := v.Amount * rewardStakeRate
 
@@ -7893,68 +7893,68 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 			err = ac.userRepo.CreateNotice(
 				ctx,
 				v.UserId,
-				"您在粮仓获得了"+fmt.Sprintf("%.2f", tmpAmount)+"GIT",
-				"You've harvest "+fmt.Sprintf("%.2f", tmpAmount)+" GIT from stake",
+				"您在粮仓获得了"+fmt.Sprintf("%.2f", tmpAmount)+"USDT",
+				"You've harvest "+fmt.Sprintf("%.2f", tmpAmount)+" USDT from stake",
 			)
 			if nil != err {
 				return err
 			}
 
 			// l1-l3，奖励发放
-			if tmpAmount > 0 {
-				tmpI := 0
-				for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
-					if 3 <= tmpI {
-						break
-					}
-					tmpI++
-
-					tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
-					if 0 >= tmpUserId {
-						continue
-					}
-
-					if _, ok := usersMap[tmpUserId]; !ok {
-						continue
-					}
-
-					//if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
-					//	continue
-					//}
-
-					tmpReward := float64(0)
-
-					tmpNum := uint64(6)
-					tmpReward = tmpAmount * oneRate
-					if 1 == tmpI {
-
-					} else if 2 == tmpI {
-						tmpReward = tmpAmount * twoRate
-						tmpNum = 9
-					} else if 3 == tmpI {
-						tmpReward = tmpAmount * threeRate
-						tmpNum = 12
-					} else {
-						break
-					}
-
-					// 奖励
-					err = ac.userRepo.DailyRewardL(ctx, v.ID, tmpUserId, v.UserId, tmpNum, tmpReward)
-					if nil != err {
-						return err
-					}
-
-					err = ac.userRepo.CreateNotice(
-						ctx,
-						tmpUserId,
-						"您从下级粮仓收获了"+fmt.Sprintf("%.2f", tmpReward)+"GIT",
-						"You've harvest "+fmt.Sprintf("%.2f", tmpReward)+" GIT from neighbor stake",
-					)
-					if nil != err {
-						return err
-					}
-				}
-			}
+			//if tmpAmount > 0 {
+			//	tmpI := 0
+			//	for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+			//		if 3 <= tmpI {
+			//			break
+			//		}
+			//		tmpI++
+			//
+			//		tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+			//		if 0 >= tmpUserId {
+			//			continue
+			//		}
+			//
+			//		if _, ok := usersMap[tmpUserId]; !ok {
+			//			continue
+			//		}
+			//
+			//		//if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
+			//		//	continue
+			//		//}
+			//
+			//		tmpReward := float64(0)
+			//
+			//		tmpNum := uint64(6)
+			//		tmpReward = tmpAmount * oneRate
+			//		if 1 == tmpI {
+			//
+			//		} else if 2 == tmpI {
+			//			tmpReward = tmpAmount * twoRate
+			//			tmpNum = 9
+			//		} else if 3 == tmpI {
+			//			tmpReward = tmpAmount * threeRate
+			//			tmpNum = 12
+			//		} else {
+			//			break
+			//		}
+			//
+			//		// 奖励
+			//		err = ac.userRepo.DailyRewardL(ctx, v.ID, tmpUserId, v.UserId, tmpNum, tmpReward)
+			//		if nil != err {
+			//			return err
+			//		}
+			//
+			//		err = ac.userRepo.CreateNotice(
+			//			ctx,
+			//			tmpUserId,
+			//			"您从下级粮仓收获了"+fmt.Sprintf("%.2f", tmpReward)+"USDT",
+			//			"You've harvest "+fmt.Sprintf("%.2f", tmpReward)+" USDT from neighbor stake",
+			//		)
+			//		if nil != err {
+			//			return err
+			//		}
+			//	}
+			//}
 
 			return nil
 		}); nil != err {
