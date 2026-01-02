@@ -6054,6 +6054,7 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 		usersMap[vUser.ID] = vUser
 	}
 
+	fmt.Println(time.Now(), "landreward", rewardLand)
 	for _, v := range lands {
 		if _, ok := usersMap[v.UserId]; ok {
 			rewardLand = usersMap[v.UserId].LandReward
