@@ -6057,7 +6057,9 @@ func (ac *AppUsecase) AdminLandReward(ctx context.Context, req *pb.AdminLandRewa
 	fmt.Println(time.Now(), "landreward", rewardLand)
 	for _, v := range lands {
 		if _, ok := usersMap[v.UserId]; ok {
-			rewardLand = usersMap[v.UserId].LandReward
+			if 0 < usersMap[v.UserId].LandReward {
+				rewardLand = usersMap[v.UserId].LandReward
+			}
 		}
 
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
