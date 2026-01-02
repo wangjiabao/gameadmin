@@ -5052,7 +5052,9 @@ func (ac *AppUsecase) AdminSetLockUse(ctx context.Context, req *pb.AdminSetLockR
 
 	for _, v := range team {
 		err = ac.userRepo.SetLockUseTwo(ctx, v.UserId, req.Lock)
-		fmt.Println("AdminSetLock err", v, err)
+		if nil != err {
+			fmt.Println("AdminSetLock err", v, err)
+		}
 	}
 
 	return &pb.AdminSetLockReply{Status: "ok"}, nil
