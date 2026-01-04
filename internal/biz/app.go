@@ -551,10 +551,10 @@ type UserRepo interface {
 	GetLand(ctx context.Context, id, id2, userId uint64) error
 	GetLandInfoByLevels(ctx context.Context) (map[uint64]*LandInfo, error)
 	GetLandInfo(ctx context.Context) ([]*LandInfo, error)
-	SetGiw(ctx context.Context, address string, giw uint64) error
-	SetGiwTwo(ctx context.Context, address string, giw uint64) error
-	SetGit(ctx context.Context, address string, git, coinType uint64) error
-	SetUsdt(ctx context.Context, address string, usdt uint64) error
+	SetGiw(ctx context.Context, address string, giw float64) error
+	SetGiwTwo(ctx context.Context, address string, giw float64) error
+	SetGit(ctx context.Context, address string, git float64, coinType uint64) error
+	SetUsdt(ctx context.Context, address string, usdt float64) error
 	SetAddress(ctx context.Context, address string, newAddress string) error
 	SetLockUse(ctx context.Context, address string, lockUse uint64) error
 	SetLockUseTwo(ctx context.Context, id, lockUse uint64) error
@@ -6151,6 +6151,9 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"exchange_three_rate",
 		"exchange_price",
 		"exchange_price_open",
+		"one",
+		"two",
+		"three",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{

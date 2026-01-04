@@ -3832,16 +3832,16 @@ func (u *UserRepo) GetLandInfo(ctx context.Context) ([]*biz.LandInfo, error) {
 }
 
 // SetGiw .
-func (u *UserRepo) SetGiw(ctx context.Context, address string, giw uint64) error {
+func (u *UserRepo) SetGiw(ctx context.Context, address string, giw float64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
-		Updates(map[string]interface{}{"giw": float64(giw), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		Updates(map[string]interface{}{"giw": giw, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}
 
 	var adminSetBalance AdminSetBalance
 
-	adminSetBalance.Amount = giw
+	adminSetBalance.Amount = uint64(giw * 10000000000)
 	adminSetBalance.Address = address
 	adminSetBalance.Coin = uint64(4)
 
@@ -3854,16 +3854,16 @@ func (u *UserRepo) SetGiw(ctx context.Context, address string, giw uint64) error
 }
 
 // SetGiwTwo .
-func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw uint64) error {
+func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw float64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
-		Updates(map[string]interface{}{"giw_two": float64(giw), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+		Updates(map[string]interface{}{"giw_two": giw, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}
 
 	var adminSetBalance AdminSetBalance
 
-	adminSetBalance.Amount = giw
+	adminSetBalance.Amount = uint64(giw * 1000000000)
 	adminSetBalance.Address = address
 	adminSetBalance.Coin = uint64(3)
 
@@ -3876,17 +3876,17 @@ func (u *UserRepo) SetGiwTwo(ctx context.Context, address string, giw uint64) er
 }
 
 // SetGit .
-func (u *UserRepo) SetGit(ctx context.Context, address string, git, coinType uint64) error {
+func (u *UserRepo) SetGit(ctx context.Context, address string, git float64, coinType uint64) error {
 	if 1 == coinType {
 		res := u.data.DB(ctx).Table("user").Where("address=?", address).
-			Updates(map[string]interface{}{"git_new": float64(git), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			Updates(map[string]interface{}{"git_new": git, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 		if res.Error != nil {
 			return errors.New(500, "BuyBox", "用户信息修改失败")
 		}
 
 		var adminSetBalance AdminSetBalance
 
-		adminSetBalance.Amount = git
+		adminSetBalance.Amount = uint64(git * 10000000000)
 		adminSetBalance.Address = address
 		adminSetBalance.Coin = uint64(6)
 
@@ -3903,7 +3903,7 @@ func (u *UserRepo) SetGit(ctx context.Context, address string, git, coinType uin
 
 		var adminSetBalance AdminSetBalance
 
-		adminSetBalance.Amount = git
+		adminSetBalance.Amount = uint64(git * 10000000000)
 		adminSetBalance.Address = address
 		adminSetBalance.Coin = uint64(2)
 
@@ -3917,7 +3917,7 @@ func (u *UserRepo) SetGit(ctx context.Context, address string, git, coinType uin
 }
 
 // SetUsdt .
-func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) error {
+func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt float64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"amount_usdt": usdt, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
@@ -3926,7 +3926,7 @@ func (u *UserRepo) SetUsdt(ctx context.Context, address string, usdt uint64) err
 
 	var adminSetBalance AdminSetBalance
 
-	adminSetBalance.Amount = usdt
+	adminSetBalance.Amount = uint64(usdt * 1000000000)
 	adminSetBalance.Address = address
 	adminSetBalance.Coin = uint64(1)
 

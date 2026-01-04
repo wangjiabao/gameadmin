@@ -515,7 +515,8 @@ paths:
                 - name: biw
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
             responses:
                 "200":
                     description: OK
@@ -542,7 +543,8 @@ paths:
                 - name: biw
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
             responses:
                 "200":
                     description: OK
@@ -757,7 +759,8 @@ paths:
                 - name: giw
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
                 - name: setType
                   in: query
                   schema:
@@ -1025,7 +1028,8 @@ paths:
                 - name: usdt
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
             responses:
                 "200":
                     description: OK
@@ -1719,7 +1723,8 @@ paths:
                 - name: git
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
             responses:
                 "200":
                     description: OK
@@ -1746,7 +1751,8 @@ paths:
                 - name: giw
                   in: query
                   schema:
-                    type: string
+                    type: number
+                    format: double
             responses:
                 "200":
                     description: OK
