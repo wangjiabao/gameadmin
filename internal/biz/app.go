@@ -582,10 +582,12 @@ type UserRepo interface {
 	GetAdminByAccount(ctx context.Context, account string, password string) (*Admin, error)
 	CreateEth(ctx context.Context, e *EthRecord) error
 	CreateEthTwo(ctx context.Context, e *EthRecord) error
+	CreateEthNew(ctx context.Context, e *EthRecord, amountFloat float64) error
 	CreateEthThree(ctx context.Context, e *EthRecordThree) error
 	AddGiw(ctx context.Context, address string, giw uint64) error
 	AddGiwThree(ctx context.Context, address string, giw float64) error
 	AddUsdt(ctx context.Context, address string, usdt uint64) error
+	AddIspay(ctx context.Context, address string, usdt float64) error
 	AddUserTotal(ctx context.Context, userId, num uint64, giw uint64) error
 	AddUserTotalThree(ctx context.Context, userId, num uint64, giw float64) error
 	RewardProp(ctx context.Context, typeProp int, userId uint64, lastRewardTotal float64) error
@@ -8512,6 +8514,32 @@ func (ac *AppUsecase) DepositNew(ctx context.Context, eth *EthRecord) error {
 			fmt.Println(err, "deposit err reward", eth, tmpUserId)
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (ac *AppUsecase) DepositNewNew(ctx context.Context, eth *EthRecord, amountFloat float64) error {
+	// 推荐人
+	var (
+		err error
+	)
+
+	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+		err = ac.userRepo.AddIspay(ctx, eth.Address, amountFloat)
+		if nil != err {
+			return err
+		}
+
+		err = ac.userRepo.CreateEthNew(ctx, eth, amountFloat)
+		if nil != err {
+			return err
+		}
+
+		return nil
+	}); nil != err {
+		fmt.Println(err, "deposit ispay err", eth)
+		return err
 	}
 
 	return nil

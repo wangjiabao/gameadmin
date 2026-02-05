@@ -343,6 +343,18 @@ type EthRecord struct {
 	UpdatedAt time.Time `gorm:"type:datetime;not null"`
 }
 
+type EthRecordNew struct {
+	ID          uint64    `gorm:"primarykey;type:int;comment:主键"`
+	UserId      uint64    `gorm:"type:int;not null;comment:用户id"`
+	Amount      uint64    `gorm:"type:bigint(20);not null;"`
+	Last        uint64    `gorm:"type:bigint(20);not null;"`
+	Address     string    `gorm:"type:varchar(100);not null;default:'default';"`
+	Coin        string    `gorm:"type:varchar(100);"`
+	AmountFloat float64   `gorm:"type:decimal(65,18);"`
+	CreatedAt   time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt   time.Time `gorm:"type:datetime;not null"`
+}
+
 type EthRecordThree struct {
 	ID        uint64    `gorm:"primarykey;type:int;comment:主键"`
 	UserId    uint64    `gorm:"type:int;not null;comment:用户id"`
@@ -4346,6 +4358,23 @@ func (u *UserRepo) CreateBuyLandRecord(ctx context.Context, limit uint64, bl *bi
 	return nil
 }
 
+func (u *UserRepo) CreateEthNew(ctx context.Context, e *biz.EthRecord, amountFloat float64) error {
+	var eth EthRecordNew
+	eth.Address = e.Address
+	eth.Last = e.Last
+	eth.AmountFloat = amountFloat
+	eth.UserId = e.UserId
+	eth.Coin = e.Coin
+	eth.Amount = 0
+
+	res := u.data.DB(ctx).Table("eth_record").Create(&eth)
+	if res.Error != nil {
+		return errors.New(500, "CREATE ETH RECORD ERROR", "创建充值记录失败")
+	}
+
+	return nil
+}
+
 func (u *UserRepo) CreateEthTwo(ctx context.Context, e *biz.EthRecord) error {
 	var eth EthRecord
 	eth.Address = e.Address
@@ -4538,6 +4567,20 @@ func (u *UserRepo) AddUsdt(ctx context.Context, address string, usdt uint64) err
 		Updates(map[string]interface{}{
 			"amount_usdt": gorm.Expr("amount_usdt + ?", float64(usdt)),
 			"updated_at":  time.Now().Format("2006-01-02 15:04:05"),
+		})
+	if res.Error != nil || 1 != res.RowsAffected {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// AddIspay .
+func (u *UserRepo) AddIspay(ctx context.Context, address string, usdt float64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{
+			"git_new":    gorm.Expr("git_new + ?", usdt),
+			"updated_at": time.Now().Format("2006-01-02 15:04:05"),
 		})
 	if res.Error != nil || 1 != res.RowsAffected {
 		return errors.New(500, "BuyBox", "用户信息修改失败")

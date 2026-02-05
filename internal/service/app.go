@@ -2028,7 +2028,7 @@ func getUserInfo(start int64, end int64, address string) ([]*userDeposit, error)
 
 func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositRequest) (*pb.AdminDepositReply, error) {
 	end := time.Now().UTC().Add(50 * time.Second)
-	return nil, nil
+
 	for i := 1; i <= 10; i++ {
 		var (
 			depositUsdtResult []*userDeposit
@@ -2049,7 +2049,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			continue
 		}
 
-		userLength, err = getUserLength("0xC8B895E4Bb5Ea6B7a32F33DC49B1D41fc7f66046")
+		userLength, err = getUserLength("0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2066,7 +2066,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xC8B895E4Bb5Ea6B7a32F33DC49B1D41fc7f66046")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
 		if nil != err {
 			break
 		}
@@ -2098,20 +2098,20 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 					tmpValue uint64
 				)
 
-				if 10 <= vUser.Amount {
+				if 1 <= vUser.Amount {
 					tmpValue = uint64(vUser.Amount)
 				} else {
 					continue
 				}
 
 				// 充值
-				err = a.ac.DepositNew(ctx, &biz.EthRecord{ // 两种币的记录
+				err = a.ac.DepositNewNew(ctx, &biz.EthRecord{ // 两种币的记录
 					UserId:  depositUsers[vUser.Address].ID,
 					Address: vUser.Address,
 					Amount:  tmpValue,
 					Last:    uint64(userLength),
-					Coin:    "biw",
-				})
+					Coin:    "ispay",
+				}, float64(tmpValue)/100)
 				if nil != err {
 					fmt.Println(err)
 				}
