@@ -2049,7 +2049,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			continue
 		}
 
-		userLength, err = getUserLength("0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
+		userLength, err = getUserLength("0xb81599159c91a05A62a77C66D9b1fb6bee958b4b")
 		if nil != err {
 			fmt.Println(err)
 		}
@@ -2066,7 +2066,7 @@ func (a *AppService) AdminDeposit(ctx context.Context, req *pb.AdminDepositReque
 			break
 		}
 
-		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xCfC0c12e5E484ACA6B535C4cB585A8F2e893bd54")
+		depositUsdtResult, err = getUserInfo(last, userLength-1, "0xb81599159c91a05A62a77C66D9b1fb6bee958b4b")
 		if nil != err {
 			break
 		}
