@@ -7904,8 +7904,8 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 			err = ac.userRepo.CreateNotice(
 				ctx,
 				v.UserId,
-				"您在粮仓获得了"+fmt.Sprintf("%.2f", tmpAmount)+"ISPAY",
-				"You've harvest "+fmt.Sprintf("%.2f", tmpAmount)+" ISPAY from stake",
+				"您在粮仓获得了"+fmt.Sprintf("%.5f", tmpAmount)+"ISPAY",
+				"You've harvest "+fmt.Sprintf("%.5f", tmpAmount)+" ISPAY from stake",
 			)
 			if nil != err {
 				return err
@@ -7950,8 +7950,8 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 					err = ac.userRepo.CreateNotice(
 						ctx,
 						tmpUserId,
-						"您从下级粮仓收获了"+fmt.Sprintf("%.2f", tmpReward)+"ISPAY",
-						"You've harvest "+fmt.Sprintf("%.2f", tmpReward)+" ISPAY from neighbor stake",
+						"您从下级粮仓收获了"+fmt.Sprintf("%.5f", tmpReward)+"ISPAY",
+						"You've harvest "+fmt.Sprintf("%.5f", tmpReward)+" ISPAY from neighbor stake",
 					)
 					if nil != err {
 						return err
