@@ -4767,7 +4767,7 @@ func (u *UserRepo) GetStakeGitRecords(ctx context.Context) ([]*biz.StakeGitRecor
 func (u *UserRepo) DailyReward(ctx context.Context, id, userId uint64, amount float64) error {
 	if amount > 0 {
 		res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-			Updates(map[string]interface{}{"git_new": gorm.Expr("git_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			Updates(map[string]interface{}{"git_new_new": gorm.Expr("git_new_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 		if res.Error != nil {
 			return errors.New(500, "BuyBox", "用户信息修改失败")
 		}
@@ -4792,19 +4792,19 @@ func (u *UserRepo) DailyRewardL(ctx context.Context, id, userId, lowUserId, num 
 	if amount > 0 {
 		if 6 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-				Updates(map[string]interface{}{"git_new": gorm.Expr("git_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+				Updates(map[string]interface{}{"git_new_new": gorm.Expr("git_new_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
 		} else if 9 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-				Updates(map[string]interface{}{"git_new": gorm.Expr("git_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+				Updates(map[string]interface{}{"git_new_new": gorm.Expr("git_new_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
 		} else if 12 == num {
 			res := u.data.DB(ctx).Table("user").Where("id=?", userId).
-				Updates(map[string]interface{}{"git_new": gorm.Expr("git_new+ ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+				Updates(map[string]interface{}{"git_new_new": gorm.Expr("git_new_new + ?", amount), "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 			if res.Error != nil || 1 != res.RowsAffected {
 				return errors.New(500, "PlantPlatTwoTwoL", "用户信息修改失败")
 			}
