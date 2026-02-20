@@ -2405,7 +2405,7 @@ func (a *AppService) AdminWithdraw(ctx context.Context, req *pb.AdminWithdrawReq
 		if "ispay_new" == withdraw.Coin {
 
 		} else {
-			continue
+			coin = "0x55d398326f99059fF775485246999027B3197955"
 		}
 
 		for i := 0; i <= 5; i++ {
