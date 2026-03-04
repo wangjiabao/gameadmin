@@ -1934,6 +1934,7 @@ message AdminSetCanLandReply {
 message AdminSetLockRequest {
 	string address = 1; // index列表里的landUseId，种植记录
 	uint64 lock = 2;
+	uint64 onlyAddress = 3;
 }
 
 message AdminSetLockReply {
