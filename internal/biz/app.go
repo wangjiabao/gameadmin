@@ -6158,10 +6158,10 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"two",
 		"three",
 		"stake_ispay_one",
-		"stake_ispay_two",
-		"stake_ispay_three",
-		"stake_ispay_four",
-		"stake_ispay_five",
+		//"stake_ispay_two",
+		//"stake_ispay_three",
+		//"stake_ispay_four",
+		//"stake_ispay_five",
 		"open_box_price",
 		"open_box_price_use",
 		"stake_recommend_one",
@@ -7786,11 +7786,11 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		twoRate        float64
 		threeRate      float64
 		stakeOneRate   float64
-		stakeTwoRate   float64
-		stakeThreeRate float64
-		stakeFourRate  float64
-		stakeFiveRate  float64
-		err            error
+		//stakeTwoRate   float64
+		//stakeThreeRate float64
+		//stakeFourRate  float64
+		//stakeFiveRate  float64
+		err error
 	)
 	stakeGitRecord, err = ac.userRepo.GetStakeGitRecords(ctx)
 	if nil != err {
@@ -7820,18 +7820,18 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 		if "stake_ispay_one" == vConfig.KeyName {
 			stakeOneRate, _ = strconv.ParseFloat(vConfig.Value, 10)
 		}
-		if "stake_ispay_two" == vConfig.KeyName {
-			stakeTwoRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
-		if "stake_ispay_three" == vConfig.KeyName {
-			stakeThreeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
-		if "stake_ispay_four" == vConfig.KeyName {
-			stakeFourRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
-		if "stake_ispay_five" == vConfig.KeyName {
-			stakeFiveRate, _ = strconv.ParseFloat(vConfig.Value, 10)
-		}
+		//if "stake_ispay_two" == vConfig.KeyName {
+		//	stakeTwoRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
+		//if "stake_ispay_three" == vConfig.KeyName {
+		//	stakeThreeRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
+		//if "stake_ispay_four" == vConfig.KeyName {
+		//	stakeFourRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
+		//if "stake_ispay_five" == vConfig.KeyName {
+		//	stakeFiveRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		//}
 
 	}
 
@@ -7864,19 +7864,19 @@ func (ac *AppUsecase) AdminDaily(ctx context.Context, req *pb.AdminDailyRequest)
 
 	for _, v := range stakeGitRecord {
 		tmpRate := float64(0)
-		if 30 == v.Day {
-			tmpRate = stakeOneRate
-		} else if 60 == v.Day {
-			tmpRate = stakeTwoRate
-		} else if 90 == v.Day {
-			tmpRate = stakeThreeRate
-		} else if 120 == v.Day {
-			tmpRate = stakeFourRate
-		} else if 360 == v.Day {
-			tmpRate = stakeFiveRate
-		} else {
-			continue
-		}
+		//if 30 == v.Day {
+		tmpRate = stakeOneRate
+		//} else if 60 == v.Day {
+		//	tmpRate = stakeTwoRate
+		//} else if 90 == v.Day {
+		//	tmpRate = stakeThreeRate
+		//} else if 120 == v.Day {
+		//	tmpRate = stakeFourRate
+		//} else if 360 == v.Day {
+		//	tmpRate = stakeFiveRate
+		//} else {
+		//	continue
+		//}
 
 		if _, ok := userRecommendsMap[v.UserId]; !ok {
 			continue
