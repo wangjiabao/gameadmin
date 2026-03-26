@@ -3151,6 +3151,10 @@ components:
                 three:
                     type: number
                     format: double
+                canPlaySix:
+                    type: string
+                canSellProp:
+                    type: string
         AdminUserRecommendReply:
             type: object
             properties:

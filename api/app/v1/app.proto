@@ -1460,6 +1460,9 @@ message AdminUserListReply { // 用户信息
 		double one = 119;
 		double two = 120;
 		double three = 121;
+
+		uint64 canPlaySix = 124;
+		uint64 canSellProp = 126;
 	}
 
 	int64 count = 3;

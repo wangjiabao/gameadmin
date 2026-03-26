@@ -83,6 +83,7 @@ type User struct {
 	CanSell          uint64
 	CanPlayAdd       uint64
 	CanPlaySix       uint64
+	CanSellProp      uint64
 	WithdrawMax      uint64
 	LandCount        uint64
 	UsdtTwo          float64
@@ -5431,6 +5432,8 @@ func (ac *AppUsecase) AdminUserList(ctx context.Context, req *pb.AdminUserListRe
 			One:                       v.One,
 			Two:                       v.Two,
 			Three:                     v.Three,
+			CanPlaySix:                v.CanPlaySix,
+			CanSellProp:               v.CanSellProp,
 		})
 	}
 
