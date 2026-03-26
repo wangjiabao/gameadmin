@@ -82,6 +82,7 @@ type User struct {
 	CanLand          uint64
 	CanSell          uint64
 	CanPlayAdd       uint64
+	CanPlaySix       uint64
 	WithdrawMax      uint64
 	LandCount        uint64
 	UsdtTwo          float64
@@ -564,6 +565,8 @@ type UserRepo interface {
 	SetOneTwoThree(ctx context.Context, address string, setType uint64, v float64) error
 	SetCanSell(ctx context.Context, address string, num uint64) error
 	SetCanPlayAdd(ctx context.Context, address string, num uint64) error
+	SetCanPlaySix(ctx context.Context, address string, num uint64) error
+	SetCanSellProp(ctx context.Context, address string, num uint64) error
 	SetCanRent(ctx context.Context, address string, vip uint64) error
 	SetWithdrawMax(ctx context.Context, address string, vip uint64) error
 	SetCanLand(ctx context.Context, address string, vip uint64) error
@@ -4943,7 +4946,7 @@ func (ac *AppUsecase) StakeGetPlay(ctx context.Context, address string, req *pb.
 		}
 
 		return &pb.StakeGetPlayReply{Status: "ok", PlayStatus: 1, Amount: tmpGit}, nil
-	} else {                                                         // 输：下注金额加入池子
+	} else { // 输：下注金额加入池子
 		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 			err = ac.userRepo.SetStakeGetPlaySub(ctx, user.ID, float64(req.SendBody.Amount))
 			if nil != err {
@@ -4992,8 +4995,16 @@ func (ac *AppUsecase) AdminSetCanSell(ctx context.Context, req *pb.AdminSetCanSe
 	return &pb.AdminSetCanSellReply{Status: "ok"}, ac.userRepo.SetCanSell(ctx, req.Address, req.Num)
 }
 
+func (ac *AppUsecase) AdminSetCanSellProp(ctx context.Context, req *pb.AdminSetCanSellRequest) (*pb.AdminSetCanSellReply, error) {
+	return &pb.AdminSetCanSellReply{Status: "ok"}, ac.userRepo.SetCanSellProp(ctx, req.Address, req.Num)
+}
+
 func (ac *AppUsecase) AdminSetCanPlayAdd(ctx context.Context, req *pb.AdminSetCanPlayAddRequest) (*pb.AdminSetCanPlayAddReply, error) {
 	return &pb.AdminSetCanPlayAddReply{Status: "ok"}, ac.userRepo.SetCanPlayAdd(ctx, req.Address, req.Num)
+}
+
+func (ac *AppUsecase) AdminSetCanPlaySix(ctx context.Context, req *pb.AdminSetCanPlaySixRequest) (*pb.AdminSetCanPlaySixReply, error) {
+	return &pb.AdminSetCanPlaySixReply{Status: "ok"}, ac.userRepo.SetCanPlaySix(ctx, req.Address, req.Num)
 }
 
 func (ac *AppUsecase) AdminSetCanRent(ctx context.Context, req *pb.AdminSetCanRentRequest) (*pb.AdminSetCanRentReply, error) {

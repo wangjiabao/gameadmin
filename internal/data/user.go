@@ -63,6 +63,7 @@ type User struct {
 	One              float64   `gorm:"type:decimal(65,20);not null"`
 	Two              float64   `gorm:"type:decimal(65,20);not null"`
 	Three            float64   `gorm:"type:decimal(65,20);not null"`
+	CanPlaySix       uint64    `gorm:"type:int;"`
 }
 
 type UserRecommend struct {
@@ -1070,6 +1071,7 @@ func (u *UserRepo) GetUserByAddress(ctx context.Context, address string) (*biz.U
 		OutNum:           user.OutNum,
 		Vip:              user.Vip,
 		VipAdmin:         user.VipAdmin,
+		CanPlaySix:       user.CanPlaySix,
 	}, nil
 }
 
@@ -4019,10 +4021,32 @@ func (u *UserRepo) SetCanSell(ctx context.Context, address string, num uint64) e
 	return nil
 }
 
+// SetCanSellProp .
+func (u *UserRepo) SetCanSellProp(ctx context.Context, address string, num uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_sell_prop": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
 // SetCanPlayAdd .
 func (u *UserRepo) SetCanPlayAdd(ctx context.Context, address string, num uint64) error {
 	res := u.data.DB(ctx).Table("user").Where("address=?", address).
 		Updates(map[string]interface{}{"can_play_add": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
+	if res.Error != nil {
+		return errors.New(500, "BuyBox", "用户信息修改失败")
+	}
+
+	return nil
+}
+
+// SetCanPlaySix .
+func (u *UserRepo) SetCanPlaySix(ctx context.Context, address string, num uint64) error {
+	res := u.data.DB(ctx).Table("user").Where("address=?", address).
+		Updates(map[string]interface{}{"can_play_six": num, "updated_at": time.Now().Format("2006-01-02 15:04:05")})
 	if res.Error != nil {
 		return errors.New(500, "BuyBox", "用户信息修改失败")
 	}

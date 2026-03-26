@@ -93,7 +93,9 @@ const (
 	App_AdminSetUsdt_FullMethodName           = "/api.app.v1.App/AdminSetUsdt"
 	App_AdminSetVip_FullMethodName            = "/api.app.v1.App/AdminSetVip"
 	App_AdminSetCanSell_FullMethodName        = "/api.app.v1.App/AdminSetCanSell"
+	App_AdminSetCanSellProp_FullMethodName    = "/api.app.v1.App/AdminSetCanSellProp"
 	App_AdminSetCanPlayAdd_FullMethodName     = "/api.app.v1.App/AdminSetCanPlayAdd"
+	App_AdminSetCanPlaySix_FullMethodName     = "/api.app.v1.App/AdminSetCanPlaySix"
 	App_AdminSetCanRent_FullMethodName        = "/api.app.v1.App/AdminSetCanRent"
 	App_AdminSetWithdrawMax_FullMethodName    = "/api.app.v1.App/AdminSetWithdrawMax"
 	App_AdminSetCanLand_FullMethodName        = "/api.app.v1.App/AdminSetCanLand"
@@ -261,7 +263,11 @@ type AppClient interface {
 	// 允许上架土地
 	AdminSetCanSell(ctx context.Context, in *AdminSetCanSellRequest, opts ...grpc.CallOption) (*AdminSetCanSellReply, error)
 	// 允许上架土地
+	AdminSetCanSellProp(ctx context.Context, in *AdminSetCanSellRequest, opts ...grpc.CallOption) (*AdminSetCanSellReply, error)
+	// 允许上架土地
 	AdminSetCanPlayAdd(ctx context.Context, in *AdminSetCanPlayAddRequest, opts ...grpc.CallOption) (*AdminSetCanPlayAddReply, error)
+	// 允许上架土地
+	AdminSetCanPlaySix(ctx context.Context, in *AdminSetCanPlaySixRequest, opts ...grpc.CallOption) (*AdminSetCanPlaySixReply, error)
 	// 允许出租土地
 	AdminSetCanRent(ctx context.Context, in *AdminSetCanRentRequest, opts ...grpc.CallOption) (*AdminSetCanRentReply, error)
 	// 允许出租土地
@@ -968,9 +974,27 @@ func (c *appClient) AdminSetCanSell(ctx context.Context, in *AdminSetCanSellRequ
 	return out, nil
 }
 
+func (c *appClient) AdminSetCanSellProp(ctx context.Context, in *AdminSetCanSellRequest, opts ...grpc.CallOption) (*AdminSetCanSellReply, error) {
+	out := new(AdminSetCanSellReply)
+	err := c.cc.Invoke(ctx, App_AdminSetCanSellProp_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetCanPlayAdd(ctx context.Context, in *AdminSetCanPlayAddRequest, opts ...grpc.CallOption) (*AdminSetCanPlayAddReply, error) {
 	out := new(AdminSetCanPlayAddReply)
 	err := c.cc.Invoke(ctx, App_AdminSetCanPlayAdd_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *appClient) AdminSetCanPlaySix(ctx context.Context, in *AdminSetCanPlaySixRequest, opts ...grpc.CallOption) (*AdminSetCanPlaySixReply, error) {
+	out := new(AdminSetCanPlaySixReply)
+	err := c.cc.Invoke(ctx, App_AdminSetCanPlaySix_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1286,7 +1310,11 @@ type AppServer interface {
 	// 允许上架土地
 	AdminSetCanSell(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error)
 	// 允许上架土地
+	AdminSetCanSellProp(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error)
+	// 允许上架土地
 	AdminSetCanPlayAdd(context.Context, *AdminSetCanPlayAddRequest) (*AdminSetCanPlayAddReply, error)
+	// 允许上架土地
+	AdminSetCanPlaySix(context.Context, *AdminSetCanPlaySixRequest) (*AdminSetCanPlaySixReply, error)
 	// 允许出租土地
 	AdminSetCanRent(context.Context, *AdminSetCanRentRequest) (*AdminSetCanRentReply, error)
 	// 允许出租土地
@@ -1546,8 +1574,14 @@ func (UnimplementedAppServer) AdminSetVip(context.Context, *AdminSetVipRequest) 
 func (UnimplementedAppServer) AdminSetCanSell(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanSell not implemented")
 }
+func (UnimplementedAppServer) AdminSetCanSellProp(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanSellProp not implemented")
+}
 func (UnimplementedAppServer) AdminSetCanPlayAdd(context.Context, *AdminSetCanPlayAddRequest) (*AdminSetCanPlayAddReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanPlayAdd not implemented")
+}
+func (UnimplementedAppServer) AdminSetCanPlaySix(context.Context, *AdminSetCanPlaySixRequest) (*AdminSetCanPlaySixReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanPlaySix not implemented")
 }
 func (UnimplementedAppServer) AdminSetCanRent(context.Context, *AdminSetCanRentRequest) (*AdminSetCanRentReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetCanRent not implemented")
@@ -2948,6 +2982,24 @@ func _App_AdminSetCanSell_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetCanSellProp_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetCanSellRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetCanSellProp(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetCanSellProp_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetCanSellProp(ctx, req.(*AdminSetCanSellRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetCanPlayAdd_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetCanPlayAddRequest)
 	if err := dec(in); err != nil {
@@ -2962,6 +3014,24 @@ func _App_AdminSetCanPlayAdd_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AppServer).AdminSetCanPlayAdd(ctx, req.(*AdminSetCanPlayAddRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _App_AdminSetCanPlaySix_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminSetCanPlaySixRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetCanPlaySix(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetCanPlaySix_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetCanPlaySix(ctx, req.(*AdminSetCanPlaySixRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -3594,8 +3664,16 @@ var App_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _App_AdminSetCanSell_Handler,
 		},
 		{
+			MethodName: "AdminSetCanSellProp",
+			Handler:    _App_AdminSetCanSellProp_Handler,
+		},
+		{
 			MethodName: "AdminSetCanPlayAdd",
 			Handler:    _App_AdminSetCanPlayAdd_Handler,
+		},
+		{
+			MethodName: "AdminSetCanPlaySix",
+			Handler:    _App_AdminSetCanPlaySix_Handler,
 		},
 		{
 			MethodName: "AdminSetCanRent",

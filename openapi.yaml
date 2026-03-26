@@ -664,6 +664,34 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_can_play_six:
+        get:
+            tags:
+                - App
+            description: 允许上架土地
+            operationId: App_AdminSetCanPlaySix
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetCanPlaySixReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/admin_dhb/set_can_rent:
         get:
             tags:
@@ -698,6 +726,34 @@ paths:
                 - App
             description: 允许上架土地
             operationId: App_AdminSetCanSell
+            parameters:
+                - name: address
+                  in: query
+                  schema:
+                    type: string
+                - name: num
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AdminSetCanSellReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/admin_dhb/set_can_sell_prop:
+        get:
+            tags:
+                - App
+            description: 允许上架土地
+            operationId: App_AdminSetCanSellProp
             parameters:
                 - name: address
                   in: query
@@ -2740,6 +2796,11 @@ components:
                 status:
                     type: string
         AdminSetCanPlayAddReply:
+            type: object
+            properties:
+                status:
+                    type: string
+        AdminSetCanPlaySixReply:
             type: object
             properties:
                 status:

@@ -44,8 +44,10 @@ const OperationAppAdminSetBox = "/api.app.v1.App/AdminSetBox"
 const OperationAppAdminSetBuyLand = "/api.app.v1.App/AdminSetBuyLand"
 const OperationAppAdminSetCanLand = "/api.app.v1.App/AdminSetCanLand"
 const OperationAppAdminSetCanPlayAdd = "/api.app.v1.App/AdminSetCanPlayAdd"
+const OperationAppAdminSetCanPlaySix = "/api.app.v1.App/AdminSetCanPlaySix"
 const OperationAppAdminSetCanRent = "/api.app.v1.App/AdminSetCanRent"
 const OperationAppAdminSetCanSell = "/api.app.v1.App/AdminSetCanSell"
+const OperationAppAdminSetCanSellProp = "/api.app.v1.App/AdminSetCanSellProp"
 const OperationAppAdminSetConfig = "/api.app.v1.App/AdminSetConfig"
 const OperationAppAdminSetGit = "/api.app.v1.App/AdminSetGit"
 const OperationAppAdminSetGiw = "/api.app.v1.App/AdminSetGiw"
@@ -163,10 +165,14 @@ type AppHTTPServer interface {
 	AdminSetCanLand(context.Context, *AdminSetCanLandRequest) (*AdminSetCanLandReply, error)
 	// AdminSetCanPlayAdd 允许上架土地
 	AdminSetCanPlayAdd(context.Context, *AdminSetCanPlayAddRequest) (*AdminSetCanPlayAddReply, error)
+	// AdminSetCanPlaySix 允许上架土地
+	AdminSetCanPlaySix(context.Context, *AdminSetCanPlaySixRequest) (*AdminSetCanPlaySixReply, error)
 	// AdminSetCanRent 允许出租土地
 	AdminSetCanRent(context.Context, *AdminSetCanRentRequest) (*AdminSetCanRentReply, error)
 	// AdminSetCanSell 允许上架土地
 	AdminSetCanSell(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error)
+	// AdminSetCanSellProp 允许上架土地
+	AdminSetCanSellProp(context.Context, *AdminSetCanSellRequest) (*AdminSetCanSellReply, error)
 	// AdminSetConfig 修改配置
 	AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error)
 	// AdminSetGit 设置余额
@@ -366,7 +372,9 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/set_usdt", _App_AdminSetUsdt0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_vip", _App_AdminSetVip0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_sell", _App_AdminSetCanSell0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_can_sell_prop", _App_AdminSetCanSellProp0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_play_add", _App_AdminSetCanPlayAdd0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/set_can_play_six", _App_AdminSetCanPlaySix0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_rent", _App_AdminSetCanRent0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_withdraw_max", _App_AdminSetWithdrawMax0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/set_can_land", _App_AdminSetCanLand0_HTTP_Handler(srv))
@@ -1868,6 +1876,25 @@ func _App_AdminSetCanSell0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context
 	}
 }
 
+func _App_AdminSetCanSellProp0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetCanSellRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetCanSellProp)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetCanSellProp(ctx, req.(*AdminSetCanSellRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetCanSellReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminSetCanPlayAdd0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetCanPlayAddRequest
@@ -1883,6 +1910,25 @@ func _App_AdminSetCanPlayAdd0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Cont
 			return err
 		}
 		reply := out.(*AdminSetCanPlayAddReply)
+		return ctx.Result(200, reply)
+	}
+}
+
+func _App_AdminSetCanPlaySix0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminSetCanPlaySixRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetCanPlaySix)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetCanPlaySix(ctx, req.(*AdminSetCanPlaySixRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminSetCanPlaySixReply)
 		return ctx.Result(200, reply)
 	}
 }
@@ -2279,8 +2325,10 @@ type AppHTTPClient interface {
 	AdminSetBuyLand(ctx context.Context, req *AdminSetBuyLandRequest, opts ...http.CallOption) (rsp *AdminSetBuyLandReply, err error)
 	AdminSetCanLand(ctx context.Context, req *AdminSetCanLandRequest, opts ...http.CallOption) (rsp *AdminSetCanLandReply, err error)
 	AdminSetCanPlayAdd(ctx context.Context, req *AdminSetCanPlayAddRequest, opts ...http.CallOption) (rsp *AdminSetCanPlayAddReply, err error)
+	AdminSetCanPlaySix(ctx context.Context, req *AdminSetCanPlaySixRequest, opts ...http.CallOption) (rsp *AdminSetCanPlaySixReply, err error)
 	AdminSetCanRent(ctx context.Context, req *AdminSetCanRentRequest, opts ...http.CallOption) (rsp *AdminSetCanRentReply, err error)
 	AdminSetCanSell(ctx context.Context, req *AdminSetCanSellRequest, opts ...http.CallOption) (rsp *AdminSetCanSellReply, err error)
+	AdminSetCanSellProp(ctx context.Context, req *AdminSetCanSellRequest, opts ...http.CallOption) (rsp *AdminSetCanSellReply, err error)
 	AdminSetConfig(ctx context.Context, req *AdminSetConfigRequest, opts ...http.CallOption) (rsp *AdminSetConfigReply, err error)
 	AdminSetGit(ctx context.Context, req *AdminSetGitRequest, opts ...http.CallOption) (rsp *AdminSetGitReply, err error)
 	AdminSetGiw(ctx context.Context, req *AdminSetGiwRequest, opts ...http.CallOption) (rsp *AdminSetGiwReply, err error)
@@ -2682,6 +2730,19 @@ func (c *AppHTTPClientImpl) AdminSetCanPlayAdd(ctx context.Context, in *AdminSet
 	return &out, err
 }
 
+func (c *AppHTTPClientImpl) AdminSetCanPlaySix(ctx context.Context, in *AdminSetCanPlaySixRequest, opts ...http.CallOption) (*AdminSetCanPlaySixReply, error) {
+	var out AdminSetCanPlaySixReply
+	pattern := "/api/admin_dhb/set_can_play_six"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetCanPlaySix))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
 func (c *AppHTTPClientImpl) AdminSetCanRent(ctx context.Context, in *AdminSetCanRentRequest, opts ...http.CallOption) (*AdminSetCanRentReply, error) {
 	var out AdminSetCanRentReply
 	pattern := "/api/admin_dhb/set_can_rent"
@@ -2700,6 +2761,19 @@ func (c *AppHTTPClientImpl) AdminSetCanSell(ctx context.Context, in *AdminSetCan
 	pattern := "/api/admin_dhb/set_can_sell"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationAppAdminSetCanSell))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetCanSellProp(ctx context.Context, in *AdminSetCanSellRequest, opts ...http.CallOption) (*AdminSetCanSellReply, error) {
+	var out AdminSetCanSellReply
+	pattern := "/api/admin_dhb/set_can_sell_prop"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetCanSellProp))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {

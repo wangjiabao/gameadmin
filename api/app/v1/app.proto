@@ -547,9 +547,23 @@ service App {
 	};
 
 	// 允许上架土地
+	rpc AdminSetCanSellProp (AdminSetCanSellRequest) returns (AdminSetCanSellReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_can_sell_prop"
+		};
+	};
+
+	// 允许上架土地
 	rpc AdminSetCanPlayAdd (AdminSetCanPlayAddRequest) returns (AdminSetCanPlayAddReply) {
 		option (google.api.http) = {
 			get: "/api/admin_dhb/set_can_play_add"
+		};
+	};
+
+	// 允许上架土地
+	rpc AdminSetCanPlaySix (AdminSetCanPlaySixRequest) returns (AdminSetCanPlaySixReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/set_can_play_six"
 		};
 	};
 
@@ -1901,6 +1915,15 @@ message AdminSetCanPlayAddRequest {
 }
 
 message AdminSetCanPlayAddReply {
+	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
+}
+
+message AdminSetCanPlaySixRequest {
+	string address = 1; // index列表里的landUseId，种植记录
+	uint64 num = 2;
+}
+
+message AdminSetCanPlaySixReply {
 	string status = 1; // 不是“ok”，弹窗内容，确定按钮关闭弹窗
 }
 
