@@ -323,6 +323,18 @@ type StakeGitRecord struct {
 	Day       uint64    `gorm:"type:int;not null"`
 }
 
+type StakeGitRecordTwo struct {
+	ID          uint64    `gorm:"primarykey;type:int"`
+	UserId      uint64    `gorm:"type:int;not null;comment:用户id"`
+	Amount      float64   `gorm:"type:decimal(65,18);not null;default:0.0;comment:金额"`
+	AmountTwo   float64   `gorm:"type:decimal(65,18);not null;default:0.0;comment:金额"`
+	AmountThree float64   `gorm:"type:decimal(65,18);not null;default:0.0;comment:金额"`
+	StakeType   int       `gorm:"type:int;not null;default:0;comment:操作类型：1质押，2解压"`
+	CreatedAt   time.Time `gorm:"type:datetime;not null"`
+	UpdatedAt   time.Time `gorm:"type:datetime;not null"`
+	Day         uint64    `gorm:"type:int;not null;"`
+}
+
 type Withdraw struct {
 	ID             uint64    `gorm:"primarykey;type:int;comment:主键"`
 	UserId         uint64    `gorm:"type:int;not null;comment:用户id"`
