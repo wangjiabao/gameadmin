@@ -57,6 +57,7 @@ const OperationAppAdminSetLock = "/api.app.v1.App/AdminSetLock"
 const OperationAppAdminSetLockReward = "/api.app.v1.App/AdminSetLockReward"
 const OperationAppAdminSetOneTwoThree = "/api.app.v1.App/AdminSetOneTwoThree"
 const OperationAppAdminSetProp = "/api.app.v1.App/AdminSetProp"
+const OperationAppAdminSetQueue = "/api.app.v1.App/AdminSetQueue"
 const OperationAppAdminSetSeed = "/api.app.v1.App/AdminSetSeed"
 const OperationAppAdminSetUsdt = "/api.app.v1.App/AdminSetUsdt"
 const OperationAppAdminSetVip = "/api.app.v1.App/AdminSetVip"
@@ -187,6 +188,8 @@ type AppHTTPServer interface {
 	AdminSetOneTwoThree(context.Context, *AdminSetOneTwoThreeRequest) (*AdminSetOneTwoThreeReply, error)
 	// AdminSetProp 发道具
 	AdminSetProp(context.Context, *AdminSetPropRequest) (*AdminSetPropReply, error)
+	// AdminSetQueue 全网分红
+	AdminSetQueue(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error)
 	// AdminSetSeed 发种子
 	AdminSetSeed(context.Context, *AdminSetSeedRequest) (*AdminSetSeedReply, error)
 	// AdminSetUsdt 设置余额
@@ -386,6 +389,7 @@ func RegisterAppHTTPServer(s *http.Server, srv AppHTTPServer) {
 	r.GET("/api/admin_dhb/get_config", _App_AdminGetConfig0_HTTP_Handler(srv))
 	r.GET("/api/admin_dhb/land_reward", _App_AdminLandReward0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_config", _App_AdminSetConfig0_HTTP_Handler(srv))
+	r.GET("/api/admin_dhb/queue_set", _App_AdminSetQueue0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_land", _App_AdminSetLand0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_prop", _App_AdminSetProp0_HTTP_Handler(srv))
 	r.POST("/api/admin_dhb/set_seed", _App_AdminSetSeed0_HTTP_Handler(srv))
@@ -2148,6 +2152,25 @@ func _App_AdminSetConfig0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context)
 	}
 }
 
+func _App_AdminSetQueue0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
+	return func(ctx http.Context) error {
+		var in AdminLandRewardRequest
+		if err := ctx.BindQuery(&in); err != nil {
+			return err
+		}
+		http.SetOperation(ctx, OperationAppAdminSetQueue)
+		h := ctx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+			return srv.AdminSetQueue(ctx, req.(*AdminLandRewardRequest))
+		})
+		out, err := h(ctx, &in)
+		if err != nil {
+			return err
+		}
+		reply := out.(*AdminLandRewardReply)
+		return ctx.Result(200, reply)
+	}
+}
+
 func _App_AdminSetLand0_HTTP_Handler(srv AppHTTPServer) func(ctx http.Context) error {
 	return func(ctx http.Context) error {
 		var in AdminSetLandRequest
@@ -2338,6 +2361,7 @@ type AppHTTPClient interface {
 	AdminSetLockReward(ctx context.Context, req *AdminSetLockRewardRequest, opts ...http.CallOption) (rsp *AdminSetLockRewardReply, err error)
 	AdminSetOneTwoThree(ctx context.Context, req *AdminSetOneTwoThreeRequest, opts ...http.CallOption) (rsp *AdminSetOneTwoThreeReply, err error)
 	AdminSetProp(ctx context.Context, req *AdminSetPropRequest, opts ...http.CallOption) (rsp *AdminSetPropReply, err error)
+	AdminSetQueue(ctx context.Context, req *AdminLandRewardRequest, opts ...http.CallOption) (rsp *AdminLandRewardReply, err error)
 	AdminSetSeed(ctx context.Context, req *AdminSetSeedRequest, opts ...http.CallOption) (rsp *AdminSetSeedReply, err error)
 	AdminSetUsdt(ctx context.Context, req *AdminSetUsdtRequest, opts ...http.CallOption) (rsp *AdminSetUsdtReply, err error)
 	AdminSetVip(ctx context.Context, req *AdminSetVipRequest, opts ...http.CallOption) (rsp *AdminSetVipReply, err error)
@@ -2893,6 +2917,19 @@ func (c *AppHTTPClientImpl) AdminSetProp(ctx context.Context, in *AdminSetPropRe
 	opts = append(opts, http.Operation(OperationAppAdminSetProp))
 	opts = append(opts, http.PathTemplate(pattern))
 	err := c.cc.Invoke(ctx, "POST", path, in.SendBody, &out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return &out, err
+}
+
+func (c *AppHTTPClientImpl) AdminSetQueue(ctx context.Context, in *AdminLandRewardRequest, opts ...http.CallOption) (*AdminLandRewardReply, error) {
+	var out AdminLandRewardReply
+	pattern := "/api/admin_dhb/queue_set"
+	path := binding.EncodeURL(pattern, in, true)
+	opts = append(opts, http.Operation(OperationAppAdminSetQueue))
+	opts = append(opts, http.PathTemplate(pattern))
+	err := c.cc.Invoke(ctx, "GET", path, nil, &out, opts...)
 	if err != nil {
 		return nil, err
 	}

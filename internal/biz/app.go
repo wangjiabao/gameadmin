@@ -6,6 +6,9 @@ import (
 	"crypto/rand"
 	"fmt"
 	pb "game/api/app/v1"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"math"
@@ -93,6 +96,7 @@ type User struct {
 	Three            float64
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
+	RecommendOne     uint64
 }
 
 type BoxRecord struct {
@@ -438,6 +442,18 @@ type RewardTwo struct {
 	UpdatedAt time.Time
 }
 
+type StakeGitRecordTwo struct {
+	ID          uint64
+	UserId      uint64
+	Amount      float64
+	AmountTwo   float64
+	AmountThree float64
+	StakeType   int
+	Day         uint64
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
 type UserRepo interface {
 	GetAllUsers(ctx context.Context) ([]*User, error)
 	GetAllUsersBuy(ctx context.Context) ([]*User, error)
@@ -628,6 +644,10 @@ type UserRepo interface {
 	GetAdminMessages(ctx context.Context) ([]*AdminMessage, error)
 	CreateMessages(ctx context.Context, contentTwo, content string) error
 	DeleteMessages(ctx context.Context, id uint64) error
+	GetStakeGitRecordsByUserIDQueueToday(ctx context.Context) (float64, error)
+	GetStakeGitRecordsQueue(ctx context.Context) ([]*StakeGitRecordTwo, error)
+	SetStakeGitByQueue(ctx context.Context, id, userId uint64, amount, amountTwo float64, day uint64) error
+	NewRecommendReward(ctx context.Context, userId, lowUserId uint64, amount, ispay float64) error
 }
 
 // AppUsecase is an app usecase.
@@ -6186,6 +6206,8 @@ func (ac *AppUsecase) AdminGetConfig(ctx context.Context, req *pb.AdminGetConfig
 		"stake_recommend_two",
 		"stake_recommend_three",
 		"exchange_stake_rate",
+		"queue_amount",
+		"one_rate_new",
 	)
 	if nil != err || nil == configs {
 		return &pb.AdminGetConfigReply{
@@ -6274,6 +6296,64 @@ func (ac *AppUsecase) AdminSetConfig(ctx context.Context, req *pb.AdminSetConfig
 	return &pb.AdminSetConfigReply{
 		Status: "ok",
 	}, nil
+}
+
+func (ac *AppUsecase) AdminSetQueue(ctx context.Context, req *pb.AdminLandRewardRequest) error {
+	var (
+		configs     []*Config
+		queueAmount float64
+		todayAmount float64
+		err         error
+	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx, "queue_amount")
+	if nil != err || nil == configs {
+		fmt.Println(err, "admin land reward")
+		return nil
+	}
+
+	for _, vConfig := range configs {
+		if "queue_amount" == vConfig.KeyName {
+			queueAmount, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+	}
+	todayAmount, err = ac.userRepo.GetStakeGitRecordsByUserIDQueueToday(ctx)
+	if nil != err {
+		return nil
+	}
+
+	if todayAmount < queueAmount {
+		queueAmount = queueAmount - todayAmount
+	} else {
+		return nil
+	}
+
+	var (
+		stakeRecords []*StakeGitRecordTwo
+	)
+
+	stakeRecords, err = ac.userRepo.GetStakeGitRecordsQueue(ctx)
+
+	for _, v := range stakeRecords {
+		if queueAmount < v.AmountThree {
+			break
+		}
+		if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
+			err = ac.userRepo.SetStakeGitByQueue(ctx, v.ID, v.UserId, v.Amount, v.AmountTwo, v.Day)
+			if nil != err {
+				return err
+			}
+
+			return nil
+		}); nil != err {
+			return err
+		}
+
+		queueAmount -= v.AmountThree
+	}
+
+	return nil
 }
 
 func (ac *AppUsecase) AdminPriceChange(ctx context.Context, req *pb.AdminPriceChangeRequest) (*pb.AdminPriceChangeReply, error) {
@@ -8557,11 +8637,110 @@ func (ac *AppUsecase) DepositNewNew(ctx context.Context, eth *EthRecord, amountF
 	return nil
 }
 
+func GetReservers() (float64, float64, error) {
+	urls := []string{
+		"https://bsc-dataseed4.binance.org/",
+		"https://binance.llamarpc.com/",
+		"https://bscrpc.com/",
+		"https://bsc-pokt.nodies.app/",
+		"https://data-seed-prebsc-1-s3.binance.org:8545/",
+	}
+
+	var (
+		tmp0 float64
+		tmp1 float64
+	)
+
+	for _, urlTmp := range urls {
+		client, err := ethclient.Dial(urlTmp)
+		if err != nil {
+			fmt.Println("client error:", err)
+			continue
+		}
+
+		contractAddress := "0xCa4122dE1Ad3f3063DF012732a802026905515D0"
+
+		tokenAddress := common.HexToAddress(contractAddress)
+		instance, err := NewPair(tokenAddress, client)
+		if err != nil {
+			fmt.Println("GetBoxNew error:", err)
+			continue
+		}
+
+		// 获取认购盲盒记录
+		tmp, errOne := instance.GetReserves(&bind.CallOpts{})
+		if errOne != nil {
+			continue
+		}
+
+		tmp0, _ = tmp.Reserve0.Float64()
+		tmp1, _ = tmp.Reserve1.Float64()
+		break
+	}
+
+	return tmp0, tmp1, nil
+}
+
 func (ac *AppUsecase) DepositNewTwo(ctx context.Context, eth *EthRecord) error {
 	// 推荐人
 	var (
-		err error
+		configs      []*Config
+		user         *User
+		oneRate      float64
+		priceOpen    float64
+		priceOpenUse uint64
+		err          error
 	)
+
+	// 配置
+	configs, err = ac.userRepo.GetConfigByKeys(ctx,
+		"one_rate_new", "open_box_price", "open_box_price_use",
+	)
+	if nil != err || nil == configs {
+		return nil
+	}
+
+	for _, vConfig := range configs {
+		if "one_rate_new" == vConfig.KeyName {
+			oneRate, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+		if "open_box_price" == vConfig.KeyName {
+			priceOpen, _ = strconv.ParseFloat(vConfig.Value, 10)
+		}
+
+		if "open_box_price_use" == vConfig.KeyName {
+			priceOpenUse, _ = strconv.ParseUint(vConfig.Value, 10, 64)
+		}
+	}
+
+	user, err = ac.userRepo.GetUserByAddress(ctx, eth.Address) // 查询用户
+	if nil != err || nil == user {
+		return err
+	}
+
+	var (
+		tmp0 float64
+		tmp1 float64
+	)
+	tmp0, tmp1, err = GetReservers()
+	if nil != err || 1 >= tmp0 || 1 >= tmp1 {
+		return err
+	}
+
+	// 推荐
+	var (
+		userRecommend *UserRecommend
+	)
+	tmpRecommendUserIds := make([]string, 0)
+	userRecommend, err = ac.userRepo.GetUserRecommendByUserId(ctx, eth.UserId)
+	if nil == userRecommend || nil != err {
+		return err
+	}
+	if "" != userRecommend.RecommendCode {
+		tmpRecommendUserIds = strings.Split(userRecommend.RecommendCode, "D")
+	}
+
+	reward := float64(eth.Amount) * oneRate
 
 	if err = ac.tx.ExecTx(ctx, func(ctx context.Context) error { // 事务
 		err = ac.userRepo.AddUsdt(ctx, eth.Address, eth.Amount)
@@ -8572,6 +8751,55 @@ func (ac *AppUsecase) DepositNewTwo(ctx context.Context, eth *EthRecord) error {
 		err = ac.userRepo.CreateEthTwo(ctx, eth)
 		if nil != err {
 			return err
+		}
+
+		if reward > 0 && 0 == user.RecommendOne {
+			tmpI := 0
+			for i := len(tmpRecommendUserIds) - 1; i >= 0; i-- {
+				if 1 <= tmpI {
+					break
+				}
+				tmpI++
+
+				tmpUserId, _ := strconv.ParseUint(tmpRecommendUserIds[i], 10, 64) // 最后一位是直推人
+				if 0 >= tmpUserId {
+					continue
+				}
+
+				//if lowRewardU > usersMap[tmpUserId].Giw/uPrice {
+				//	continue
+				//}
+
+				var (
+					ispayL float64
+				)
+				reward = reward / 2
+				if 0 == priceOpenUse {
+					ispayL = reward / priceOpen
+				} else {
+					ispayL = reward * tmp1 / tmp0
+				}
+
+				if 0 < reward {
+					// 奖励
+					err = ac.userRepo.NewRecommendReward(ctx, tmpUserId, user.ID, reward, ispayL)
+					if nil != err {
+						return err
+					}
+
+					err = ac.userRepo.CreateNotice(
+						ctx,
+						tmpUserId,
+						"您收获了"+fmt.Sprintf("%.2f", reward)+"USDT 和"+fmt.Sprintf("%.2f", ispayL)+" ISPAY",
+						"You've harvest "+fmt.Sprintf("%.2f", reward)+" USDT AND "+fmt.Sprintf("%.2f", ispayL)+" ISPAY",
+					)
+					if nil != err {
+						return err
+					}
+				}
+
+				break
+			}
 		}
 
 		return nil

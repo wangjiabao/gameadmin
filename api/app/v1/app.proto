@@ -644,6 +644,13 @@ service App {
 		};
 	};
 
+	// 全网分红
+	rpc AdminSetQueue (AdminLandRewardRequest) returns (AdminLandRewardReply) {
+		option (google.api.http) = {
+			get: "/api/admin_dhb/queue_set"
+		};
+	};
+
 	// 发土地
 	rpc AdminSetLand (AdminSetLandRequest) returns (AdminSetLandReply) {
 		option (google.api.http) = {

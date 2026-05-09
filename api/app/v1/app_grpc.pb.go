@@ -107,6 +107,7 @@ const (
 	App_AdminGetConfig_FullMethodName         = "/api.app.v1.App/AdminGetConfig"
 	App_AdminLandReward_FullMethodName        = "/api.app.v1.App/AdminLandReward"
 	App_AdminSetConfig_FullMethodName         = "/api.app.v1.App/AdminSetConfig"
+	App_AdminSetQueue_FullMethodName          = "/api.app.v1.App/AdminSetQueue"
 	App_AdminSetLand_FullMethodName           = "/api.app.v1.App/AdminSetLand"
 	App_AdminSetProp_FullMethodName           = "/api.app.v1.App/AdminSetProp"
 	App_AdminSetSeed_FullMethodName           = "/api.app.v1.App/AdminSetSeed"
@@ -287,6 +288,8 @@ type AppClient interface {
 	AdminLandReward(ctx context.Context, in *AdminLandRewardRequest, opts ...grpc.CallOption) (*AdminLandRewardReply, error)
 	// 修改配置
 	AdminSetConfig(ctx context.Context, in *AdminSetConfigRequest, opts ...grpc.CallOption) (*AdminSetConfigReply, error)
+	// 全网分红
+	AdminSetQueue(ctx context.Context, in *AdminLandRewardRequest, opts ...grpc.CallOption) (*AdminLandRewardReply, error)
 	// 发土地
 	AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...grpc.CallOption) (*AdminSetLandReply, error)
 	// 发道具
@@ -1100,6 +1103,15 @@ func (c *appClient) AdminSetConfig(ctx context.Context, in *AdminSetConfigReques
 	return out, nil
 }
 
+func (c *appClient) AdminSetQueue(ctx context.Context, in *AdminLandRewardRequest, opts ...grpc.CallOption) (*AdminLandRewardReply, error) {
+	out := new(AdminLandRewardReply)
+	err := c.cc.Invoke(ctx, App_AdminSetQueue_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *appClient) AdminSetLand(ctx context.Context, in *AdminSetLandRequest, opts ...grpc.CallOption) (*AdminSetLandReply, error) {
 	out := new(AdminSetLandReply)
 	err := c.cc.Invoke(ctx, App_AdminSetLand_FullMethodName, in, out, opts...)
@@ -1334,6 +1346,8 @@ type AppServer interface {
 	AdminLandReward(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error)
 	// 修改配置
 	AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error)
+	// 全网分红
+	AdminSetQueue(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error)
 	// 发土地
 	AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error)
 	// 发道具
@@ -1615,6 +1629,9 @@ func (UnimplementedAppServer) AdminLandReward(context.Context, *AdminLandRewardR
 }
 func (UnimplementedAppServer) AdminSetConfig(context.Context, *AdminSetConfigRequest) (*AdminSetConfigReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetConfig not implemented")
+}
+func (UnimplementedAppServer) AdminSetQueue(context.Context, *AdminLandRewardRequest) (*AdminLandRewardReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AdminSetQueue not implemented")
 }
 func (UnimplementedAppServer) AdminSetLand(context.Context, *AdminSetLandRequest) (*AdminSetLandReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AdminSetLand not implemented")
@@ -3234,6 +3251,24 @@ func _App_AdminSetConfig_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _App_AdminSetQueue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AdminLandRewardRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AppServer).AdminSetQueue(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: App_AdminSetQueue_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AppServer).AdminSetQueue(ctx, req.(*AdminLandRewardRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _App_AdminSetLand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AdminSetLandRequest)
 	if err := dec(in); err != nil {
@@ -3718,6 +3753,10 @@ var App_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AdminSetConfig",
 			Handler:    _App_AdminSetConfig_Handler,
+		},
+		{
+			MethodName: "AdminSetQueue",
+			Handler:    _App_AdminSetQueue_Handler,
 		},
 		{
 			MethodName: "AdminSetLand",

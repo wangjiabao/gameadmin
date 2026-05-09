@@ -1895,6 +1895,28 @@ func (a *AppService) AdminMessagesList(ctx context.Context, req *pb.AdminMessage
 	return a.ac.AdminMessagesList(ctx, req)
 }
 
+func (a *AppService) AdminSetQueue(ctx context.Context, req *pb.AdminLandRewardRequest) (*pb.AdminLandRewardReply, error) {
+	end := time.Now().UTC().Add(55 * time.Second)
+
+	var err error
+	for i := 1; i <= 26; i++ {
+
+		now := time.Now().UTC()
+		//fmt.Println(now, end)
+		if end.Before(now) {
+			break
+		}
+
+		err = a.ac.AdminSetQueue(ctx, req)
+		if nil != err {
+			fmt.Println(err)
+		}
+		time.Sleep(2 * time.Second)
+	}
+
+	return nil, nil
+}
+
 func getUserLength(address string) (int64, error) {
 	url1 := "https://bsc-dataseed4.binance.org/"
 
