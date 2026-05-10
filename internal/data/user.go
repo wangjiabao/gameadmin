@@ -4805,7 +4805,7 @@ func (u *UserRepo) SetStakeGitByQueue(ctx context.Context, id, userId uint64, am
 	res := u.data.DB(ctx).Table("stake_git_record_ispay_queue").Where("id=?", id).
 		Updates(map[string]interface{}{
 			"stake_type": 2,
-			"updated_at": time.Now().Format("2006-01-02 15:04:05")})
+			"updated_at": BeijingNowStr()})
 	if res.Error != nil || 1 != res.RowsAffected {
 		return errors.New(500, "SetStakeGet", "用户信息修改失败")
 	}
@@ -4858,12 +4858,23 @@ func (u *UserRepo) GetStakeGitRecords(ctx context.Context) ([]*biz.StakeGitRecor
 	return res, nil
 }
 
-func (u *UserRepo) GetStakeGitRecordsByUserIDQueueToday(ctx context.Context) (float64, error) {
-	var totalStakeRate float64
+const timeLayout = "2006-01-02 15:04:05"
 
-	now := time.Now()
+func BeijingNow() time.Time {
+	loc, err := time.LoadLocation("Asia/Shanghai")
+	if err != nil {
+		loc = time.FixedZone("CST", 8*3600)
+	}
+	return time.Now().In(loc)
+}
 
-	// 北京时间今天00点
+func BeijingNowStr() string {
+	return BeijingNow().Format(timeLayout)
+}
+
+func BeijingTodayStartStr() string {
+	now := BeijingNow()
+
 	todayStart := time.Date(
 		now.Year(),
 		now.Month(),
@@ -4871,6 +4882,14 @@ func (u *UserRepo) GetStakeGitRecordsByUserIDQueueToday(ctx context.Context) (fl
 		0, 0, 0, 0,
 		now.Location(),
 	)
+
+	return todayStart.Format(timeLayout)
+}
+
+func (u *UserRepo) GetStakeGitRecordsByUserIDQueueToday(ctx context.Context) (float64, error) {
+	var totalStakeRate float64
+
+	todayStart := BeijingTodayStartStr()
 
 	if err := u.data.DB(ctx).
 		Table("stake_git_record_ispay_queue").
