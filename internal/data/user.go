@@ -65,6 +65,7 @@ type User struct {
 	Three            float64   `gorm:"type:decimal(65,20);not null"`
 	CanPlaySix       uint64    `gorm:"type:int;"`
 	CanSellProp      uint64    `gorm:"type:int;"`
+	RecommendOne     uint64    `gorm:"type:int;"`
 }
 
 type UserRecommend struct {
@@ -1089,6 +1090,7 @@ func (u *UserRepo) GetUserByAddress(ctx context.Context, address string) (*biz.U
 		VipAdmin:         user.VipAdmin,
 		CanPlaySix:       user.CanPlaySix,
 		CanSellProp:      user.CanSellProp,
+		RecommendOne:     user.RecommendOne,
 	}, nil
 }
 
